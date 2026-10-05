@@ -1,75 +1,61 @@
-# React + TypeScript + Vite
+# App Factory
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+App Factory is Antonio's private development platform for managing and automating Flutter mobile application development.
 
-Currently, two official plugins are available:
+## Main objective
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Reduce the repetitive work involved in creating, configuring, developing, testing and publishing Flutter applications.
 
-## React Compiler
+## Core areas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Project management
+2. Flutter project generation
+3. Firebase management
+4. AdMob management
+5. Android / Google Play management
+6. iOS / App Store management
+7. Development checklists
+8. Knowledge base
+9. Asset generation
+10. Release management
+11. Local development automation
+12. Future store publishing automation
 
-## Expanding the ESLint configuration
+## Architecture
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+React + TypeScript + Vite
+Firebase Authentication
+Cloud Firestore
+CSS Modules
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Future:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+React
+↓
+Local Node.js API
+↓
+Operating System
+↓
+Flutter / Dart / Git / Firebase CLI / Fastlane
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Important
 
-```
+This application is private and runs locally.
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+The data is synchronized through Firebase so it can be accessed from multiple computers.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Only the authorized user should have access.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Development philosophy
 
-```
+Keep the application simple, maintainable and understandable.
+
+Do not over-engineer.
+
+Do not introduce dependencies without justification.
+
+Do not use Tailwind CSS.
+
+Do not expose secrets.
+
+Do not execute operating-system commands directly from React.
