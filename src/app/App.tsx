@@ -9,6 +9,12 @@ import {
 import { useAuth } from '@/hooks/useAuth.ts'
 import { GlobalError, GlobalLoading } from '@/layouts/AppState.tsx'
 import { DashboardLayout } from '@/layouts/DashboardLayout.tsx'
+import { ApplicationDetailPage } from '@/pages/ApplicationDetailPage.tsx'
+import {
+  ApplicationCreatePage,
+  ApplicationEditPage,
+} from '@/pages/ApplicationFormPage.tsx'
+import { ApplicationsPage } from '@/pages/ApplicationsPage.tsx'
 import { DashboardPage } from '@/pages/DashboardPage.tsx'
 import { PlaceholderPage } from '@/pages/PlaceholderPage.tsx'
 
@@ -41,14 +47,15 @@ function AppRoutes(): ReactElement {
       <Route path="/access-denied" element={<AccessDeniedRoute />} />
       <Route element={<ProtectedShell />}>
         <Route index element={<DashboardPage />} />
+        <Route path="applications" element={<ApplicationsPage />} />
+        <Route path="applications/new" element={<ApplicationCreatePage />} />
         <Route
-          path="applications"
-          element={
-            <PlaceholderPage
-              title="No applications yet"
-              description="This section will list and manage your Flutter projects."
-            />
-          }
+          path="applications/:applicationId/edit"
+          element={<ApplicationEditPage />}
+        />
+        <Route
+          path="applications/:applicationId"
+          element={<ApplicationDetailPage />}
         />
         <Route
           path="knowledge"

@@ -8,11 +8,8 @@ import styles from './DashboardLayout.module.css'
 export function DashboardLayout(): ReactElement {
   const { pathname } = useLocation()
   const current = findNavItem(pathname)
-  const title = current?.label ?? 'App Factory'
-  const breadcrumbs: Breadcrumb[] =
-    current && current.to !== '/'
-      ? [{ label: 'Dashboard', to: '/' }, { label: current.label }]
-      : []
+  const title = pageTitle(pathname, current?.label)
+  const breadcrumbs = pageBreadcrumbs(pathname, current?.label)
 
   useEffect(() => {
     document.title = `${title} · App Factory`
@@ -29,4 +26,59 @@ export function DashboardLayout(): ReactElement {
       </div>
     </div>
   )
+}
+
+function pageTitle(pathname: string, section: string | undefined): string {
+  if (pathname === '/applications/new') {
+    return 'New application'
+  }
+
+  if (/^\/applications\/[^/]+\/edit$/.test(pathname)) {
+    return 'Edit application'
+  }
+
+  if (/^\/applications\/[^/]+$/.test(pathname)) {
+    return 'Application'
+  }
+
+  return section ?? 'App Factory'
+}
+
+function pageBreadcrumbs(
+  pathname: string,
+  section: string | undefined,
+): Breadcrumb[] {
+  if (!section || section === 'Dashboard') {
+    return []
+  }
+
+  const crumbs: Breadcrumb[] = [
+    { label: 'Dashboard', to: '/' },
+    { label: section, to: sectionPath(section) },
+  ]
+
+  if (pathname === '/applications/new') {
+    crumbs.push({ label: 'New application' })
+  } else if (/^\/applications\/[^/]+\/edit$/.test(pathname)) {
+    crumbs.push({ label: 'Edit' })
+  } else if (/^\/applications\/[^/]+$/.test(pathname)) {
+    crumbs.push({ label: 'Details' })
+  } else {
+    crumbs[1] = { label: section }
+  }
+
+  return crumbs
+}
+
+function sectionPath(section: string): string {
+  const paths: Record<string, string> = {
+    Applications: '/applications',
+    Knowledge: '/knowledge',
+    Checklists: '/checklists',
+    Assets: '/assets',
+    Releases: '/releases',
+    Settings: '/settings',
+  }
+
+  return paths[section] ?? '/'
 }

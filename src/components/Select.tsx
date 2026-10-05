@@ -1,4 +1,5 @@
 import { useId, type ReactElement, type SelectHTMLAttributes } from 'react'
+import { joinClasses } from '@/utils/joinClasses.ts'
 import styles from './Select.module.css'
 
 interface SelectOption {
@@ -15,13 +16,14 @@ export function Select({
   label,
   options,
   id,
+  className,
   ...props
 }: SelectProps): ReactElement {
   const generatedId = useId()
   const selectId = id ?? generatedId
 
   return (
-    <div className={styles.field}>
+    <div className={joinClasses(styles.field, className)}>
       <label className={styles.label} htmlFor={selectId}>
         {label}
       </label>

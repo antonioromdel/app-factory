@@ -1,8 +1,18 @@
+import { FirebaseError } from 'firebase/app'
 import {
+  addDoc,
+  collection,
+  deleteField,
+  doc,
+  getDoc,
+  getDocs,
   serverTimestamp,
   Timestamp,
+  updateDoc,
   type DocumentData,
+  type FieldValue,
 } from 'firebase/firestore'
+import { getFirebaseServices } from '@/lib/firebase.ts'
 import {
   applicationStatuses,
   firebaseServices,
@@ -128,6 +138,162 @@ export function newApplicationDocument(input: ApplicationInput): DocumentData {
   writeGroup(document, 'notes', readNotes(input.notes))
 
   return document
+}
+
+export function applicationUpdateDocument(
+  input: ApplicationInput,
+): DocumentData {
+  const name = readString(input.name)
+  if (!name) {
+    throw new ApplicationDataError('Application name is required.')
+  }
+
+  return {
+    name,
+    updatedAt: serverTimestamp(),
+    description: storedString(input.description),
+    status:
+      input.status && isApplicationStatus(input.status)
+        ? input.status
+        : deleteField(),
+    category: storedString(input.category),
+    tags: readStringList(input.tags) ?? deleteField(),
+    flutter: storedGroup(readFlutter(input.flutter)),
+    repository: storedGroup(readRepository(input.repository)),
+    firebase: storedGroup(readFirebase(input.firebase)),
+    admob: storedGroup(readAdMob(input.admob)),
+    googlePlay: storedGroup(readGooglePlay(input.googlePlay)),
+    appStore: storedGroup(readAppStore(input.appStore)),
+    monetization: storedGroup(readMonetization(input.monetization)),
+    notes: storedGroup(readNotes(input.notes)),
+  }
+}
+
+export async function listApplications(): Promise<Application[]> {
+  try {
+    const { db } = getFirebaseServices()
+    const snapshot = await getDocs(collection(db, applicationsCollection))
+    return snapshot.docs.map((item) =>
+      applicationFromFirestore(item.id, item.data()),
+    )
+  } catch (error: unknown) {
+    throw toApplicationError(error, 'Could not load applications.')
+  }
+}
+
+export async function getApplication(id: string): Promise<Application | null> {
+  try {
+    const { db } = getFirebaseServices()
+    const snapshot = await getDoc(doc(db, applicationsCollection, id))
+    if (!snapshot.exists()) {
+      return null
+    }
+
+    return applicationFromFirestore(snapshot.id, snapshot.data())
+  } catch (error: unknown) {
+    throw toApplicationError(error, 'Could not load the application.')
+  }
+}
+
+export async function createApplication(
+  input: ApplicationInput,
+): Promise<string> {
+  try {
+    const { db } = getFirebaseServices()
+    const created = await addDoc(
+      collection(db, applicationsCollection),
+      newApplicationDocument(input),
+    )
+    return created.id
+  } catch (error: unknown) {
+    throw toApplicationError(error, 'Could not create the application.')
+  }
+}
+
+export async function updateApplication(
+  id: string,
+  input: ApplicationInput,
+): Promise<void> {
+  try {
+    const { db } = getFirebaseServices()
+    await updateDoc(
+      doc(db, applicationsCollection, id),
+      applicationUpdateDocument(input),
+    )
+  } catch (error: unknown) {
+    throw toApplicationError(error, 'Could not save the application.')
+  }
+}
+
+export async function archiveApplication(id: string): Promise<void> {
+  try {
+    const { db } = getFirebaseServices()
+    await updateDoc(doc(db, applicationsCollection, id), {
+      status: 'ARCHIVED',
+      updatedAt: serverTimestamp(),
+    })
+  } catch (error: unknown) {
+    throw toApplicationError(error, 'Could not archive the application.')
+  }
+}
+
+export async function duplicateApplication(
+  source: Application,
+): Promise<string> {
+  const copy = applicationToInput(source)
+  copy.name = `Copy of ${source.name}`
+  return createApplication(copy)
+}
+
+function applicationToInput(source: Application): ApplicationInput {
+  const input: ApplicationInput = { name: source.name }
+  if (source.description) input.description = source.description
+  if (source.status && source.status !== 'ARCHIVED')
+    input.status = source.status
+  if (source.category) input.category = source.category
+  if (source.tags) input.tags = source.tags
+  if (source.flutter) input.flutter = source.flutter
+  if (source.repository) input.repository = source.repository
+  if (source.firebase) input.firebase = source.firebase
+  if (source.admob) input.admob = source.admob
+  if (source.googlePlay) input.googlePlay = source.googlePlay
+  if (source.appStore) input.appStore = source.appStore
+  if (source.monetization) input.monetization = source.monetization
+  if (source.notes) input.notes = source.notes
+  return input
+}
+
+function storedString(value: string | undefined): string | FieldValue {
+  return readString(value) ?? deleteField()
+}
+
+function storedGroup(value: object | undefined): object | FieldValue {
+  return value && hasFields(value) ? value : deleteField()
+}
+
+function toApplicationError(
+  error: unknown,
+  fallback: string,
+): ApplicationDataError {
+  if (error instanceof ApplicationDataError) {
+    return error
+  }
+
+  if (error instanceof FirebaseError) {
+    console.error(`Application request failed: ${error.code}`)
+
+    if (error.code === 'permission-denied') {
+      return new ApplicationDataError('You do not have access to applications.')
+    }
+
+    if (error.code === 'unavailable' || error.code === 'deadline-exceeded') {
+      return new ApplicationDataError('Could not reach Firebase.')
+    }
+  } else {
+    console.error('Application request failed.')
+  }
+
+  return new ApplicationDataError(fallback)
 }
 
 function readFlutter(value: unknown): FlutterInfo | undefined {
