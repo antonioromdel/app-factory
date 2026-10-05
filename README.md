@@ -46,6 +46,26 @@ The data is synchronized through Firebase so it can be accessed from multiple co
 
 Only the authorized user should have access.
 
+## Development
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Scripts:
+
+- `pnpm dev` — start the local app
+- `pnpm build` — typecheck and production build
+- `pnpm lint` — ESLint
+- `pnpm format` — Prettier
+
+## Firebase
+
+The web app configuration lives in `.env`, copied from `.env.example`. That file stays out of Git.
+
+Firestore rules are in `firestore.rules`. Only the authorized account can read or write data. Publish that file to Firebase for the restriction to take effect in the project.
+
 ## Development philosophy
 
 Keep the application simple, maintainable and understandable.

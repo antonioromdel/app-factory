@@ -1,0 +1,50 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  min-height: 84px;
+  padding: var(--space-4) var(--space-8);
+  background: var(--color-bg);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 180px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.search {
+  flex: 1;
+  max-width: 440px;
+  margin-left: auto;
+}
+
+.searchField {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    flex-wrap: wrap;
+    padding: var(--space-4) var(--space-6);
+  }
+
+  .search {
+    order: 3;
+    max-width: none;
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}

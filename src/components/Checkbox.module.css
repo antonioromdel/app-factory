@@ -1,0 +1,19 @@
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+
+.input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-text);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
