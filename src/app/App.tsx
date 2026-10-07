@@ -17,6 +17,7 @@ import {
   ApplicationEditPage,
 } from '@/pages/ApplicationFormPage.tsx'
 import { ApplicationsPage } from '@/pages/ApplicationsPage.tsx'
+import { ChecklistsPage } from '@/pages/ChecklistsPage.tsx'
 import { DashboardPage } from '@/pages/DashboardPage.tsx'
 import { PlaceholderPage } from '@/pages/PlaceholderPage.tsx'
 
@@ -77,15 +78,7 @@ function AppRoutes(): ReactElement {
             />
           }
         />
-        <Route
-          path="checklists"
-          element={
-            <PlaceholderPage
-              title={messages.placeholders.checklistsTitle}
-              description={messages.placeholders.checklistsDescription}
-            />
-          }
-        />
+        <Route path="checklists" element={<ChecklistsPage />} />
         <Route
           path="assets"
           element={

@@ -15,6 +15,7 @@ import {
   versionLabel,
 } from '@/features/applications/applicationDisplay.ts'
 import { ApplicationStatusSelect } from '@/features/applications/ApplicationStatusSelect.tsx'
+import { ApplicationChecklist } from '@/features/checklists/ApplicationChecklist.tsx'
 import { useApplication } from '@/hooks/useApplication.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
@@ -187,12 +188,7 @@ export function ApplicationDetailPage(): ReactElement {
           {
             id: 'checklist',
             label: messages.fields.checklist,
-            content: (
-              <EmptyState
-                title={messages.detail.checklistTitle}
-                description={messages.detail.checklistDescription}
-              />
-            ),
+            content: <ApplicationChecklist applicationId={application.id} />,
           },
           {
             id: 'notes',
