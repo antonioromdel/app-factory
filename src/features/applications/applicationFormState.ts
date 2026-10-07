@@ -29,11 +29,13 @@ export interface ApplicationFormState {
   androidAppId: string
   iosAppId: string
   services: FirebaseService[]
+  admobConsoleUrl: string
   admobAppId: string
   bannerId: string
   interstitialId: string
   rewardedId: string
   nativeId: string
+  revenueCatUrl: string
   admob: boolean
   inAppPurchases: boolean
   subscriptions: boolean
@@ -75,11 +77,13 @@ export function emptyApplicationForm(): ApplicationFormState {
     androidAppId: '',
     iosAppId: '',
     services: [],
+    admobConsoleUrl: '',
     admobAppId: '',
     bannerId: '',
     interstitialId: '',
     rewardedId: '',
     nativeId: '',
+    revenueCatUrl: '',
     admob: false,
     inAppPurchases: false,
     subscriptions: false,
@@ -124,11 +128,13 @@ export function formFromApplication(
   form.androidAppId = application.firebase?.androidAppId ?? ''
   form.iosAppId = application.firebase?.iosAppId ?? ''
   form.services = application.firebase?.enabledServices ?? []
+  form.admobConsoleUrl = application.admob?.consoleUrl ?? ''
   form.admobAppId = application.admob?.appId ?? ''
   form.bannerId = application.admob?.bannerId ?? ''
   form.interstitialId = application.admob?.interstitialId ?? ''
   form.rewardedId = application.admob?.rewardedId ?? ''
   form.nativeId = application.admob?.nativeId ?? ''
+  form.revenueCatUrl = application.revenueCat?.dashboardUrl ?? ''
   form.admob = application.monetization?.admob === true
   form.inAppPurchases = application.monetization?.inAppPurchases === true
   form.subscriptions = application.monetization?.subscriptions === true
@@ -205,6 +211,7 @@ export function toApplicationInput(
   }
 
   const admob = strings({
+    consoleUrl: form.admobConsoleUrl,
     appId: form.admobAppId,
     bannerId: form.bannerId,
     interstitialId: form.interstitialId,
@@ -213,6 +220,13 @@ export function toApplicationInput(
   })
   if (admob) {
     input.admob = admob
+  }
+
+  const revenueCat = strings({
+    dashboardUrl: form.revenueCatUrl,
+  })
+  if (revenueCat) {
+    input.revenueCat = revenueCat
   }
 
   const googlePlay = strings({

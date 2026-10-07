@@ -1,18 +1,27 @@
-import { useState, type FormEvent, type ReactElement } from 'react'
+import { useEffect, useState, type FormEvent, type ReactElement } from 'react'
 import { Button } from '@/components/Button.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
 import { Input } from '@/components/Input.tsx'
 import { useAuth } from '@/hooks/useAuth.ts'
+import { useLanguage } from '@/hooks/useLanguage.ts'
+import type { Messages } from '@/i18n/en.ts'
 import { AuthLayout } from '@/layouts/AuthLayout.tsx'
-import { AuthError } from '@/services/authService.ts'
+import { AuthError, type AuthErrorCode } from '@/services/authService.ts'
 import styles from './LoginPage.module.css'
+
+type LoginError = AuthErrorCode | 'enter-email' | 'enter-password'
 
 export function LoginPage(): ReactElement {
   const { signIn } = useAuth()
+  const { messages } = useLanguage()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<LoginError | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    document.title = messages.shell.documentTitle(messages.auth.signInTitle)
+  }, [messages])
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -23,12 +32,12 @@ export function LoginPage(): ReactElement {
     const trimmedEmail = email.trim()
 
     if (!trimmedEmail) {
-      setError('Enter your email.')
+      setError('enter-email')
       return
     }
 
     if (!password) {
-      setError('Enter your password.')
+      setError('enter-password')
       return
     }
 
@@ -37,9 +46,7 @@ export function LoginPage(): ReactElement {
     try {
       await signIn(trimmedEmail, password)
     } catch (caught: unknown) {
-      setError(
-        caught instanceof AuthError ? caught.message : 'Could not sign in.',
-      )
+      setError(caught instanceof AuthError ? caught.code : 'sign-in')
       setIsSubmitting(false)
     }
   }
@@ -47,8 +54,8 @@ export function LoginPage(): ReactElement {
   return (
     <AuthLayout>
       <header className={styles.header}>
-        <h1 className={styles.title}>Sign in</h1>
-        <p className={styles.subtitle}>Use your App Factory account.</p>
+        <h1 className={styles.title}>{messages.auth.signInTitle}</h1>
+        <p className={styles.subtitle}>{messages.auth.signInSubtitle}</p>
       </header>
       <form
         className={styles.form}
@@ -56,7 +63,7 @@ export function LoginPage(): ReactElement {
       >
         <Input
           id="email"
-          label="Email"
+          label={messages.auth.email}
           type="email"
           name="email"
           autoComplete="username"
@@ -69,7 +76,7 @@ export function LoginPage(): ReactElement {
         />
         <Input
           id="password"
-          label="Password"
+          label={messages.auth.password}
           type="password"
           name="password"
           autoComplete="current-password"
@@ -80,11 +87,25 @@ export function LoginPage(): ReactElement {
             setError(null)
           }}
         />
-        {error ? <ErrorState message={error} /> : null}
+        {error ? (
+          <ErrorState message={loginErrorText(error, messages)} />
+        ) : null}
         <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
-          {isSubmitting ? 'Signing in…' : 'Sign in'}
+          {isSubmitting ? messages.auth.signingIn : messages.auth.signIn}
         </Button>
       </form>
     </AuthLayout>
   )
+}
+
+function loginErrorText(error: LoginError, messages: Messages): string {
+  if (error === 'enter-email') {
+    return messages.auth.enterEmail
+  }
+
+  if (error === 'enter-password') {
+    return messages.auth.enterPassword
+  }
+
+  return messages.auth.errors[error]
 }

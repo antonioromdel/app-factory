@@ -4,32 +4,23 @@ import {
   type ApplicationStatus,
 } from '@/types/application.ts'
 
-const statusLabels: Record<ApplicationStatus, string> = {
-  IDEA: 'Idea',
-  PLANNING: 'Planning',
-  SETUP: 'Setup',
-  DEVELOPMENT: 'Development',
-  TESTING: 'Testing',
-  BETA: 'Beta',
-  RELEASE: 'Release',
-  PUBLISHED: 'Published',
-  MAINTENANCE: 'Maintenance',
-  ARCHIVED: 'Archived',
-}
-
-export function statusLabel(status: ApplicationStatus): string {
-  return statusLabels[status]
-}
-
 export function statusTone(
   status: ApplicationStatus,
-): 'neutral' | 'success' | 'warning' {
-  if (status === 'PUBLISHED') {
+): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
+  if (status === 'PUBLISHED' || status === 'MAINTENANCE') {
     return 'success'
   }
 
   if (status === 'RELEASE' || status === 'BETA') {
     return 'warning'
+  }
+
+  if (status === 'SETUP' || status === 'DEVELOPMENT' || status === 'TESTING') {
+    return 'info'
+  }
+
+  if (status === 'ARCHIVED') {
+    return 'danger'
   }
 
   return 'neutral'
@@ -55,8 +46,8 @@ export function versionLabel(application: Application): string {
   )
 }
 
-export function updatedLabel(application: Application): string {
-  return application.updatedAt.toDate().toLocaleDateString(undefined, {
+export function updatedLabel(application: Application, locale: string): string {
+  return application.updatedAt.toDate().toLocaleDateString(locale, {
     dateStyle: 'medium',
   })
 }

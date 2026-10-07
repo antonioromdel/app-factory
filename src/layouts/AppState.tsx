@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react'
+import { useLanguage } from '@/hooks/useLanguage.ts'
 import { AuthStatus } from './AuthLayout.tsx'
 
 export function GlobalLoading(): ReactElement {
-  return <AuthStatus message="Checking session…" tone="status" />
+  const { messages } = useLanguage()
+  return <AuthStatus message={messages.auth.checkingSession} tone="status" />
 }
 
 export function GlobalError({ message }: { message: string }): ReactElement {

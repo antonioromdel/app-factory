@@ -1,12 +1,14 @@
 import type { ReactElement } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider } from '@/app/AuthProvider.tsx'
+import { LanguageProvider } from '@/app/LanguageProvider.tsx'
 import {
   AccessDeniedRoute,
   LoginRoute,
   RequireAuth,
 } from '@/app/RequireAuth.tsx'
 import { useAuth } from '@/hooks/useAuth.ts'
+import { useLanguage } from '@/hooks/useLanguage.ts'
 import { GlobalError, GlobalLoading } from '@/layouts/AppState.tsx'
 import { DashboardLayout } from '@/layouts/DashboardLayout.tsx'
 import { ApplicationDetailPage } from '@/pages/ApplicationDetailPage.tsx'
@@ -20,16 +22,19 @@ import { PlaceholderPage } from '@/pages/PlaceholderPage.tsx'
 
 export function App(): ReactElement {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <LanguageProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </LanguageProvider>
   )
 }
 
 function AppRoutes(): ReactElement {
   const { status, configError } = useAuth()
+  const { messages } = useLanguage()
 
   if (status === 'loading') {
     return <GlobalLoading />
@@ -37,7 +42,13 @@ function AppRoutes(): ReactElement {
 
   if (status === 'error') {
     return (
-      <GlobalError message={configError ?? 'Could not start authentication.'} />
+      <GlobalError
+        message={
+          configError === 'missing-config'
+            ? messages.auth.errors['missing-config']
+            : messages.auth.startFailed
+        }
+      />
     )
   }
 
@@ -61,8 +72,8 @@ function AppRoutes(): ReactElement {
           path="knowledge"
           element={
             <PlaceholderPage
-              title="No articles yet"
-              description="This section will hold your development notes."
+              title={messages.placeholders.knowledgeTitle}
+              description={messages.placeholders.knowledgeDescription}
             />
           }
         />
@@ -70,8 +81,8 @@ function AppRoutes(): ReactElement {
           path="checklists"
           element={
             <PlaceholderPage
-              title="No checklists yet"
-              description="This section will track development and publishing tasks."
+              title={messages.placeholders.checklistsTitle}
+              description={messages.placeholders.checklistsDescription}
             />
           }
         />
@@ -79,8 +90,8 @@ function AppRoutes(): ReactElement {
           path="assets"
           element={
             <PlaceholderPage
-              title="No assets yet"
-              description="This section will keep icons, screenshots and store images."
+              title={messages.placeholders.assetsTitle}
+              description={messages.placeholders.assetsDescription}
             />
           }
         />
@@ -88,8 +99,8 @@ function AppRoutes(): ReactElement {
           path="releases"
           element={
             <PlaceholderPage
-              title="No releases yet"
-              description="This section will track versions and builds."
+              title={messages.placeholders.releasesTitle}
+              description={messages.placeholders.releasesDescription}
             />
           }
         />
@@ -97,8 +108,8 @@ function AppRoutes(): ReactElement {
           path="settings"
           element={
             <PlaceholderPage
-              title="No settings yet"
-              description="Settings will live here."
+              title={messages.placeholders.settingsTitle}
+              description={messages.placeholders.settingsDescription}
             />
           }
         />

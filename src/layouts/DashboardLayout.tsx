@@ -1,19 +1,22 @@
 import { useEffect, type ReactElement } from 'react'
 import { Outlet, useLocation } from 'react-router'
+import { useLanguage } from '@/hooks/useLanguage.ts'
+import type { Messages } from '@/i18n/en.ts'
 import { Sidebar } from './Sidebar.tsx'
 import { Topbar } from './Topbar.tsx'
-import { findNavItem, type Breadcrumb } from './navigation.ts'
+import { findNavItem, type Breadcrumb, type NavId } from './navigation.ts'
 import styles from './DashboardLayout.module.css'
 
 export function DashboardLayout(): ReactElement {
   const { pathname } = useLocation()
+  const { messages } = useLanguage()
   const current = findNavItem(pathname)
-  const title = pageTitle(pathname, current?.label)
-  const breadcrumbs = pageBreadcrumbs(pathname, current?.label)
+  const title = pageTitle(pathname, current?.id, messages)
+  const breadcrumbs = pageBreadcrumbs(pathname, current?.id, messages)
 
   useEffect(() => {
-    document.title = `${title} · App Factory`
-  }, [title])
+    document.title = messages.shell.documentTitle(title)
+  }, [messages, title])
 
   return (
     <div className={styles.shell}>
@@ -28,57 +31,63 @@ export function DashboardLayout(): ReactElement {
   )
 }
 
-function pageTitle(pathname: string, section: string | undefined): string {
+function pageTitle(
+  pathname: string,
+  section: NavId | undefined,
+  messages: Messages,
+): string {
   if (pathname === '/applications/new') {
-    return 'New application'
+    return messages.shell.newApplication
   }
 
   if (/^\/applications\/[^/]+\/edit$/.test(pathname)) {
-    return 'Edit application'
+    return messages.shell.editApplication
   }
 
   if (/^\/applications\/[^/]+$/.test(pathname)) {
-    return 'Application'
+    return messages.shell.application
   }
 
-  return section ?? 'App Factory'
+  return section ? messages.nav[section] : messages.brand
 }
 
 function pageBreadcrumbs(
   pathname: string,
-  section: string | undefined,
+  section: NavId | undefined,
+  messages: Messages,
 ): Breadcrumb[] {
-  if (!section || section === 'Dashboard') {
+  if (!section || section === 'dashboard') {
     return []
   }
 
   const crumbs: Breadcrumb[] = [
-    { label: 'Dashboard', to: '/' },
-    { label: section, to: sectionPath(section) },
+    { label: messages.nav.dashboard, to: '/' },
+    { label: messages.nav[section], to: sectionPath(section) },
   ]
 
   if (pathname === '/applications/new') {
-    crumbs.push({ label: 'New application' })
+    crumbs.push({ label: messages.shell.newApplication })
   } else if (/^\/applications\/[^/]+\/edit$/.test(pathname)) {
-    crumbs.push({ label: 'Edit' })
+    crumbs.push({ label: messages.shell.edit })
   } else if (/^\/applications\/[^/]+$/.test(pathname)) {
-    crumbs.push({ label: 'Details' })
+    crumbs.push({ label: messages.shell.details })
   } else {
-    crumbs[1] = { label: section }
+    crumbs[1] = { label: messages.nav[section] }
   }
 
   return crumbs
 }
 
-function sectionPath(section: string): string {
-  const paths: Record<string, string> = {
-    Applications: '/applications',
-    Knowledge: '/knowledge',
-    Checklists: '/checklists',
-    Assets: '/assets',
-    Releases: '/releases',
-    Settings: '/settings',
+function sectionPath(section: NavId): string {
+  const paths: Record<NavId, string> = {
+    dashboard: '/',
+    applications: '/applications',
+    knowledge: '/knowledge',
+    checklists: '/checklists',
+    assets: '/assets',
+    releases: '/releases',
+    settings: '/settings',
   }
 
-  return paths[section] ?? '/'
+  return paths[section]
 }

@@ -56,11 +56,16 @@ export interface FirebaseProjectInfo {
 }
 
 export interface AdMobInfo {
+  consoleUrl?: string
   appId?: string
   bannerId?: string
   interstitialId?: string
   rewardedId?: string
   nativeId?: string
+}
+
+export interface RevenueCatInfo {
+  dashboardUrl?: string
 }
 
 export interface GooglePlayInfo {
@@ -103,6 +108,7 @@ export interface Application {
   repository?: RepositoryInfo
   firebase?: FirebaseProjectInfo
   admob?: AdMobInfo
+  revenueCat?: RevenueCatInfo
   googlePlay?: GooglePlayInfo
   appStore?: AppStoreInfo
   monetization?: MonetizationInfo
@@ -119,6 +125,7 @@ export interface ApplicationInput {
   repository?: RepositoryInfo
   firebase?: FirebaseProjectInfo
   admob?: AdMobInfo
+  revenueCat?: RevenueCatInfo
   googlePlay?: GooglePlayInfo
   appStore?: AppStoreInfo
   monetization?: MonetizationInfo

@@ -10,15 +10,15 @@ import { LoadingState } from '@/components/LoadingState.tsx'
 import { Select } from '@/components/Select.tsx'
 import {
   platformLabel,
-  statusLabel,
   statusRank,
   statusTone,
   updatedLabel,
   versionLabel,
 } from '@/features/applications/applicationDisplay.ts'
 import { useApplications } from '@/hooks/useApplications.ts'
+import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
-  ApplicationDataError,
+  applicationErrorCode,
   archiveApplication,
   duplicateApplication,
 } from '@/services/applicationService.ts'
@@ -33,7 +33,8 @@ type StatusFilter = 'active' | 'all' | ApplicationStatus
 type ApplicationSort = 'updated' | 'name' | 'status'
 
 export function ApplicationsPage(): ReactElement {
-  const { status, applications, errorMessage, reload } = useApplications()
+  const { language, messages } = useLanguage()
+  const { status, applications, errorCode, reload } = useApplications()
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [sort, setSort] = useState<ApplicationSort>('updated')
@@ -42,13 +43,13 @@ export function ApplicationsPage(): ReactElement {
   const [busyId, setBusyId] = useState<string | null>(null)
 
   if (status === 'loading') {
-    return <LoadingState message="Loading applications…" />
+    return <LoadingState message={messages.common.loadingApplications} />
   }
 
   if (status === 'error') {
     return (
       <ErrorState
-        message={errorMessage ?? 'Could not load applications.'}
+        message={messages.applicationErrors[errorCode ?? 'load-list']}
         onRetry={reload}
       />
     )
@@ -63,13 +64,17 @@ export function ApplicationsPage(): ReactElement {
     setBusyId(application.id)
 
     try {
-      await duplicateApplication(application)
+      await duplicateApplication(
+        application,
+        messages.applications.copyOf(application.name),
+      )
       reload()
     } catch (error: unknown) {
+      const code = applicationErrorCode(error, 'create')
       setActionError(
-        error instanceof ApplicationDataError
-          ? error.message
-          : 'Could not duplicate the application.',
+        code === 'create'
+          ? messages.applications.duplicateFailed
+          : messages.applicationErrors[code],
       )
     } finally {
       setBusyId(null)
@@ -90,9 +95,7 @@ export function ApplicationsPage(): ReactElement {
       reload()
     } catch (error: unknown) {
       setActionError(
-        error instanceof ApplicationDataError
-          ? error.message
-          : 'Could not archive the application.',
+        messages.applicationErrors[applicationErrorCode(error, 'archive')],
       )
     } finally {
       setBusyId(null)
@@ -104,23 +107,23 @@ export function ApplicationsPage(): ReactElement {
       <div className={styles.toolbar}>
         <Input
           className={styles.search}
-          label="Search"
+          label={messages.applications.search}
           hideLabel
           type="search"
-          placeholder="Search applications"
+          placeholder={messages.applications.search}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
         <Select
           className={styles.filter}
-          label="Status"
+          label={messages.applications.status}
           value={statusFilter}
           options={[
-            { value: 'active', label: 'Active' },
-            { value: 'all', label: 'All' },
+            { value: 'active', label: messages.applications.active },
+            { value: 'all', label: messages.applications.all },
             ...applicationStatuses.map((item) => ({
               value: item,
-              label: statusLabel(item),
+              label: messages.status[item],
             })),
           ]}
           onChange={(event) => {
@@ -129,19 +132,19 @@ export function ApplicationsPage(): ReactElement {
         />
         <Select
           className={styles.filter}
-          label="Sort"
+          label={messages.applications.sort}
           value={sort}
           options={[
-            { value: 'updated', label: 'Last update' },
-            { value: 'name', label: 'Name' },
-            { value: 'status', label: 'Status' },
+            { value: 'updated', label: messages.applications.sortUpdated },
+            { value: 'name', label: messages.applications.sortName },
+            { value: 'status', label: messages.applications.sortStatus },
           ]}
           onChange={(event) => {
             setSort(event.target.value as ApplicationSort)
           }}
         />
         <Link className={styles.create} to="/applications/new">
-          New application
+          {messages.applications.newApplication}
         </Link>
       </div>
 
@@ -149,30 +152,30 @@ export function ApplicationsPage(): ReactElement {
 
       {applications.length === 0 ? (
         <EmptyState
-          title="No applications yet"
-          description="Create your first application. Only the name is required."
+          title={messages.applications.emptyTitle}
+          description={messages.applications.emptyDescription}
           action={
             <Link className={styles.create} to="/applications/new">
-              Create application
+              {messages.applications.create}
             </Link>
           }
         />
       ) : visible.length === 0 ? (
         <EmptyState
-          title="No matching applications"
-          description="Try another search or status."
+          title={messages.applications.noMatchesTitle}
+          description={messages.applications.noMatchesDescription}
         />
       ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Application</th>
-                <th>Status</th>
-                <th>Version</th>
-                <th>Platform</th>
-                <th>Updated</th>
-                <th>Actions</th>
+                <th>{messages.applications.columnApplication}</th>
+                <th>{messages.applications.columnStatus}</th>
+                <th>{messages.applications.columnVersion}</th>
+                <th>{messages.applications.columnPlatform}</th>
+                <th>{messages.applications.columnUpdated}</th>
+                <th>{messages.applications.columnActions}</th>
               </tr>
             </thead>
             <tbody>
@@ -198,7 +201,7 @@ export function ApplicationsPage(): ReactElement {
                   <td>
                     {application.status ? (
                       <Badge tone={statusTone(application.status)}>
-                        {statusLabel(application.status)}
+                        {messages.status[application.status]}
                       </Badge>
                     ) : (
                       <span className={styles.muted}>—</span>
@@ -206,20 +209,22 @@ export function ApplicationsPage(): ReactElement {
                   </td>
                   <td className={styles.muted}>{versionLabel(application)}</td>
                   <td className={styles.muted}>{platformLabel(application)}</td>
-                  <td className={styles.muted}>{updatedLabel(application)}</td>
+                  <td className={styles.muted}>
+                    {updatedLabel(application, language)}
+                  </td>
                   <td>
                     <div className={styles.actions}>
                       <Link
                         className={styles.action}
                         to={`/applications/${application.id}`}
                       >
-                        View
+                        {messages.applications.view}
                       </Link>
                       <Link
                         className={styles.action}
                         to={`/applications/${application.id}/edit`}
                       >
-                        Edit
+                        {messages.applications.edit}
                       </Link>
                       <button
                         className={styles.action}
@@ -227,7 +232,7 @@ export function ApplicationsPage(): ReactElement {
                         disabled={busyId === application.id}
                         onClick={() => void handleDuplicate(application)}
                       >
-                        Duplicate
+                        {messages.applications.duplicate}
                       </button>
                       {application.status !== 'ARCHIVED' ? (
                         <button
@@ -236,7 +241,7 @@ export function ApplicationsPage(): ReactElement {
                           disabled={busyId === application.id}
                           onClick={() => setPendingArchive(application)}
                         >
-                          Archive
+                          {messages.applications.archive}
                         </button>
                       ) : null}
                     </div>
@@ -250,14 +255,14 @@ export function ApplicationsPage(): ReactElement {
 
       <ConfirmDialog
         open={pendingArchive !== null}
-        title="Archive application"
+        title={messages.applications.archiveTitle}
         description={
           pendingArchive
-            ? `Archive ${pendingArchive.name}? You can still find it by filtering for Archived.`
+            ? messages.applications.archiveDescription(pendingArchive.name)
             : ''
         }
-        confirmLabel="Archive"
-        cancelLabel="Cancel"
+        confirmLabel={messages.applications.archive}
+        cancelLabel={messages.common.cancel}
         onConfirm={() => void handleArchive()}
         onCancel={() => setPendingArchive(null)}
       />

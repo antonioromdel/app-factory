@@ -4,22 +4,24 @@ import { Badge } from '@/components/Badge.tsx'
 import { Card } from '@/components/Card.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
 import { LoadingState } from '@/components/LoadingState.tsx'
-import { statusLabel } from '@/features/applications/applicationDisplay.ts'
 import { useApplications } from '@/hooks/useApplications.ts'
+import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
   useFirebaseConnection,
   type FirebaseConnectionState,
 } from '@/hooks/useFirebaseConnection.ts'
+import type { Messages } from '@/i18n/en.ts'
 import type { Application } from '@/types/application.ts'
 import styles from './DashboardPage.module.css'
 
 export function DashboardPage(): ReactElement {
+  const { messages } = useLanguage()
   const connection = useFirebaseConnection()
-  const status = connectionStatus(connection)
+  const status = connectionStatus(connection, messages)
   const {
     status: applicationsStatus,
     applications,
-    errorMessage,
+    errorCode,
     reload,
   } = useApplications()
 
@@ -34,73 +36,84 @@ export function DashboardPage(): ReactElement {
       </div>
 
       {applicationsStatus === 'loading' ? (
-        <LoadingState message="Loading applications…" />
+        <LoadingState message={messages.common.loadingApplications} />
       ) : null}
 
       {applicationsStatus === 'error' ? (
         <ErrorState
-          message={errorMessage ?? 'Could not load applications.'}
+          message={messages.applicationErrors[errorCode ?? 'load-list']}
           onRetry={reload}
         />
       ) : null}
 
       {applicationsStatus === 'ready' ? (
         <>
-          <section className={styles.stats} aria-label="Overview">
-            <Stat title="Total applications" value={active.length} />
+          <section
+            className={styles.stats}
+            aria-label={messages.dashboard.overview}
+          >
+            <Stat title={messages.dashboard.total} value={active.length} />
             <Stat
-              title="In development"
+              title={messages.dashboard.inDevelopment}
               value={countStatus(active, 'DEVELOPMENT')}
             />
-            <Stat title="Published" value={countStatus(active, 'PUBLISHED')} />
             <Stat
-              title="Pending publication"
+              title={messages.dashboard.published}
+              value={countStatus(active, 'PUBLISHED')}
+            />
+            <Stat
+              title={messages.dashboard.pendingPublication}
               value={countStatus(active, 'RELEASE')}
             />
           </section>
 
-          <section className={styles.panels} aria-label="Activity">
+          <section
+            className={styles.panels}
+            aria-label={messages.dashboard.activity}
+          >
             <ApplicationList
-              title="Recent projects"
+              title={messages.dashboard.recent}
               applications={recent(active, 'createdAt')}
-              empty="No applications yet."
+              empty={messages.dashboard.recentEmpty}
+              noStatus={messages.common.noStatus}
+              statusLabels={messages.status}
             />
             <ApplicationList
-              title="Recently modified"
+              title={messages.dashboard.modified}
               applications={recent(active, 'updatedAt')}
-              empty="Nothing has been updated yet."
+              empty={messages.dashboard.modifiedEmpty}
+              noStatus={messages.common.noStatus}
+              statusLabels={messages.status}
             />
-            <Card title="Pending tasks">
-              <p className={styles.detail}>No tasks yet.</p>
+            <Card title={messages.dashboard.pendingTasks}>
+              <p className={styles.detail}>{messages.dashboard.noTasks}</p>
               <Link className={styles.link} to="/checklists">
-                Open checklists
+                {messages.dashboard.openChecklists}
               </Link>
             </Card>
-            <Card title="Upcoming releases">
-              <p className={styles.detail}>No releases yet.</p>
+            <Card title={messages.dashboard.upcomingReleases}>
+              <p className={styles.detail}>{messages.dashboard.noReleases}</p>
               <Link className={styles.link} to="/releases">
-                Open releases
+                {messages.dashboard.openReleases}
               </Link>
             </Card>
           </section>
         </>
       ) : null}
 
-      <Card title="Quick actions">
+      <Card title={messages.dashboard.quickActions}>
         <div className={styles.actions}>
           <Link className={styles.link} to="/applications/new">
-            New application
+            {messages.dashboard.newApplication}
           </Link>
           <Link className={styles.link} to="/applications">
-            Open applications
+            {messages.dashboard.openApplications}
           </Link>
           <Link className={styles.link} to="/knowledge">
-            Open knowledge base
+            {messages.dashboard.openKnowledge}
           </Link>
         </div>
-        <p className={styles.detail}>
-          Generate assets and prepare release are not available yet.
-        </p>
+        <p className={styles.detail}>{messages.dashboard.unavailableTools}</p>
       </Card>
     </div>
   )
@@ -124,10 +137,14 @@ function ApplicationList({
   title,
   applications,
   empty,
+  noStatus,
+  statusLabels,
 }: {
   title: string
   applications: Application[]
   empty: string
+  noStatus: string
+  statusLabels: Messages['status']
 }): ReactElement {
   return (
     <Card title={title}>
@@ -144,8 +161,8 @@ function ApplicationList({
                 <span>{application.name}</span>
                 <span className={styles.itemMeta}>
                   {application.status
-                    ? statusLabel(application.status)
-                    : 'No status'}
+                    ? statusLabels[application.status]
+                    : noStatus}
                 </span>
               </Link>
             </li>
@@ -173,20 +190,23 @@ function recent(
     .slice(0, 5)
 }
 
-function connectionStatus(connection: FirebaseConnectionState): {
+function connectionStatus(
+  connection: FirebaseConnectionState,
+  messages: Messages,
+): {
   label: string
   tone: 'neutral' | 'success' | 'danger'
 } {
   if (connection.status === 'loading') {
-    return { label: 'Checking Firebase connection…', tone: 'neutral' }
+    return { label: messages.dashboard.checkingConnection, tone: 'neutral' }
   }
 
   if (connection.status === 'connected') {
     return {
-      label: `Connected to ${connection.projectId}`,
+      label: messages.dashboard.connected(connection.projectId),
       tone: 'success',
     }
   }
 
-  return { label: connection.message, tone: 'danger' }
+  return { label: messages.connectionErrors[connection.code], tone: 'danger' }
 }

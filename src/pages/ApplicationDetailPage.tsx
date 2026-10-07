@@ -1,4 +1,5 @@
 import { useState, type ReactElement } from 'react'
+import { ExternalLink } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { Badge } from '@/components/Badge.tsx'
 import { Button } from '@/components/Button.tsx'
@@ -9,39 +10,26 @@ import { LoadingState } from '@/components/LoadingState.tsx'
 import { Tabs } from '@/components/Tabs.tsx'
 import {
   platformLabel,
-  statusLabel,
   statusTone,
   updatedLabel,
   versionLabel,
 } from '@/features/applications/applicationDisplay.ts'
+import { ApplicationStatusSelect } from '@/features/applications/ApplicationStatusSelect.tsx'
 import { useApplication } from '@/hooks/useApplication.ts'
+import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
-  ApplicationDataError,
+  applicationErrorCode,
   archiveApplication,
   duplicateApplication,
 } from '@/services/applicationService.ts'
-import {
-  firebaseServices,
-  type Application,
-  type FirebaseService,
-} from '@/types/application.ts'
+import { firebaseServices, type Application } from '@/types/application.ts'
 import styles from './ApplicationDetailPage.module.css'
-
-const serviceLabels: Record<FirebaseService, string> = {
-  authentication: 'Authentication',
-  firestore: 'Firestore',
-  storage: 'Storage',
-  analytics: 'Analytics',
-  crashlytics: 'Crashlytics',
-  messaging: 'Messaging',
-  functions: 'Functions',
-  remoteConfig: 'Remote Config',
-}
 
 export function ApplicationDetailPage(): ReactElement {
   const { applicationId } = useParams()
   const navigate = useNavigate()
-  const { status, application, errorMessage, reload } =
+  const { language, messages } = useLanguage()
+  const { status, application, errorCode, reload } =
     useApplication(applicationId)
   const [isArchiving, setIsArchiving] = useState(false)
   const [confirmArchive, setConfirmArchive] = useState(false)
@@ -49,17 +37,17 @@ export function ApplicationDetailPage(): ReactElement {
   const [isDuplicating, setIsDuplicating] = useState(false)
 
   if (status === 'loading') {
-    return <LoadingState message="Loading application…" />
+    return <LoadingState message={messages.common.loadingApplication} />
   }
 
   if (status === 'missing') {
     return (
       <EmptyState
-        title="Application not found"
-        description="It may have been removed."
+        title={messages.common.applicationNotFound}
+        description={messages.detail.removed}
         action={
           <Link className={styles.back} to="/applications">
-            Back to applications
+            {messages.common.backToApplications}
           </Link>
         }
       />
@@ -69,7 +57,7 @@ export function ApplicationDetailPage(): ReactElement {
   if (status === 'error' || !application) {
     return (
       <ErrorState
-        message={errorMessage ?? 'Could not load the application.'}
+        message={messages.applicationErrors[errorCode ?? 'load-one']}
         onRetry={reload}
       />
     )
@@ -84,13 +72,17 @@ export function ApplicationDetailPage(): ReactElement {
     setIsDuplicating(true)
 
     try {
-      const id = await duplicateApplication(application)
+      const id = await duplicateApplication(
+        application,
+        messages.applications.copyOf(application.name),
+      )
       navigate(`/applications/${id}`)
     } catch (error: unknown) {
+      const code = applicationErrorCode(error, 'create')
       setActionError(
-        error instanceof ApplicationDataError
-          ? error.message
-          : 'Could not duplicate the application.',
+        code === 'create'
+          ? messages.applications.duplicateFailed
+          : messages.applicationErrors[code],
       )
       setIsDuplicating(false)
     }
@@ -109,9 +101,7 @@ export function ApplicationDetailPage(): ReactElement {
       navigate('/applications')
     } catch (error: unknown) {
       setActionError(
-        error instanceof ApplicationDataError
-          ? error.message
-          : 'Could not archive the application.',
+        messages.applicationErrors[applicationErrorCode(error, 'archive')],
       )
       setIsArchiving(false)
     }
@@ -124,23 +114,33 @@ export function ApplicationDetailPage(): ReactElement {
           {application.name}
           {application.status ? (
             <Badge tone={statusTone(application.status)}>
-              {statusLabel(application.status)}
+              {messages.status[application.status]}
             </Badge>
           ) : null}
         </h2>
         <div className={styles.actions}>
+          <ApplicationStatusSelect
+            className={styles.status}
+            applicationId={application.id}
+            status={application.status}
+            onArchive={() => setConfirmArchive(true)}
+            onChanged={reload}
+            onError={setActionError}
+          />
           <Link
             className={styles.link}
             to={`/applications/${application.id}/edit`}
           >
-            Edit
+            {messages.detail.edit}
           </Link>
           <Button
             variant="secondary"
             disabled={isDuplicating}
             onClick={() => void handleDuplicate()}
           >
-            {isDuplicating ? 'Duplicating…' : 'Duplicate'}
+            {isDuplicating
+              ? messages.detail.duplicating
+              : messages.detail.duplicate}
           </Button>
           {application.status !== 'ARCHIVED' ? (
             <Button
@@ -148,7 +148,7 @@ export function ApplicationDetailPage(): ReactElement {
               disabled={isArchiving}
               onClick={() => setConfirmArchive(true)}
             >
-              Archive
+              {messages.detail.archive}
             </Button>
           ) : null}
         </div>
@@ -157,65 +157,65 @@ export function ApplicationDetailPage(): ReactElement {
       {actionError ? <ErrorState message={actionError} /> : null}
 
       <Tabs
-        label="Application sections"
+        label={messages.detail.sections}
         tabs={[
           {
             id: 'overview',
-            label: 'Overview',
-            content: <Overview application={application} />,
+            label: messages.fields.overview,
+            content: <Overview application={application} locale={language} />,
           },
           {
             id: 'development',
-            label: 'Development',
+            label: messages.fields.development,
             content: <Development application={application} />,
           },
           {
             id: 'firebase',
-            label: 'Firebase',
+            label: messages.fields.firebase,
             content: <FirebaseSection application={application} />,
           },
           {
             id: 'monetization',
-            label: 'Monetization',
+            label: messages.fields.monetization,
             content: <Monetization application={application} />,
           },
           {
             id: 'stores',
-            label: 'Stores',
+            label: messages.fields.stores,
             content: <Stores application={application} />,
           },
           {
             id: 'checklist',
-            label: 'Checklist',
+            label: messages.fields.checklist,
             content: (
               <EmptyState
-                title="No checklist yet"
-                description="Checklist progress for this application is not connected yet."
+                title={messages.detail.checklistTitle}
+                description={messages.detail.checklistDescription}
               />
             ),
           },
           {
             id: 'notes',
-            label: 'Notes',
+            label: messages.fields.notes,
             content: <Notes application={application} />,
           },
           {
             id: 'releases',
-            label: 'Releases',
+            label: messages.fields.releases,
             content: (
               <EmptyState
-                title="No releases yet"
-                description="Release history is not connected yet."
+                title={messages.detail.releasesTitle}
+                description={messages.detail.releasesDescription}
               />
             ),
           },
           {
             id: 'assets',
-            label: 'Assets',
+            label: messages.fields.assets,
             content: (
               <EmptyState
-                title="No assets yet"
-                description="Icons and store images are not connected yet."
+                title={messages.detail.assetsTitle}
+                description={messages.detail.assetsDescription}
               />
             ),
           },
@@ -224,10 +224,10 @@ export function ApplicationDetailPage(): ReactElement {
 
       <ConfirmDialog
         open={confirmArchive}
-        title="Archive application"
-        description={`Archive ${application.name}? You can still find it by filtering for Archived.`}
-        confirmLabel="Archive"
-        cancelLabel="Cancel"
+        title={messages.applications.archiveTitle}
+        description={messages.applications.archiveDescription(application.name)}
+        confirmLabel={messages.applications.archive}
+        cancelLabel={messages.common.cancel}
         onConfirm={() => void handleArchive()}
         onCancel={() => setConfirmArchive(false)}
       />
@@ -235,16 +235,31 @@ export function ApplicationDetailPage(): ReactElement {
   )
 }
 
-function Overview({ application }: { application: Application }): ReactElement {
+function Overview({
+  application,
+  locale,
+}: {
+  application: Application
+  locale: string
+}): ReactElement {
+  const { messages } = useLanguage()
+
   return (
     <FieldList
       fields={[
-        { label: 'Description', value: application.description, wide: true },
-        { label: 'Category', value: application.category },
-        { label: 'Tags', value: application.tags?.join(', ') },
-        { label: 'Platform', value: platformLabel(application) },
-        { label: 'Version', value: versionLabel(application) },
-        { label: 'Updated', value: updatedLabel(application) },
+        {
+          label: messages.common.description,
+          value: application.description,
+          wide: true,
+        },
+        { label: messages.common.category, value: application.category },
+        { label: messages.common.tags, value: application.tags?.join(', ') },
+        { label: messages.fields.platform, value: platformLabel(application) },
+        { label: messages.fields.version, value: versionLabel(application) },
+        {
+          label: messages.fields.updated,
+          value: updatedLabel(application, locale),
+        },
       ]}
     />
   )
@@ -255,23 +270,47 @@ function Development({
 }: {
   application: Application
 }): ReactElement {
+  const { messages } = useLanguage()
   const flutter = application.flutter
   const repository = application.repository
 
   return (
     <FieldList
       fields={[
-        { label: 'Flutter version', value: flutter?.flutterVersion },
-        { label: 'Dart version', value: flutter?.dartVersion },
-        { label: 'Package name', value: flutter?.packageName },
-        { label: 'Bundle ID', value: flutter?.bundleId },
-        { label: 'Minimum Android SDK', value: flutter?.minimumAndroidSdk },
-        { label: 'iOS deployment target', value: flutter?.iosDeploymentTarget },
-        { label: 'Architecture', value: flutter?.architecture },
-        { label: 'State management', value: flutter?.stateManagement },
-        { label: 'GitHub URL', value: repository?.githubUrl },
-        { label: 'Repository', value: repository?.repositoryName },
-        { label: 'Local path', value: repository?.localPath, wide: true },
+        {
+          label: messages.fields.flutterVersion,
+          value: flutter?.flutterVersion,
+        },
+        { label: messages.fields.dartVersion, value: flutter?.dartVersion },
+        { label: messages.fields.packageName, value: flutter?.packageName },
+        { label: messages.fields.bundleId, value: flutter?.bundleId },
+        {
+          label: messages.fields.minimumAndroidSdk,
+          value: flutter?.minimumAndroidSdk,
+        },
+        {
+          label: messages.fields.iosDeploymentTarget,
+          value: flutter?.iosDeploymentTarget,
+        },
+        { label: messages.fields.architecture, value: flutter?.architecture },
+        {
+          label: messages.fields.stateManagement,
+          value: flutter?.stateManagement,
+        },
+        {
+          label: messages.fields.githubUrl,
+          value: repository?.githubUrl,
+          link: true,
+        },
+        {
+          label: messages.fields.repository,
+          value: repository?.repositoryName,
+        },
+        {
+          label: messages.fields.localPath,
+          value: repository?.localPath,
+          wide: true,
+        },
       ]}
     />
   )
@@ -282,21 +321,34 @@ function FirebaseSection({
 }: {
   application: Application
 }): ReactElement {
+  const { messages } = useLanguage()
   const firebase = application.firebase
   const services = firebaseServices
     .filter((service) => firebase?.enabledServices?.includes(service))
-    .map((service) => serviceLabels[service])
+    .map((service) => messages.services[service])
     .join(', ')
 
   return (
     <FieldList
       fields={[
-        { label: 'Project ID', value: firebase?.projectId },
-        { label: 'Project number', value: firebase?.projectNumber },
-        { label: 'Console URL', value: firebase?.consoleUrl, wide: true },
-        { label: 'Android app ID', value: firebase?.androidAppId },
-        { label: 'iOS app ID', value: firebase?.iosAppId },
-        { label: 'Services', value: services || undefined, wide: true },
+        { label: messages.fields.projectId, value: firebase?.projectId },
+        {
+          label: messages.fields.projectNumber,
+          value: firebase?.projectNumber,
+        },
+        {
+          label: messages.fields.consoleUrl,
+          value: firebase?.consoleUrl,
+          link: true,
+          wide: true,
+        },
+        { label: messages.fields.androidAppId, value: firebase?.androidAppId },
+        { label: messages.fields.iosAppId, value: firebase?.iosAppId },
+        {
+          label: messages.fields.services,
+          value: services || undefined,
+          wide: true,
+        },
       ]}
     />
   )
@@ -307,11 +359,18 @@ function Monetization({
 }: {
   application: Application
 }): ReactElement {
+  const { messages } = useLanguage()
   const flags = [
-    application.monetization?.admob ? 'AdMob' : undefined,
-    application.monetization?.inAppPurchases ? 'In-app purchases' : undefined,
-    application.monetization?.subscriptions ? 'Subscriptions' : undefined,
-    application.monetization?.revenueCat ? 'RevenueCat' : undefined,
+    application.monetization?.admob ? messages.fields.admob : undefined,
+    application.monetization?.inAppPurchases
+      ? messages.fields.inAppPurchases
+      : undefined,
+    application.monetization?.subscriptions
+      ? messages.fields.subscriptions
+      : undefined,
+    application.monetization?.revenueCat
+      ? messages.fields.revenueCat
+      : undefined,
   ]
     .filter((item): item is string => Boolean(item))
     .join(', ')
@@ -319,61 +378,108 @@ function Monetization({
   return (
     <FieldList
       fields={[
-        { label: 'Enabled', value: flags || undefined, wide: true },
-        { label: 'AdMob app ID', value: application.admob?.appId },
-        { label: 'Banner ID', value: application.admob?.bannerId },
-        { label: 'Interstitial ID', value: application.admob?.interstitialId },
-        { label: 'Rewarded ID', value: application.admob?.rewardedId },
-        { label: 'Native ID', value: application.admob?.nativeId },
+        {
+          label: messages.fields.enabled,
+          value: flags || undefined,
+          wide: true,
+        },
+        {
+          label: messages.fields.admobConsoleUrl,
+          value: application.admob?.consoleUrl,
+          link: true,
+          wide: true,
+        },
+        { label: messages.fields.admobAppId, value: application.admob?.appId },
+        { label: messages.fields.bannerId, value: application.admob?.bannerId },
+        {
+          label: messages.fields.interstitialId,
+          value: application.admob?.interstitialId,
+        },
+        {
+          label: messages.fields.rewardedId,
+          value: application.admob?.rewardedId,
+        },
+        { label: messages.fields.nativeId, value: application.admob?.nativeId },
+        {
+          label: messages.fields.revenueCatUrl,
+          value: application.revenueCat?.dashboardUrl,
+          link: true,
+          wide: true,
+        },
       ]}
     />
   )
 }
 
 function Stores({ application }: { application: Application }): ReactElement {
+  const { messages } = useLanguage()
+
   return (
     <FieldList
       fields={[
         {
-          label: 'Play Console URL',
+          label: messages.fields.playConsoleUrl,
           value: application.googlePlay?.consoleUrl,
+          link: true,
         },
-        { label: 'Play Store URL', value: application.googlePlay?.storeUrl },
         {
-          label: 'Play version',
+          label: messages.fields.playStoreUrl,
+          value: application.googlePlay?.storeUrl,
+          link: true,
+        },
+        {
+          label: messages.fields.playVersion,
           value: application.googlePlay?.currentVersion,
         },
-        { label: 'Play track', value: application.googlePlay?.track },
         {
-          label: 'App Store Connect URL',
-          value: application.appStore?.appStoreConnectUrl,
+          label: messages.fields.playTrack,
+          value: application.googlePlay?.track,
         },
-        { label: 'App Store URL', value: application.appStore?.storeUrl },
         {
-          label: 'App Store version',
+          label: messages.fields.appStoreConnectUrl,
+          value: application.appStore?.appStoreConnectUrl,
+          link: true,
+        },
+        {
+          label: messages.fields.appStoreUrl,
+          value: application.appStore?.storeUrl,
+          link: true,
+        },
+        {
+          label: messages.fields.appStoreVersion,
           value: application.appStore?.currentVersion,
         },
-        { label: 'TestFlight URL', value: application.appStore?.testFlightUrl },
+        {
+          label: messages.fields.testFlightUrl,
+          value: application.appStore?.testFlightUrl,
+          link: true,
+        },
       ]}
     />
   )
 }
 
 function Notes({ application }: { application: Application }): ReactElement {
+  const { messages } = useLanguage()
+
   return (
     <FieldList
       fields={[
         {
-          label: 'Technical notes',
+          label: messages.fields.technicalNotes,
           value: application.notes?.technicalNotes,
           wide: true,
         },
         {
-          label: 'Known issues',
+          label: messages.fields.knownIssues,
           value: application.notes?.knownIssues,
           wide: true,
         },
-        { label: 'Ideas', value: application.notes?.ideas, wide: true },
+        {
+          label: messages.fields.ideas,
+          value: application.notes?.ideas,
+          wide: true,
+        },
       ]}
     />
   )
@@ -382,15 +488,30 @@ function Notes({ application }: { application: Application }): ReactElement {
 function FieldList({
   fields,
 }: {
-  fields: Array<{ label: string; value?: string; wide?: boolean }>
+  fields: Array<{
+    label: string
+    value?: string
+    wide?: boolean
+    link?: boolean
+  }>
 }): ReactElement {
-  const filled = fields.filter((field) => field.value && field.value !== '—')
+  const { messages } = useLanguage()
+  const filled = fields.filter(
+    (
+      field,
+    ): field is {
+      label: string
+      value: string
+      wide?: boolean
+      link?: boolean
+    } => Boolean(field.value && field.value !== '—'),
+  )
 
   if (filled.length === 0) {
     return (
       <EmptyState
-        title="Nothing here yet"
-        description="These details can stay empty until you know them."
+        title={messages.detail.emptyTitle}
+        description={messages.detail.emptyDescription}
       />
     )
   }
@@ -405,9 +526,67 @@ function FieldList({
           }
         >
           <dt className={styles.label}>{field.label}</dt>
-          <dd className={styles.value}>{field.value}</dd>
+          <dd className={styles.value}>
+            <FieldValue value={field.value} link={field.link} />
+          </dd>
         </div>
       ))}
     </dl>
   )
+}
+
+function FieldValue({
+  value,
+  link,
+}: {
+  value: string
+  link?: boolean
+}): ReactElement {
+  const { messages } = useLanguage()
+  const href = link ? externalHref(value) : null
+
+  if (!href) {
+    return <>{value}</>
+  }
+
+  return (
+    <a
+      className={styles.external}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {value}
+      <ExternalLink
+        className={styles.externalIcon}
+        aria-hidden="true"
+        size={16}
+      />
+      <span className={styles.srOnly}>{messages.detail.opensInNewTab}</span>
+    </a>
+  )
+}
+
+function externalHref(value: string): string | null {
+  const trimmed = value.trim()
+  if (!trimmed || /\s/.test(trimmed)) {
+    return null
+  }
+
+  const withProtocol = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`
+
+  try {
+    const url = new URL(withProtocol)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return null
+    }
+    if (!url.hostname.includes('.') && url.hostname !== 'localhost') {
+      return null
+    }
+    return url.href
+  } catch {
+    return null
+  }
 }

@@ -6,12 +6,16 @@ import {
   subscribeToAuthState,
   type AuthUser,
 } from '@/services/authService.ts'
-import { AuthContext, type AuthContextValue } from './authContext.ts'
+import {
+  AuthContext,
+  type AuthContextValue,
+  type AuthStartupCode,
+} from './authContext.ts'
 
 interface AuthState {
   status: AuthContextValue['status']
   user: AuthUser | null
-  configError: string | null
+  configError: AuthStartupCode | null
 }
 
 export function AuthProvider({
@@ -27,7 +31,7 @@ export function AuthProvider({
       return {
         status: 'error',
         user: null,
-        configError: startupErrorMessage(error),
+        configError: startupErrorCode(error),
       }
     }
   })
@@ -57,13 +61,13 @@ export function AuthProvider({
   )
 }
 
-function startupErrorMessage(error: unknown): string {
+function startupErrorCode(error: unknown): AuthStartupCode {
   if (
     error instanceof Error &&
     error.message.startsWith('Missing Firebase configuration')
   ) {
-    return 'Firebase configuration is missing.'
+    return 'missing-config'
   }
 
-  return 'Could not start authentication.'
+  return 'start-failed'
 }

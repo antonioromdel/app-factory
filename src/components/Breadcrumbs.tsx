@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import { Link } from 'react-router'
+import { useLanguage } from '@/hooks/useLanguage.ts'
 import styles from './Breadcrumbs.module.css'
 
 export interface BreadcrumbItem {
@@ -12,12 +13,14 @@ export function Breadcrumbs({
 }: {
   items: BreadcrumbItem[]
 }): ReactElement | null {
+  const { messages } = useLanguage()
+
   if (items.length === 0) {
     return null
   }
 
   return (
-    <nav aria-label="Breadcrumb">
+    <nav aria-label={messages.nav.breadcrumb}>
       <ol className={styles.list}>
         {items.map((item, index) => (
           <li key={item.label} className={styles.crumb}>

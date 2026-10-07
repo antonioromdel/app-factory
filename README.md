@@ -64,7 +64,7 @@ Scripts:
 
 The web app configuration lives in `.env`, copied from `.env.example`. That file stays out of Git.
 
-Firestore rules are in `firestore.rules`. Only the authorized account can read or write data. Publish that file to Firebase for the restriction to take effect in the project.
+Firestore rules are in `firestore.rules`. Only the authorized account can read or write data. After changing that file, publish it with `pnpm deploy:rules`. That runs `firebase deploy --only firestore:rules` for the `devappstool` project. The Firebase CLI must be logged in.
 
 ## Development philosophy
 

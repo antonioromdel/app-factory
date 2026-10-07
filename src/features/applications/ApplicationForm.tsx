@@ -6,7 +6,11 @@ import { Input } from '@/components/Input.tsx'
 import { Select } from '@/components/Select.tsx'
 import { Switch } from '@/components/Switch.tsx'
 import { TextArea } from '@/components/TextArea.tsx'
-import { ApplicationDataError } from '@/services/applicationService.ts'
+import { useLanguage } from '@/hooks/useLanguage.ts'
+import {
+  applicationErrorCode,
+  type ApplicationErrorCode,
+} from '@/services/applicationService.ts'
 import {
   applicationStatuses,
   firebaseServices,
@@ -14,23 +18,11 @@ import {
   type ApplicationStatus,
   type FirebaseService,
 } from '@/types/application.ts'
-import { statusLabel } from './applicationDisplay.ts'
 import {
   toApplicationInput,
   type ApplicationFormState,
 } from './applicationFormState.ts'
 import styles from './ApplicationForm.module.css'
-
-const serviceLabels: Record<FirebaseService, string> = {
-  authentication: 'Authentication',
-  firestore: 'Firestore',
-  storage: 'Storage',
-  analytics: 'Analytics',
-  crashlytics: 'Crashlytics',
-  messaging: 'Messaging',
-  functions: 'Functions',
-  remoteConfig: 'Remote Config',
-}
 
 export function ApplicationForm({
   initial,
@@ -43,9 +35,10 @@ export function ApplicationForm({
   onSubmit: (input: ApplicationInput) => Promise<void>
   onCancel: () => void
 }): ReactElement {
+  const { messages } = useLanguage()
   const [form, setForm] = useState(initial)
-  const [nameError, setNameError] = useState<string | null>(null)
-  const [formError, setFormError] = useState<string | null>(null)
+  const [nameError, setNameError] = useState(false)
+  const [formError, setFormError] = useState<ApplicationErrorCode | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   function update(patch: Partial<ApplicationFormState>): void {
@@ -68,21 +61,17 @@ export function ApplicationForm({
     setFormError(null)
 
     if (!form.name.trim()) {
-      setNameError('Enter a name.')
+      setNameError(true)
       return
     }
 
-    setNameError(null)
+    setNameError(false)
     setIsSubmitting(true)
 
     try {
       await onSubmit(toApplicationInput(form))
     } catch (error: unknown) {
-      setFormError(
-        error instanceof ApplicationDataError
-          ? error.message
-          : 'Could not save the application.',
-      )
+      setFormError(applicationErrorCode(error, 'save'))
       setIsSubmitting(false)
     }
   }
@@ -93,32 +82,32 @@ export function ApplicationForm({
       onSubmit={(event) => void handleSubmit(event)}
     >
       <fieldset className={styles.section} disabled={isSubmitting}>
-        <legend className={styles.legend}>Overview</legend>
+        <legend className={styles.legend}>{messages.fields.overview}</legend>
         <div className={styles.grid}>
           <Input
             className={styles.wide}
-            label="Name"
+            label={messages.common.name}
             value={form.name}
-            error={nameError ?? undefined}
+            error={nameError ? messages.common.enterName : undefined}
             onChange={(event) => {
               update({ name: event.target.value })
-              setNameError(null)
+              setNameError(false)
             }}
           />
           <TextArea
             className={styles.wide}
-            label="Description"
+            label={messages.common.description}
             value={form.description}
             onChange={(event) => update({ description: event.target.value })}
           />
           <Select
-            label="Status"
+            label={messages.fields.status}
             value={form.status}
             options={[
-              { value: '', label: 'Not set' },
+              { value: '', label: messages.common.notSet },
               ...applicationStatuses.map((status) => ({
                 value: status,
-                label: statusLabel(status),
+                label: messages.status[status],
               })),
             ]}
             onChange={(event) => {
@@ -126,82 +115,82 @@ export function ApplicationForm({
             }}
           />
           <Input
-            label="Category"
+            label={messages.common.category}
             value={form.category}
             onChange={(event) => update({ category: event.target.value })}
           />
           <Input
             className={styles.wide}
-            label="Tags"
+            label={messages.common.tags}
             value={form.tags}
-            placeholder="Separate tags with commas"
+            placeholder={messages.common.tagsPlaceholder}
             onChange={(event) => update({ tags: event.target.value })}
           />
         </div>
       </fieldset>
 
       <fieldset className={styles.section} disabled={isSubmitting}>
-        <legend className={styles.legend}>Development</legend>
+        <legend className={styles.legend}>{messages.fields.development}</legend>
         <div className={styles.grid}>
           <Input
-            label="Flutter version"
+            label={messages.fields.flutterVersion}
             value={form.flutterVersion}
             onChange={(event) => update({ flutterVersion: event.target.value })}
           />
           <Input
-            label="Dart version"
+            label={messages.fields.dartVersion}
             value={form.dartVersion}
             onChange={(event) => update({ dartVersion: event.target.value })}
           />
           <Input
-            label="Package name"
+            label={messages.fields.packageName}
             value={form.packageName}
             onChange={(event) => update({ packageName: event.target.value })}
           />
           <Input
-            label="Bundle ID"
+            label={messages.fields.bundleId}
             value={form.bundleId}
             onChange={(event) => update({ bundleId: event.target.value })}
           />
           <Input
-            label="Minimum Android SDK"
+            label={messages.fields.minimumAndroidSdk}
             value={form.minimumAndroidSdk}
             onChange={(event) =>
               update({ minimumAndroidSdk: event.target.value })
             }
           />
           <Input
-            label="iOS deployment target"
+            label={messages.fields.iosDeploymentTarget}
             value={form.iosDeploymentTarget}
             onChange={(event) =>
               update({ iosDeploymentTarget: event.target.value })
             }
           />
           <Input
-            label="Architecture"
+            label={messages.fields.architecture}
             value={form.architecture}
             onChange={(event) => update({ architecture: event.target.value })}
           />
           <Input
-            label="State management"
+            label={messages.fields.stateManagement}
             value={form.stateManagement}
             onChange={(event) =>
               update({ stateManagement: event.target.value })
             }
           />
           <Input
-            label="GitHub URL"
+            label={messages.fields.githubUrl}
             value={form.githubUrl}
             onChange={(event) => update({ githubUrl: event.target.value })}
           />
           <Input
-            label="Repository name"
+            label={messages.fields.repositoryName}
             value={form.repositoryName}
             onChange={(event) => update({ repositoryName: event.target.value })}
           />
           <Input
             className={styles.wide}
-            label="Local path"
+            label={messages.fields.localPath}
             value={form.localPath}
             onChange={(event) => update({ localPath: event.target.value })}
           />
@@ -209,35 +198,35 @@ export function ApplicationForm({
       </fieldset>
 
       <fieldset className={styles.section} disabled={isSubmitting}>
-        <legend className={styles.legend}>Firebase</legend>
+        <legend className={styles.legend}>{messages.fields.firebase}</legend>
         <div className={styles.grid}>
           <Input
-            label="Project ID"
+            label={messages.fields.projectId}
             value={form.firebaseProjectId}
             onChange={(event) =>
               update({ firebaseProjectId: event.target.value })
             }
           />
           <Input
-            label="Project number"
+            label={messages.fields.projectNumber}
             value={form.projectNumber}
             onChange={(event) => update({ projectNumber: event.target.value })}
           />
           <Input
             className={styles.wide}
-            label="Console URL"
+            label={messages.fields.consoleUrl}
             value={form.firebaseConsoleUrl}
             onChange={(event) =>
               update({ firebaseConsoleUrl: event.target.value })
             }
           />
           <Input
-            label="Android app ID"
+            label={messages.fields.androidAppId}
             value={form.androidAppId}
             onChange={(event) => update({ androidAppId: event.target.value })}
           />
           <Input
-            label="iOS app ID"
+            label={messages.fields.iosAppId}
             value={form.iosAppId}
             onChange={(event) => update({ iosAppId: event.target.value })}
           />
@@ -246,7 +235,7 @@ export function ApplicationForm({
           {firebaseServices.map((service) => (
             <Checkbox
               key={service}
-              label={serviceLabels[service]}
+              label={messages.services[service]}
               checked={form.services.includes(service)}
               onChange={() => toggleService(service)}
             />
@@ -255,106 +244,120 @@ export function ApplicationForm({
       </fieldset>
 
       <fieldset className={styles.section} disabled={isSubmitting}>
-        <legend className={styles.legend}>Monetization</legend>
+        <legend className={styles.legend}>
+          {messages.fields.monetization}
+        </legend>
         <div className={styles.checks}>
           <Switch
-            label="AdMob"
+            label={messages.fields.admob}
             checked={form.admob}
             onChange={(event) => update({ admob: event.target.checked })}
           />
           <Switch
-            label="In-app purchases"
+            label={messages.fields.inAppPurchases}
             checked={form.inAppPurchases}
             onChange={(event) =>
               update({ inAppPurchases: event.target.checked })
             }
           />
           <Switch
-            label="Subscriptions"
+            label={messages.fields.subscriptions}
             checked={form.subscriptions}
             onChange={(event) =>
               update({ subscriptions: event.target.checked })
             }
           />
           <Switch
-            label="RevenueCat"
+            label={messages.fields.revenueCat}
             checked={form.revenueCat}
             onChange={(event) => update({ revenueCat: event.target.checked })}
           />
         </div>
         <div className={styles.grid}>
           <Input
-            label="AdMob app ID"
+            label={messages.fields.admobConsoleUrl}
+            value={form.admobConsoleUrl}
+            onChange={(event) =>
+              update({ admobConsoleUrl: event.target.value })
+            }
+          />
+          <Input
+            label={messages.fields.admobAppId}
             value={form.admobAppId}
             onChange={(event) => update({ admobAppId: event.target.value })}
           />
           <Input
-            label="Banner ID"
+            label={messages.fields.bannerId}
             value={form.bannerId}
             onChange={(event) => update({ bannerId: event.target.value })}
           />
           <Input
-            label="Interstitial ID"
+            label={messages.fields.interstitialId}
             value={form.interstitialId}
             onChange={(event) => update({ interstitialId: event.target.value })}
           />
           <Input
-            label="Rewarded ID"
+            label={messages.fields.rewardedId}
             value={form.rewardedId}
             onChange={(event) => update({ rewardedId: event.target.value })}
           />
           <Input
-            label="Native ID"
+            label={messages.fields.nativeId}
             value={form.nativeId}
             onChange={(event) => update({ nativeId: event.target.value })}
+          />
+          <Input
+            label={messages.fields.revenueCatUrl}
+            value={form.revenueCatUrl}
+            onChange={(event) => update({ revenueCatUrl: event.target.value })}
           />
         </div>
       </fieldset>
 
       <fieldset className={styles.section} disabled={isSubmitting}>
-        <legend className={styles.legend}>Stores</legend>
+        <legend className={styles.legend}>{messages.fields.stores}</legend>
         <div className={styles.grid}>
           <Input
-            label="Play Console URL"
+            label={messages.fields.playConsoleUrl}
             value={form.playConsoleUrl}
             onChange={(event) => update({ playConsoleUrl: event.target.value })}
           />
           <Input
-            label="Play Store URL"
+            label={messages.fields.playStoreUrl}
             value={form.playStoreUrl}
             onChange={(event) => update({ playStoreUrl: event.target.value })}
           />
           <Input
-            label="Play version"
+            label={messages.fields.playVersion}
             value={form.playVersion}
             onChange={(event) => update({ playVersion: event.target.value })}
           />
           <Input
-            label="Play track"
+            label={messages.fields.playTrack}
             value={form.playTrack}
             onChange={(event) => update({ playTrack: event.target.value })}
           />
           <Input
-            label="App Store Connect URL"
+            label={messages.fields.appStoreConnectUrl}
             value={form.appStoreConnectUrl}
             onChange={(event) =>
               update({ appStoreConnectUrl: event.target.value })
             }
           />
           <Input
-            label="App Store URL"
+            label={messages.fields.appStoreUrl}
             value={form.appStoreUrl}
             onChange={(event) => update({ appStoreUrl: event.target.value })}
           />
           <Input
-            label="App Store version"
+            label={messages.fields.appStoreVersion}
             value={form.appStoreVersion}
             onChange={(event) =>
               update({ appStoreVersion: event.target.value })
             }
           />
           <Input
-            label="TestFlight URL"
+            label={messages.fields.testFlightUrl}
             value={form.testFlightUrl}
             onChange={(event) => update({ testFlightUrl: event.target.value })}
           />
@@ -362,31 +365,33 @@ export function ApplicationForm({
       </fieldset>
 
       <fieldset className={styles.section} disabled={isSubmitting}>
-        <legend className={styles.legend}>Notes</legend>
+        <legend className={styles.legend}>{messages.fields.notes}</legend>
         <TextArea
-          label="Technical notes"
+          label={messages.fields.technicalNotes}
           value={form.technicalNotes}
           onChange={(event) => update({ technicalNotes: event.target.value })}
         />
         <TextArea
-          label="Known issues"
+          label={messages.fields.knownIssues}
           value={form.knownIssues}
           onChange={(event) => update({ knownIssues: event.target.value })}
         />
         <TextArea
-          label="Ideas"
+          label={messages.fields.ideas}
           value={form.ideas}
           onChange={(event) => update({ ideas: event.target.value })}
         />
       </fieldset>
 
-      {formError ? <ErrorState message={formError} /> : null}
+      {formError ? (
+        <ErrorState message={messages.applicationErrors[formError]} />
+      ) : null}
       <div className={styles.actions}>
         <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
-          {isSubmitting ? 'Saving…' : submitLabel}
+          {isSubmitting ? messages.common.saving : submitLabel}
         </Button>
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {messages.common.cancel}
         </Button>
       </div>
     </form>

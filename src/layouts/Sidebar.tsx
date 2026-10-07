@@ -1,17 +1,20 @@
 import type { ReactElement } from 'react'
 import { Factory } from 'lucide-react'
 import { NavLink } from 'react-router'
+import { useLanguage } from '@/hooks/useLanguage.ts'
 import { navigation } from './navigation.ts'
 import styles from './Sidebar.module.css'
 
 export function Sidebar(): ReactElement {
+  const { messages } = useLanguage()
+
   return (
     <aside className={styles.sidebar}>
       <p className={styles.brand}>
         <Factory size={26} strokeWidth={1.5} aria-hidden="true" />
-        App Factory
+        {messages.brand}
       </p>
-      <nav className={styles.nav} aria-label="Main">
+      <nav className={styles.nav} aria-label={messages.nav.main}>
         {navigation.map((item) => {
           const Icon = item.icon
 
@@ -25,7 +28,7 @@ export function Sidebar(): ReactElement {
               }
             >
               <Icon size={22} strokeWidth={1.5} aria-hidden="true" />
-              {item.label}
+              {messages.nav[item.id]}
             </NavLink>
           )
         })}

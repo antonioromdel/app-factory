@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { useLanguage } from '@/hooks/useLanguage.ts'
 import styles from './Modal.module.css'
 
 export function Modal({
@@ -19,6 +20,7 @@ export function Modal({
   onClose: () => void
   children: ReactNode
 }): ReactElement | null {
+  const { messages } = useLanguage()
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -99,7 +101,7 @@ export function Modal({
             {title}
           </h2>
           <button className={styles.close} type="button" onClick={onClose}>
-            Close
+            {messages.common.close}
           </button>
         </div>
         {children}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import {
-  ApplicationDataError,
+  applicationErrorCode,
   getApplication,
+  type ApplicationErrorCode,
 } from '@/services/applicationService.ts'
 import type { Application } from '@/types/application.ts'
 
@@ -9,13 +10,13 @@ interface ApplicationState {
   loadedId: string | undefined
   status: 'ready' | 'missing' | 'error'
   application: Application | null
-  errorMessage: string | null
+  errorCode: ApplicationErrorCode | null
 }
 
 export function useApplication(id: string | undefined): {
   status: 'loading' | 'ready' | 'missing' | 'error'
   application: Application | null
-  errorMessage: string | null
+  errorCode: ApplicationErrorCode | null
   reload: () => void
 } {
   const [requestId, setRequestId] = useState(0)
@@ -23,7 +24,7 @@ export function useApplication(id: string | undefined): {
     loadedId: undefined,
     status: 'missing',
     application: null,
-    errorMessage: null,
+    errorCode: null,
   })
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export function useApplication(id: string | undefined): {
             loadedId: id,
             status: 'missing',
             application: null,
-            errorMessage: null,
+            errorCode: null,
           })
           return
         }
@@ -53,7 +54,7 @@ export function useApplication(id: string | undefined): {
           loadedId: id,
           status: 'ready',
           application,
-          errorMessage: null,
+          errorCode: null,
         })
       })
       .catch((error: unknown) => {
@@ -65,10 +66,7 @@ export function useApplication(id: string | undefined): {
           loadedId: id,
           status: 'error',
           application: null,
-          errorMessage:
-            error instanceof ApplicationDataError
-              ? error.message
-              : 'Could not load the application.',
+          errorCode: applicationErrorCode(error, 'load-one'),
         })
       })
 
@@ -78,7 +76,6 @@ export function useApplication(id: string | undefined): {
   }, [id, requestId])
 
   const reload = (): void => {
-    setState((current) => ({ ...current, loadedId: undefined }))
     setRequestId((current) => current + 1)
   }
 
@@ -86,7 +83,7 @@ export function useApplication(id: string | undefined): {
     return {
       status: 'missing',
       application: null,
-      errorMessage: null,
+      errorCode: null,
       reload,
     }
   }
@@ -95,7 +92,7 @@ export function useApplication(id: string | undefined): {
     return {
       status: 'loading',
       application: null,
-      errorMessage: null,
+      errorCode: null,
       reload,
     }
   }
@@ -103,7 +100,7 @@ export function useApplication(id: string | undefined): {
   return {
     status: state.status,
     application: state.application,
-    errorMessage: state.errorMessage,
+    errorCode: state.errorCode,
     reload,
   }
 }

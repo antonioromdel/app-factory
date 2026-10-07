@@ -14,6 +14,11 @@
   gap: var(--space-8);
 }
 
+.language {
+  width: 180px;
+  align-self: flex-end;
+}
+
 .brand {
   display: flex;
   align-items: center;

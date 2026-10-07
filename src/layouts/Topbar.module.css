@@ -35,6 +35,11 @@
   width: 100%;
 }
 
+.language {
+  width: 180px;
+  flex: none;
+}
+
 @media (max-width: 900px) {
   .topbar {
     flex-wrap: wrap;

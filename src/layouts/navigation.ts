@@ -9,8 +9,17 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
+export type NavId =
+  | 'dashboard'
+  | 'applications'
+  | 'knowledge'
+  | 'checklists'
+  | 'assets'
+  | 'releases'
+  | 'settings'
+
 export interface NavItem {
-  label: string
+  id: NavId
   to: string
   icon: LucideIcon
   end?: boolean
@@ -22,13 +31,13 @@ export interface Breadcrumb {
 }
 
 export const navigation: NavItem[] = [
-  { label: 'Dashboard', to: '/', icon: LayoutDashboard, end: true },
-  { label: 'Applications', to: '/applications', icon: Smartphone },
-  { label: 'Knowledge', to: '/knowledge', icon: BookOpen },
-  { label: 'Checklists', to: '/checklists', icon: ListChecks },
-  { label: 'Assets', to: '/assets', icon: ImageIcon },
-  { label: 'Releases', to: '/releases', icon: Rocket },
-  { label: 'Settings', to: '/settings', icon: Settings },
+  { id: 'dashboard', to: '/', icon: LayoutDashboard, end: true },
+  { id: 'applications', to: '/applications', icon: Smartphone },
+  { id: 'knowledge', to: '/knowledge', icon: BookOpen },
+  { id: 'checklists', to: '/checklists', icon: ListChecks },
+  { id: 'assets', to: '/assets', icon: ImageIcon },
+  { id: 'releases', to: '/releases', icon: Rocket },
+  { id: 'settings', to: '/settings', icon: Settings },
 ]
 
 export function findNavItem(pathname: string): NavItem | undefined {

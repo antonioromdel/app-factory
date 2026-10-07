@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import {
-  FirebaseConnectionError,
+  connectionErrorCode,
   verifyFirebaseConnection,
+  type ConnectionErrorCode,
 } from '@/services/firebaseConnectionService.ts'
 
 export type FirebaseConnectionState =
   | { status: 'loading' }
   | { status: 'connected'; projectId: string }
-  | { status: 'error'; message: string }
+  | { status: 'error'; code: ConnectionErrorCode }
 
 export function useFirebaseConnection(): FirebaseConnectionState {
   const [state, setState] = useState<FirebaseConnectionState>({
@@ -28,12 +29,7 @@ export function useFirebaseConnection(): FirebaseConnectionState {
           return
         }
 
-        const message =
-          error instanceof FirebaseConnectionError
-            ? error.message
-            : 'Could not connect to Firebase.'
-
-        setState({ status: 'error', message })
+        setState({ status: 'error', code: connectionErrorCode(error) })
       })
 
     return () => {

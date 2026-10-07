@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import {
-  ApplicationDataError,
+  applicationErrorCode,
   listApplications,
+  type ApplicationErrorCode,
 } from '@/services/applicationService.ts'
 import type { Application } from '@/types/application.ts'
 
 interface ApplicationsState {
   status: 'loading' | 'ready' | 'error'
   applications: Application[]
-  errorMessage: string | null
+  errorCode: ApplicationErrorCode | null
 }
 
 export function useApplications(): ApplicationsState & { reload: () => void } {
@@ -16,7 +17,7 @@ export function useApplications(): ApplicationsState & { reload: () => void } {
   const [state, setState] = useState<ApplicationsState>({
     status: 'loading',
     applications: [],
-    errorMessage: null,
+    errorCode: null,
   })
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export function useApplications(): ApplicationsState & { reload: () => void } {
     listApplications()
       .then((applications) => {
         if (active) {
-          setState({ status: 'ready', applications, errorMessage: null })
+          setState({ status: 'ready', applications, errorCode: null })
         }
       })
       .catch((error: unknown) => {
@@ -36,10 +37,7 @@ export function useApplications(): ApplicationsState & { reload: () => void } {
         setState({
           status: 'error',
           applications: [],
-          errorMessage:
-            error instanceof ApplicationDataError
-              ? error.message
-              : 'Could not load applications.',
+          errorCode: applicationErrorCode(error, 'load-list'),
         })
       })
 

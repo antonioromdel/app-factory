@@ -6,11 +6,32 @@ export interface FirebaseConnectionResult {
   projectId: string
 }
 
+export const connectionErrorCodes = [
+  'missing-config',
+  'unreachable',
+  'not-setup',
+  'rejected-config',
+  'failed',
+] as const
+
+export type ConnectionErrorCode = (typeof connectionErrorCodes)[number]
+
 export class FirebaseConnectionError extends Error {
-  constructor(message: string) {
-    super(message)
+  readonly code: ConnectionErrorCode
+
+  constructor(code: ConnectionErrorCode) {
+    super(code)
     this.name = 'FirebaseConnectionError'
+    this.code = code
   }
+}
+
+export function connectionErrorCode(error: unknown): ConnectionErrorCode {
+  if (error instanceof FirebaseConnectionError) {
+    return error.code
+  }
+
+  return 'failed'
 }
 
 export async function verifyFirebaseConnection(): Promise<FirebaseConnectionResult> {
@@ -19,7 +40,7 @@ export async function verifyFirebaseConnection(): Promise<FirebaseConnectionResu
     const projectId = app.options.projectId
 
     if (!projectId) {
-      throw new FirebaseConnectionError('Firebase configuration is missing.')
+      throw new FirebaseConnectionError('missing-config')
     }
 
     await auth.authStateReady()
@@ -56,31 +77,27 @@ function toConnectionError(error: unknown): FirebaseConnectionError {
       error.code === 'deadline-exceeded' ||
       error.code === 'auth/network-request-failed'
     ) {
-      return new FirebaseConnectionError('Could not reach Firebase.')
+      return new FirebaseConnectionError('unreachable')
     }
 
     if (error.code === 'failed-precondition') {
-      return new FirebaseConnectionError(
-        'Firestore is not set up for this project yet.',
-      )
+      return new FirebaseConnectionError('not-setup')
     }
 
     if (
       error.code.startsWith('auth/invalid-api-key') ||
       error.code.includes('api-key')
     ) {
-      return new FirebaseConnectionError(
-        'Firebase rejected the project configuration.',
-      )
+      return new FirebaseConnectionError('rejected-config')
     }
   } else if (
     error instanceof Error &&
     error.message.startsWith('Missing Firebase configuration')
   ) {
-    return new FirebaseConnectionError('Firebase configuration is missing.')
+    return new FirebaseConnectionError('missing-config')
   } else {
     console.error('Firebase connection failed.')
   }
 
-  return new FirebaseConnectionError('Could not connect to Firebase.')
+  return new FirebaseConnectionError('failed')
 }

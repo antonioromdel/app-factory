@@ -4,11 +4,10 @@ import { EmptyState } from '@/components/EmptyState.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
 import { LoadingState } from '@/components/LoadingState.tsx'
 import { ApplicationForm } from '@/features/applications/ApplicationForm.tsx'
-import {
-  emptyApplicationForm,
-  formFromApplication,
-} from '@/features/applications/applicationFormState.ts'
+import { ApplicationWizard } from '@/features/applications/ApplicationWizard.tsx'
+import { formFromApplication } from '@/features/applications/applicationFormState.ts'
 import { useApplication } from '@/hooks/useApplication.ts'
+import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
   createApplication,
   updateApplication,
@@ -24,9 +23,7 @@ export function ApplicationCreatePage(): ReactElement {
   }
 
   return (
-    <ApplicationForm
-      initial={emptyApplicationForm()}
-      submitLabel="Create application"
+    <ApplicationWizard
       onSubmit={handleSubmit}
       onCancel={() => navigate('/applications')}
     />
@@ -36,17 +33,18 @@ export function ApplicationCreatePage(): ReactElement {
 export function ApplicationEditPage(): ReactElement {
   const { applicationId } = useParams()
   const navigate = useNavigate()
-  const { status, application, errorMessage, reload } =
+  const { messages } = useLanguage()
+  const { status, application, errorCode, reload } =
     useApplication(applicationId)
 
   if (status === 'loading') {
-    return <LoadingState message="Loading application…" />
+    return <LoadingState message={messages.common.loadingApplication} />
   }
 
   if (status === 'error') {
     return (
       <ErrorState
-        message={errorMessage ?? 'Could not load the application.'}
+        message={messages.applicationErrors[errorCode ?? 'load-one']}
         onRetry={reload}
       />
     )
@@ -55,8 +53,10 @@ export function ApplicationEditPage(): ReactElement {
   if (status === 'missing' || !application) {
     return (
       <EmptyState
-        title="Application not found"
-        action={<Link to="/applications">Back to applications</Link>}
+        title={messages.common.applicationNotFound}
+        action={
+          <Link to="/applications">{messages.common.backToApplications}</Link>
+        }
       />
     )
   }
@@ -74,7 +74,7 @@ export function ApplicationEditPage(): ReactElement {
     <ApplicationForm
       key={application.id}
       initial={formFromApplication(application)}
-      submitLabel="Save changes"
+      submitLabel={messages.form.saveChanges}
       onSubmit={handleSubmit}
       onCancel={() => navigate(`/applications/${application.id}`)}
     />

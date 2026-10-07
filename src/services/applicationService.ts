@@ -28,15 +28,44 @@ import {
   type GooglePlayInfo,
   type MonetizationInfo,
   type RepositoryInfo,
+  type RevenueCatInfo,
 } from '@/types/application.ts'
 
 export const applicationsCollection = 'applications'
 
+export const applicationErrorCodes = [
+  'incomplete',
+  'name-required',
+  'load-list',
+  'load-one',
+  'create',
+  'save',
+  'archive',
+  'permission',
+  'unreachable',
+] as const
+
+export type ApplicationErrorCode = (typeof applicationErrorCodes)[number]
+
 export class ApplicationDataError extends Error {
-  constructor(message: string) {
-    super(message)
+  readonly code: ApplicationErrorCode
+
+  constructor(code: ApplicationErrorCode) {
+    super(code)
     this.name = 'ApplicationDataError'
+    this.code = code
   }
+}
+
+export function applicationErrorCode(
+  error: unknown,
+  fallback: ApplicationErrorCode,
+): ApplicationErrorCode {
+  if (error instanceof ApplicationDataError) {
+    return error.code
+  }
+
+  return fallback
 }
 
 export function applicationFromFirestore(
@@ -44,19 +73,19 @@ export function applicationFromFirestore(
   data: unknown,
 ): Application {
   if (!isRecord(data)) {
-    throw new ApplicationDataError('Application data is missing.')
+    throw new ApplicationDataError('incomplete')
   }
 
   const name = readString(data.name)
   if (!name) {
-    throw new ApplicationDataError('Application name is missing.')
+    throw new ApplicationDataError('incomplete')
   }
 
   const application: Application = {
     id,
     name,
-    createdAt: readTimestamp(data.createdAt, 'createdAt'),
-    updatedAt: readTimestamp(data.updatedAt, 'updatedAt'),
+    createdAt: readTimestamp(data.createdAt),
+    updatedAt: readTimestamp(data.updatedAt),
   }
 
   assignString(application, 'description', data.description)
@@ -86,6 +115,10 @@ export function applicationFromFirestore(
   if (admob) {
     application.admob = admob
   }
+  const revenueCat = readRevenueCat(data.revenueCat)
+  if (revenueCat) {
+    application.revenueCat = revenueCat
+  }
   const googlePlay = readGooglePlay(data.googlePlay)
   if (googlePlay) {
     application.googlePlay = googlePlay
@@ -109,7 +142,7 @@ export function applicationFromFirestore(
 export function newApplicationDocument(input: ApplicationInput): DocumentData {
   const name = readString(input.name)
   if (!name) {
-    throw new ApplicationDataError('Application name is required.')
+    throw new ApplicationDataError('name-required')
   }
 
   const document: DocumentData = {
@@ -132,6 +165,7 @@ export function newApplicationDocument(input: ApplicationInput): DocumentData {
   writeGroup(document, 'repository', readRepository(input.repository))
   writeGroup(document, 'firebase', readFirebase(input.firebase))
   writeGroup(document, 'admob', readAdMob(input.admob))
+  writeGroup(document, 'revenueCat', readRevenueCat(input.revenueCat))
   writeGroup(document, 'googlePlay', readGooglePlay(input.googlePlay))
   writeGroup(document, 'appStore', readAppStore(input.appStore))
   writeGroup(document, 'monetization', readMonetization(input.monetization))
@@ -145,7 +179,7 @@ export function applicationUpdateDocument(
 ): DocumentData {
   const name = readString(input.name)
   if (!name) {
-    throw new ApplicationDataError('Application name is required.')
+    throw new ApplicationDataError('name-required')
   }
 
   return {
@@ -162,6 +196,7 @@ export function applicationUpdateDocument(
     repository: storedGroup(readRepository(input.repository)),
     firebase: storedGroup(readFirebase(input.firebase)),
     admob: storedGroup(readAdMob(input.admob)),
+    revenueCat: storedGroup(readRevenueCat(input.revenueCat)),
     googlePlay: storedGroup(readGooglePlay(input.googlePlay)),
     appStore: storedGroup(readAppStore(input.appStore)),
     monetization: storedGroup(readMonetization(input.monetization)),
@@ -177,7 +212,7 @@ export async function listApplications(): Promise<Application[]> {
       applicationFromFirestore(item.id, item.data()),
     )
   } catch (error: unknown) {
-    throw toApplicationError(error, 'Could not load applications.')
+    throw toApplicationError(error, 'load-list')
   }
 }
 
@@ -191,7 +226,7 @@ export async function getApplication(id: string): Promise<Application | null> {
 
     return applicationFromFirestore(snapshot.id, snapshot.data())
   } catch (error: unknown) {
-    throw toApplicationError(error, 'Could not load the application.')
+    throw toApplicationError(error, 'load-one')
   }
 }
 
@@ -206,7 +241,7 @@ export async function createApplication(
     )
     return created.id
   } catch (error: unknown) {
-    throw toApplicationError(error, 'Could not create the application.')
+    throw toApplicationError(error, 'create')
   }
 }
 
@@ -221,7 +256,22 @@ export async function updateApplication(
       applicationUpdateDocument(input),
     )
   } catch (error: unknown) {
-    throw toApplicationError(error, 'Could not save the application.')
+    throw toApplicationError(error, 'save')
+  }
+}
+
+export async function updateApplicationStatus(
+  id: string,
+  status: ApplicationStatus,
+): Promise<void> {
+  try {
+    const { db } = getFirebaseServices()
+    await updateDoc(doc(db, applicationsCollection, id), {
+      status,
+      updatedAt: serverTimestamp(),
+    })
+  } catch (error: unknown) {
+    throw toApplicationError(error, 'save')
   }
 }
 
@@ -233,29 +283,34 @@ export async function archiveApplication(id: string): Promise<void> {
       updatedAt: serverTimestamp(),
     })
   } catch (error: unknown) {
-    throw toApplicationError(error, 'Could not archive the application.')
+    throw toApplicationError(error, 'archive')
   }
 }
 
 export async function duplicateApplication(
   source: Application,
+  copyName: string,
 ): Promise<string> {
   const copy = applicationToInput(source)
-  copy.name = `Copy of ${source.name}`
+  copy.name = copyName
   return createApplication(copy)
 }
 
 function applicationToInput(source: Application): ApplicationInput {
   const input: ApplicationInput = { name: source.name }
   if (source.description) input.description = source.description
-  if (source.status && source.status !== 'ARCHIVED')
+  if (source.status === 'ARCHIVED') {
+    input.status = 'IDEA'
+  } else if (source.status) {
     input.status = source.status
+  }
   if (source.category) input.category = source.category
   if (source.tags) input.tags = source.tags
   if (source.flutter) input.flutter = source.flutter
   if (source.repository) input.repository = source.repository
   if (source.firebase) input.firebase = source.firebase
   if (source.admob) input.admob = source.admob
+  if (source.revenueCat) input.revenueCat = source.revenueCat
   if (source.googlePlay) input.googlePlay = source.googlePlay
   if (source.appStore) input.appStore = source.appStore
   if (source.monetization) input.monetization = source.monetization
@@ -273,7 +328,7 @@ function storedGroup(value: object | undefined): object | FieldValue {
 
 function toApplicationError(
   error: unknown,
-  fallback: string,
+  fallback: ApplicationErrorCode,
 ): ApplicationDataError {
   if (error instanceof ApplicationDataError) {
     return error
@@ -283,11 +338,11 @@ function toApplicationError(
     console.error(`Application request failed: ${error.code}`)
 
     if (error.code === 'permission-denied') {
-      return new ApplicationDataError('You do not have access to applications.')
+      return new ApplicationDataError('permission')
     }
 
     if (error.code === 'unavailable' || error.code === 'deadline-exceeded') {
-      return new ApplicationDataError('Could not reach Firebase.')
+      return new ApplicationDataError('unreachable')
     }
   } else {
     console.error('Application request failed.')
@@ -349,11 +404,22 @@ function readAdMob(value: unknown): AdMobInfo | undefined {
   }
 
   const info: AdMobInfo = {}
+  assignString(info, 'consoleUrl', value.consoleUrl)
   assignString(info, 'appId', value.appId)
   assignString(info, 'bannerId', value.bannerId)
   assignString(info, 'interstitialId', value.interstitialId)
   assignString(info, 'rewardedId', value.rewardedId)
   assignString(info, 'nativeId', value.nativeId)
+  return hasFields(info) ? info : undefined
+}
+
+function readRevenueCat(value: unknown): RevenueCatInfo | undefined {
+  if (!isRecord(value)) {
+    return undefined
+  }
+
+  const info: RevenueCatInfo = {}
+  assignString(info, 'dashboardUrl', value.dashboardUrl)
   return hasFields(info) ? info : undefined
 }
 
@@ -485,12 +551,12 @@ function readStatus(value: unknown): ApplicationStatus | undefined {
   return isApplicationStatus(value) ? value : undefined
 }
 
-function readTimestamp(value: unknown, field: string): Timestamp {
+function readTimestamp(value: unknown): Timestamp {
   if (value instanceof Timestamp) {
     return value
   }
 
-  throw new ApplicationDataError(`Application ${field} is missing.`)
+  throw new ApplicationDataError('incomplete')
 }
 
 function isApplicationStatus(value: unknown): value is ApplicationStatus {
