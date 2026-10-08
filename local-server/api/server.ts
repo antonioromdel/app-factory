@@ -10,6 +10,7 @@ import {
   createFlutterProject,
   planFlutterCreate,
 } from '../flutter/createProject.ts'
+import { runHealthCheck } from '../flutter/health.ts'
 import { publicFlutterCatalog } from '../flutter/templates.ts'
 
 const host = '127.0.0.1'
@@ -59,6 +60,7 @@ async function handleRequest(
       operations: [
         'flutter.templates',
         'flutter.create',
+        'flutter.health',
         'filesystem.pickDirectory',
         'filesystem.open',
         'environment.check',
@@ -80,6 +82,11 @@ async function handleRequest(
 
   if (request.method === 'POST' && url.pathname === '/flutter/create') {
     await handleCreate(request, response)
+    return
+  }
+
+  if (request.method === 'POST' && url.pathname === '/flutter/health') {
+    await handleHealth(request, response)
     return
   }
 
@@ -148,6 +155,30 @@ async function handlePickDirectory(
     result.ok ? 200 : result.code === 'cancelled' ? 200 : 500,
     result,
   )
+}
+
+async function handleHealth(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  let body: unknown
+  try {
+    body = JSON.parse(await readBody(request))
+  } catch {
+    sendJson(response, 400, { ok: false, code: 'invalid-request' })
+    return
+  }
+
+  const pathValue =
+    typeof body === 'object' && body !== null && 'path' in body
+      ? body.path
+      : undefined
+  const checkValue =
+    typeof body === 'object' && body !== null && 'check' in body
+      ? body.check
+      : undefined
+  const result = await runHealthCheck(pathValue, checkValue)
+  sendJson(response, result.ok ? 200 : 400, result)
 }
 
 async function handleCreate(

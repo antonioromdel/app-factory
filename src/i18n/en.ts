@@ -10,6 +10,10 @@ import type { ApplicationErrorCode } from '@/services/applicationService.ts'
 import type { ChecklistErrorCode } from '@/services/checklistService.ts'
 import type { ConnectionErrorCode } from '@/services/firebaseConnectionService.ts'
 import type { KnowledgeErrorCode } from '@/services/knowledgeService.ts'
+import type {
+  HealthCheckId,
+  HealthErrorCode,
+} from '@/services/localHealthService.ts'
 import type { LocalFlutterErrorCode } from '@/services/localFlutterService.ts'
 import type {
   EnvironmentStatus,
@@ -715,6 +719,44 @@ export const en = {
         'The local helper is not running. Start it with pnpm dev:local and try again.',
       invalid: 'The helper could not finish this check.',
     },
+  },
+  projectHealth: {
+    title: 'Project health',
+    lead: 'Runs the project checks in the saved folder and shows each command’s output.',
+    needsFolder:
+      'Save a local folder on this application before checking the project.',
+    run: 'Check project',
+    running: 'Checking…',
+    confirmTitle: 'Check this Flutter project?',
+    confirmDescription:
+      'This runs flutter pub get, flutter analyze, flutter test, the dependency check and the Android build validation. It can take several minutes. pub get may update the lockfile. The build check prepares Android files and does not produce an APK.',
+    summary: (passed: number, warnings: number, failed: number) =>
+      `${passed} passed, ${warnings} warnings, ${failed} failed`,
+    checks: {
+      pubGet: 'Packages',
+      analyze: 'Analyze',
+      test: 'Tests',
+      dependencies: 'Dependencies',
+      build: 'Build validation',
+    } satisfies Record<HealthCheckId, string>,
+    status: {
+      pending: 'Pending',
+      running: 'Running',
+      passed: '✓ Passed',
+      warning: '⚠ Warning',
+      failed: '✕ Failed',
+    },
+    errors: {
+      offline:
+        'The local helper is not running. Start it with pnpm dev:local and try again.',
+      'invalid-request': 'The helper could not read this request.',
+      'invalid-directory':
+        'Use a full folder path without characters such as & or %.',
+      'directory-missing': 'That folder does not exist.',
+      'not-a-flutter-project':
+        'That folder is not a Flutter project. It needs a pubspec.yaml file.',
+      'invalid-check': 'The helper does not know that check.',
+    } satisfies Record<HealthErrorCode, string>,
   },
   knowledge: {
     loading: 'Loading articles…',

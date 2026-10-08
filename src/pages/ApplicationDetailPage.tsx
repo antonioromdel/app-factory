@@ -19,6 +19,7 @@ import { ApplicationAssets } from '@/features/assets/ApplicationAssets.tsx'
 import { ApplicationChecklist } from '@/features/checklists/ApplicationChecklist.tsx'
 import { FlutterProject } from '@/features/flutter/FlutterProject.tsx'
 import { OpenFolderButton } from '@/features/flutter/OpenFolderButton.tsx'
+import { ProjectHealth } from '@/features/flutter/ProjectHealth.tsx'
 import { useApplication } from '@/hooks/useApplication.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
@@ -354,6 +355,7 @@ function Development({
         <OpenFolderButton directory={repository.localPath} />
       ) : null}
       <FlutterProject application={application} onSaved={onReload} />
+      <ProjectHealth directory={repository?.localPath} />
     </div>
   )
 }

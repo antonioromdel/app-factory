@@ -698,6 +698,43 @@ export const es = {
       invalid: 'El ayudante no ha podido completar la comprobación.',
     },
   },
+  projectHealth: {
+    title: 'Salud del proyecto',
+    lead: 'Ejecuta las comprobaciones en la carpeta guardada y muestra la salida de cada comando.',
+    needsFolder:
+      'Guarda una carpeta local en esta aplicación antes de comprobar el proyecto.',
+    run: 'Comprobar proyecto',
+    running: 'Comprobando…',
+    confirmTitle: '¿Comprobar este proyecto Flutter?',
+    confirmDescription:
+      'Se ejecutará flutter pub get, flutter analyze, flutter test, la revisión de dependencias y la validación de la compilación Android. Puede tardar varios minutos. pub get puede actualizar el archivo de bloqueo. La validación prepara los archivos de Android y no genera un APK.',
+    summary: (passed: number, warnings: number, failed: number) =>
+      `${passed} correctas, ${warnings} avisos, ${failed} fallos`,
+    checks: {
+      pubGet: 'Paquetes',
+      analyze: 'Análisis',
+      test: 'Tests',
+      dependencies: 'Dependencias',
+      build: 'Validación de compilación',
+    },
+    status: {
+      pending: 'Pendiente',
+      running: 'En curso',
+      passed: '✓ Correcto',
+      warning: '⚠ Aviso',
+      failed: '✕ Fallo',
+    },
+    errors: {
+      offline:
+        'El ayudante local no está en marcha. Arráncalo con pnpm dev:local y vuelve a intentarlo.',
+      'invalid-request': 'El ayudante no ha podido leer esta petición.',
+      'invalid-directory': 'Usa una ruta completa, sin caracteres como & o %.',
+      'directory-missing': 'Esa carpeta no existe.',
+      'not-a-flutter-project':
+        'Esa carpeta no es un proyecto Flutter. Necesita un archivo pubspec.yaml.',
+      'invalid-check': 'El ayudante no conoce esa comprobación.',
+    },
+  },
   knowledge: {
     loading: 'Cargando artículos…',
     loadingYours: 'Cargando tus artículos…',
