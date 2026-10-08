@@ -567,6 +567,8 @@ export const es = {
     directory: 'Carpeta padre',
     directoryHint:
       'Flutter crea una subcarpeta con el nombre del proyecto. La carpeta padre tiene que existir, y la del proyecto no.',
+    chooseFolder: 'Elegir carpeta',
+    choosing: 'Elige una carpeta en la ventana del sistema…',
     android: 'Android',
     ios: 'iOS',
     destination: (path: string) => `Carpeta del proyecto: ${path}`,
@@ -600,6 +602,9 @@ export const es = {
       'flutter-failed':
         'flutter create no ha terminado. La salida está debajo.',
       timeout: 'flutter create ha tardado demasiado y se ha detenido.',
+      'picker-failed':
+        'No se ha podido abrir la ventana de carpetas. Escribe la ruta.',
+      'picker-busy': 'Ya hay una ventana de carpetas abierta.',
     },
   },
   knowledge: {

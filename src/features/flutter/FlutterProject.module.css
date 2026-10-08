@@ -41,11 +41,24 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-4);
+  width: 100%;
   max-width: 520px;
 }
 
 .output {
   max-width: 720px;
+}
+
+.directory {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.directoryInput {
+  width: 100%;
 }
 
 .platforms {

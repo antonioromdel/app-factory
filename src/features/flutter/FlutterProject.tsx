@@ -16,6 +16,7 @@ import { saveApplicationLocalPath } from '@/services/applicationService.ts'
 import {
   createFlutterProject,
   fetchFlutterTemplates,
+  pickFlutterDirectory,
   type FlutterPlatformName,
   type FlutterTemplateOption,
   type LocalFlutterErrorCode,
@@ -59,6 +60,7 @@ export function FlutterProject({
       !application.flutter?.packageName,
   )
   const [confirming, setConfirming] = useState(false)
+  const [picking, setPicking] = useState(false)
   const [creating, setCreating] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -102,6 +104,20 @@ export function FlutterProject({
     projectName.trim() !== '' &&
     org.trim() !== '' &&
     directory.trim() !== ''
+
+  async function handlePickDirectory(): Promise<void> {
+    setPicking(true)
+    setErrorCode(null)
+    const result = await pickFlutterDirectory(directory)
+    setPicking(false)
+    if (result.ok) {
+      setDirectory(result.directory)
+      return
+    }
+    if (result.code !== 'cancelled') {
+      setErrorCode(result.code)
+    }
+  }
 
   async function handleCreate(): Promise<void> {
     if (!template) {
@@ -191,13 +207,25 @@ export function FlutterProject({
           disabled={creating}
           onChange={(event) => setOrg(event.target.value)}
         />
-        <Input
-          label={messages.flutterProject.directory}
-          value={directory}
-          disabled={creating}
-          spellCheck={false}
-          onChange={(event) => setDirectory(event.target.value)}
-        />
+        <div className={styles.directory}>
+          <Input
+            className={styles.directoryInput}
+            label={messages.flutterProject.directory}
+            value={directory}
+            disabled={creating || picking}
+            spellCheck={false}
+            onChange={(event) => setDirectory(event.target.value)}
+          />
+          <Button
+            variant="secondary"
+            disabled={connection !== 'online' || creating || picking}
+            onClick={() => void handlePickDirectory()}
+          >
+            {picking
+              ? messages.flutterProject.choosing
+              : messages.flutterProject.chooseFolder}
+          </Button>
+        </div>
         <p className={styles.hint}>{messages.flutterProject.directoryHint}</p>
         <div className={styles.platforms}>
           {template?.platforms.includes('android') ? (

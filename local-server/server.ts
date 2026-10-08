@@ -4,6 +4,7 @@ import {
   type ServerResponse,
 } from 'node:http'
 import { createFlutterProject, planFlutterCreate } from './createProject.ts'
+import { pickProjectDirectory } from './pickDirectory.ts'
 import { publicFlutterTemplates } from './templates.ts'
 
 const host = '127.0.0.1'
@@ -62,7 +63,39 @@ async function handleRequest(
     return
   }
 
+  if (request.method === 'POST' && url.pathname === '/flutter/pick-directory') {
+    await handlePickDirectory(request, response)
+    return
+  }
+
   sendJson(response, 404, { ok: false, code: 'invalid-request' })
+}
+
+async function handlePickDirectory(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  let body: unknown = {}
+  try {
+    const raw = await readBody(request)
+    if (raw.trim()) {
+      body = JSON.parse(raw)
+    }
+  } catch {
+    sendJson(response, 400, { ok: false, code: 'invalid-request' })
+    return
+  }
+
+  const start =
+    typeof body === 'object' && body !== null && 'directory' in body
+      ? body.directory
+      : undefined
+  const result = await pickProjectDirectory(start)
+  sendJson(
+    response,
+    result.ok ? 200 : result.code === 'cancelled' ? 200 : 500,
+    result,
+  )
 }
 
 async function handleCreate(

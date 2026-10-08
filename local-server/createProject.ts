@@ -228,14 +228,7 @@ export function createFlutterProject(
   return new Promise((resolve) => {
     let settled = false
     let output = ''
-    const command = process.platform === 'win32' ? 'flutter.cmd' : 'flutter'
-    const child = spawn(command, args, {
-      // flutter.cmd cannot be started with CreateProcess. Arguments stay in an
-      // array, and planFlutterCreate already rejects shell metacharacters.
-      shell: process.platform === 'win32',
-      windowsHide: true,
-      cwd: plan.directory,
-    })
+    const child = startFlutter(args, plan.directory)
 
     const finish = (result: CreateProjectResult): void => {
       if (settled) {
@@ -289,9 +282,36 @@ function appendOutput(current: string, chunk: Buffer): string {
 }
 
 function looksMissing(output: string): boolean {
-  return /not recognized as an internal or external command|command not found|No such file or directory/i.test(
+  return /not recognized as an internal or external command|no se reconoce como un comando|command not found|No such file or directory/i.test(
     output,
   )
+}
+
+function startFlutter(args: string[], cwd: string) {
+  if (process.platform !== 'win32') {
+    return spawn('flutter', args, { windowsHide: true, cwd })
+  }
+
+  // flutter.bat cannot be started with CreateProcess. cmd.exe runs the fixed
+  // command name, and each argument is quoted before it is joined.
+  const commandLine = ['flutter', ...args.map(quoteForCmd)].join(' ')
+  return spawn(
+    process.env.ComSpec ?? 'cmd.exe',
+    ['/d', '/s', '/c', commandLine],
+    {
+      windowsVerbatimArguments: true,
+      windowsHide: true,
+      cwd,
+    },
+  )
+}
+
+function quoteForCmd(value: string): string {
+  if (!/[\s"]/.test(value)) {
+    return value
+  }
+
+  return `"${value.replaceAll('"', '""')}"`
 }
 
 function isSafeDirectory(value: string): boolean {

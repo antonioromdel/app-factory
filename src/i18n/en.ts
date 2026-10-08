@@ -582,6 +582,8 @@ export const en = {
     directory: 'Parent folder',
     directoryHint:
       'Flutter creates a new subfolder with the project name. The folder must already exist, and the project folder must not.',
+    chooseFolder: 'Choose folder',
+    choosing: 'Choose a folder in the system window…',
     android: 'Android',
     ios: 'iOS',
     destination: (path: string) => `Project folder: ${path}`,
@@ -615,6 +617,9 @@ export const en = {
         'Flutter is not available on this computer. Install it and open a new terminal.',
       'flutter-failed': 'flutter create did not finish. The output is below.',
       timeout: 'flutter create took too long and was stopped.',
+      'picker-failed':
+        'The folder window could not be opened. Type the path instead.',
+      'picker-busy': 'A folder window is already open.',
     } satisfies Record<LocalFlutterErrorCode, string>,
   },
   knowledge: {

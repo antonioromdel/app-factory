@@ -22,6 +22,8 @@ export const localFlutterErrorCodes = [
   'flutter-failed',
   'timeout',
   'offline',
+  'picker-failed',
+  'picker-busy',
 ] as const
 
 export type LocalFlutterErrorCode = (typeof localFlutterErrorCodes)[number]
@@ -38,6 +40,10 @@ export interface FlutterCreateInput {
 export type FlutterCreateResponse =
   | { ok: true; projectPath: string; output: string }
   | { ok: false; code: LocalFlutterErrorCode; output?: string }
+
+export type PickDirectoryResponse =
+  | { ok: true; directory: string }
+  | { ok: false; code: 'cancelled' | LocalFlutterErrorCode }
 
 export function localFlutterUrl(): string {
   const configured = import.meta.env.VITE_LOCAL_API_URL
@@ -88,6 +94,43 @@ export async function createFlutterProject(
   }
 
   return readCreateResponse(payload)
+}
+
+export async function pickFlutterDirectory(
+  directory: string,
+): Promise<PickDirectoryResponse> {
+  let response: Response
+  try {
+    response = await fetch(`${localFlutterUrl()}/flutter/pick-directory`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ directory }),
+    })
+  } catch {
+    return { ok: false, code: 'offline' }
+  }
+
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    return { ok: false, code: 'offline' }
+  }
+
+  if (!isRecord(payload) || typeof payload.ok !== 'boolean') {
+    return { ok: false, code: 'invalid-request' }
+  }
+
+  if (payload.ok && typeof payload.directory === 'string') {
+    return { ok: true, directory: payload.directory }
+  }
+
+  if (payload.code === 'cancelled') {
+    return { ok: false, code: 'cancelled' }
+  }
+
+  const code = localFlutterErrorCodes.find((item) => item === payload.code)
+  return { ok: false, code: code ?? 'picker-failed' }
 }
 
 function readTemplate(value: unknown): FlutterTemplateOption[] {
