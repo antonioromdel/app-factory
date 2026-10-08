@@ -27,6 +27,7 @@ import {
 } from '@/pages/KnowledgeFormPage.tsx'
 import { KnowledgePage } from '@/pages/KnowledgePage.tsx'
 import { PlaceholderPage } from '@/pages/PlaceholderPage.tsx'
+import { SettingsPage } from '@/pages/SettingsPage.tsx'
 
 export function App(): ReactElement {
   return (
@@ -94,15 +95,7 @@ function AppRoutes(): ReactElement {
             />
           }
         />
-        <Route
-          path="settings"
-          element={
-            <PlaceholderPage
-              title={messages.placeholders.settingsTitle}
-              description={messages.placeholders.settingsDescription}
-            />
-          }
-        />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -38,6 +38,7 @@ export const localFlutterErrorCodes = [
   'offline',
   'picker-failed',
   'picker-busy',
+  'open-failed',
 ] as const
 
 export type LocalFlutterErrorCode = (typeof localFlutterErrorCodes)[number]
@@ -158,6 +159,39 @@ export async function pickFlutterDirectory(
 
   const code = localFlutterErrorCodes.find((item) => item === payload.code)
   return { ok: false, code: code ?? 'picker-failed' }
+}
+
+export async function openLocalDirectory(
+  directory: string,
+): Promise<{ ok: true } | { ok: false; code: LocalFlutterErrorCode }> {
+  let response: Response
+  try {
+    response = await fetch(`${localFlutterUrl()}/filesystem/open`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: directory }),
+    })
+  } catch {
+    return { ok: false, code: 'offline' }
+  }
+
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    return { ok: false, code: 'offline' }
+  }
+
+  if (!isRecord(payload) || typeof payload.ok !== 'boolean') {
+    return { ok: false, code: 'invalid-request' }
+  }
+
+  if (payload.ok) {
+    return { ok: true }
+  }
+
+  const code = localFlutterErrorCodes.find((item) => item === payload.code)
+  return { ok: false, code: code ?? 'open-failed' }
 }
 
 function readFeature(value: unknown): FlutterFeatureOption[] {

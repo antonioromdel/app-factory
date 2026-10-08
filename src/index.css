@@ -23,11 +23,11 @@
   --color-focus: #8ab4ff;
 
   --font-sans: system-ui, 'Segoe UI', sans-serif;
-  --font-size-sm: 15px;
-  --font-size-md: 17px;
-  --font-size-lg: 18px;
-  --font-size-xl: 24px;
-  --font-size-2xl: 40px;
+  --font-size-sm: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 15px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 28px;
   --line-height: 1.5;
 
   --space-1: 4px;
@@ -47,7 +47,7 @@
   --shadow-overlay: 0 24px 48px rgba(0, 0, 0, 0.4);
   --border-width: 1px;
   --transition-fast: 150ms ease;
-  --control-height: 52px;
+  --control-height: 40px;
   --sidebar-width: 280px;
 }
 

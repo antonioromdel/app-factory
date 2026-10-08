@@ -55,7 +55,6 @@ export function AssetsPage(): ReactElement {
       ) : null}
       {applications.status === 'ready' && index.status === 'ready' ? (
         <>
-          <p className={styles.lead}>{messages.assets.libraryLead}</p>
           {applications.applications.length === 0 ? (
             <EmptyState
               title={messages.assets.noApplicationsTitle}
@@ -63,17 +62,6 @@ export function AssetsPage(): ReactElement {
               action={
                 <Link className={styles.open} to="/applications/new">
                   {messages.applications.newApplication}
-                </Link>
-              }
-            />
-          ) : null}
-          {applications.applications.length > 0 && index.assets.length === 0 ? (
-            <EmptyState
-              title={messages.assets.emptyTitle}
-              description={messages.assets.emptyDescription}
-              action={
-                <Link className={styles.open} to="/applications">
-                  {messages.assets.openApplications}
                 </Link>
               }
             />

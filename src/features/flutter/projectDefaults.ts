@@ -33,12 +33,3 @@ export function parentDirectory(localPath: string | undefined): string {
   }
   return trimmed.slice(0, index)
 }
-
-export function projectDirectory(
-  directory: string,
-  projectName: string,
-): string {
-  const trimmed = directory.trim().replace(/[\\/]+$/, '')
-  const separator = trimmed.includes('\\') ? '\\' : '/'
-  return `${trimmed}${separator}${projectName.trim()}`
-}

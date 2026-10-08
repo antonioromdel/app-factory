@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:local": "node --experimental-strip-types local-server/server.ts",
+    "dev:local": "node --experimental-strip-types local-server/api/server.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "format": "prettier --write .",

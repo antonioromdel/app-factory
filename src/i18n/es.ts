@@ -404,8 +404,6 @@ export const es = {
   assets: {
     loading: 'Cargando recursos…',
     lead: 'Iconos, splash, capturas e imágenes de tienda de esta aplicación.',
-    libraryLead:
-      'Cada aplicación guarda sus iconos, capturas e imágenes de tienda.',
     upload: 'Subir',
     uploading: 'Subiendo…',
     category: 'Categoría',
@@ -424,7 +422,6 @@ export const es = {
     noApplicationsTitle: 'Todavía no hay aplicaciones',
     noApplicationsDescription: 'Crea una aplicación antes de subir recursos.',
     openApplication: 'Abrir aplicación',
-    openApplications: 'Abrir aplicaciones',
     categories: {
       appIcon: 'Icono de la app',
       androidIcons: 'Iconos de Android',
@@ -564,9 +561,8 @@ export const es = {
     template: 'Plantilla',
     projectName: 'Nombre del proyecto',
     org: 'Organización',
-    directory: 'Carpeta padre',
-    directoryHint:
-      'Flutter crea una subcarpeta con el nombre del proyecto. La carpeta padre tiene que existir, y la del proyecto no.',
+    directory: 'Carpeta',
+    folderPrompt: 'Elige la carpeta donde se creará el proyecto.',
     chooseFolder: 'Elegir carpeta',
     choosing: 'Elige una carpeta en la ventana del sistema…',
     pieces: 'Piezas',
@@ -576,7 +572,7 @@ export const es = {
     packagesNone: 'Sin paquetes extra. Solo se crea la aplicación Flutter.',
     android: 'Android',
     ios: 'iOS',
-    destination: (path: string) => `Carpeta del proyecto: ${path}`,
+    destination: (path: string) => `El proyecto se creará en ${path}`,
     create: 'Crear proyecto',
     creating: 'Creando…',
     confirmTitle: '¿Crear el proyecto Flutter?',
@@ -588,6 +584,8 @@ export const es = {
     created: 'El proyecto se ha creado.',
     savePath: 'Guardar esta carpeta en la aplicación',
     saved: 'La ruta local se ha guardado.',
+    openFolder: 'Abrir carpeta',
+    opening: 'Abriendo…',
     templates: {
       basic: 'Básica',
       firebase: 'Firebase',
@@ -614,8 +612,9 @@ export const es = {
       'invalid-platforms': 'Elige Android, iOS o ambos.',
       'invalid-template': 'Elige una plantilla de la lista.',
       'invalid-directory': 'Usa una ruta completa, sin caracteres como & o %.',
-      'directory-missing': 'Esa carpeta padre no existe.',
-      'project-exists': 'Ya hay una carpeta con este nombre de proyecto.',
+      'directory-missing': 'Esa carpeta no existe.',
+      'project-exists':
+        'Esa carpeta ya tiene archivos. Elige una carpeta vacía.',
       'flutter-missing':
         'Flutter no está disponible en este equipo. Instálalo y abre un terminal nuevo.',
       'flutter-failed':
@@ -625,8 +624,78 @@ export const es = {
       'invalid-features': 'Elige piezas de la plantilla seleccionada.',
       timeout: 'flutter create ha tardado demasiado y se ha detenido.',
       'picker-failed':
-        'No se ha podido abrir la ventana de carpetas. Escribe la ruta.',
+        'No se ha podido abrir la ventana de carpetas. Vuelve a intentarlo.',
       'picker-busy': 'Ya hay una ventana de carpetas abierta.',
+      'open-failed': 'No se ha podido abrir la carpeta.',
+    },
+  },
+  environment: {
+    lead: 'Comprueba si este equipo tiene las herramientas para crear y publicar aplicaciones Flutter.',
+    checking: 'Comprobando este equipo…',
+    checkAgain: 'Comprobar de nuevo',
+    summary: (installed: number, outdated: number, missing: number) =>
+      `${installed} instaladas, ${outdated} desactualizadas, ${missing} no encontradas`,
+    status: {
+      installed: 'Instalada',
+      outdated: 'Desactualizada',
+      missing: 'No encontrada',
+    },
+    tools: {
+      flutter: 'Flutter',
+      dart: 'Dart',
+      git: 'Git',
+      firebase: 'Firebase CLI',
+      node: 'Node.js',
+      npm: 'npm',
+      java: 'Java',
+      androidSdk: 'Android SDK',
+      androidStudio: 'Android Studio',
+      xcode: 'Xcode',
+      cocoapods: 'CocoaPods',
+      fastlane: 'Fastlane',
+    },
+    missing: {
+      flutter:
+        'Instala Flutter y añade su carpeta bin al PATH. https://docs.flutter.dev/get-started/install',
+      dart: 'Dart se instala con Flutter. Añade la carpeta bin de Flutter al PATH.',
+      git: 'Instala Git y vuelve a comprobar. https://git-scm.com/downloads',
+      firebase:
+        'Instala la CLI con npm install -g firebase-tools cuando Node.js ya esté disponible.',
+      node: 'Instala Node.js 20 o posterior. https://nodejs.org',
+      npm: 'npm se instala junto con Node.js.',
+      java: 'Instala un JDK 17 o posterior y asegúrate de que java está en el PATH. Android Studio puede instalar un JDK.',
+      androidSdk:
+        'Instala el SDK de Android desde Android Studio. Si ya está, define ANDROID_HOME con la carpeta del SDK.',
+      androidStudio:
+        'Instala Android Studio. https://developer.android.com/studio',
+      xcode:
+        'Instala Xcode desde la App Store y ábrelo una vez para aceptar la licencia.',
+      cocoapods:
+        'Instala CocoaPods con brew install cocoapods, o con sudo gem install cocoapods.',
+      fastlane:
+        'Instala Fastlane. En macOS, brew install fastlane. https://docs.fastlane.tools',
+    },
+    outdated: {
+      flutter:
+        'Hay una versión más reciente de Flutter. En una terminal, ejecuta flutter upgrade.',
+      dart: 'Actualiza Flutter con flutter upgrade. Dart va incluido.',
+      git: 'Instala una versión más reciente de Git.',
+      firebase: 'Actualiza la CLI con npm install -g firebase-tools.',
+      node: 'Instala una versión actual de Node.js, de la 20 en adelante.',
+      npm: 'Actualiza npm con npm install -g npm, o vuelve a instalar Node.js.',
+      java: 'Hace falta JDK 17 o posterior. El Java instalado es más antiguo.',
+      androidSdk:
+        'Instala Android 14 (API 34) o una plataforma más nueva desde el SDK Manager.',
+      androidStudio: 'Actualiza Android Studio desde el propio programa.',
+      xcode: 'Actualiza Xcode desde la App Store.',
+      cocoapods:
+        'Actualiza CocoaPods con brew upgrade cocoapods o gem install cocoapods.',
+      fastlane: 'Actualiza Fastlane. En macOS, brew upgrade fastlane.',
+    },
+    errors: {
+      offline:
+        'El ayudante local no está en marcha. Arráncalo con pnpm dev:local y vuelve a intentarlo.',
+      invalid: 'El ayudante no ha podido completar la comprobación.',
     },
   },
   knowledge: {

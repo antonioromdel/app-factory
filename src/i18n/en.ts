@@ -11,6 +11,10 @@ import type { ChecklistErrorCode } from '@/services/checklistService.ts'
 import type { ConnectionErrorCode } from '@/services/firebaseConnectionService.ts'
 import type { KnowledgeErrorCode } from '@/services/knowledgeService.ts'
 import type { LocalFlutterErrorCode } from '@/services/localFlutterService.ts'
+import type {
+  EnvironmentStatus,
+  EnvironmentToolId,
+} from '@/services/localEnvironmentService.ts'
 import type { AssetCategory } from '@/types/asset.ts'
 import type { ApplicationStatus, FirebaseService } from '@/types/application.ts'
 import type { ChecklistCategory, ChecklistItemId } from '@/types/checklist.ts'
@@ -419,8 +423,6 @@ export const en = {
   assets: {
     loading: 'Loading assets…',
     lead: 'Icons, splash screens, screenshots and store images for this application.',
-    libraryLead:
-      'Each application keeps its own icons, screenshots and store images.',
     upload: 'Upload',
     uploading: 'Uploading…',
     category: 'Category',
@@ -439,7 +441,6 @@ export const en = {
     noApplicationsTitle: 'No applications yet',
     noApplicationsDescription: 'Create an application before uploading assets.',
     openApplication: 'Open application',
-    openApplications: 'Open applications',
     categories: {
       appIcon: 'App icon',
       androidIcons: 'Android icons',
@@ -579,9 +580,8 @@ export const en = {
     template: 'Template',
     projectName: 'Project name',
     org: 'Organization',
-    directory: 'Parent folder',
-    directoryHint:
-      'Flutter creates a new subfolder with the project name. The folder must already exist, and the project folder must not.',
+    directory: 'Folder',
+    folderPrompt: 'Choose the folder where the project will be created.',
     chooseFolder: 'Choose folder',
     choosing: 'Choose a folder in the system window…',
     pieces: 'Pieces',
@@ -591,7 +591,7 @@ export const en = {
     packagesNone: 'No extra packages. This creates the Flutter app only.',
     android: 'Android',
     ios: 'iOS',
-    destination: (path: string) => `Project folder: ${path}`,
+    destination: (path: string) => `The project will be created in ${path}`,
     create: 'Create project',
     creating: 'Creating…',
     confirmTitle: 'Create the Flutter project?',
@@ -603,6 +603,8 @@ export const en = {
     created: 'The project was created.',
     savePath: 'Save this folder on the application',
     saved: 'The local path was saved.',
+    openFolder: 'Open folder',
+    opening: 'Opening…',
     templates: {
       basic: 'Basic',
       firebase: 'Firebase',
@@ -630,8 +632,9 @@ export const en = {
       'invalid-template': 'Choose a template from the list.',
       'invalid-directory':
         'Use a full folder path without characters such as & or %.',
-      'directory-missing': 'That parent folder does not exist.',
-      'project-exists': 'A folder with this project name is already there.',
+      'directory-missing': 'That folder does not exist.',
+      'project-exists':
+        'That folder already has files. Choose an empty folder.',
       'flutter-missing':
         'Flutter is not available on this computer. Install it and open a new terminal.',
       'flutter-failed': 'flutter create did not finish. The output is below.',
@@ -639,10 +642,79 @@ export const en = {
         'The project was created, but the packages could not be added. The output is below.',
       'invalid-features': 'Choose pieces from the selected template.',
       timeout: 'flutter create took too long and was stopped.',
-      'picker-failed':
-        'The folder window could not be opened. Type the path instead.',
+      'picker-failed': 'The folder window could not be opened. Try again.',
       'picker-busy': 'A folder window is already open.',
+      'open-failed': 'The folder could not be opened.',
     } satisfies Record<LocalFlutterErrorCode, string>,
+  },
+  environment: {
+    lead: 'Checks whether this computer has the tools used to build and publish Flutter apps.',
+    checking: 'Checking this computer…',
+    checkAgain: 'Check again',
+    summary: (installed: number, outdated: number, missing: number) =>
+      `${installed} installed, ${outdated} outdated, ${missing} missing`,
+    status: {
+      installed: 'Installed',
+      outdated: 'Outdated',
+      missing: 'Missing',
+    } satisfies Record<EnvironmentStatus, string>,
+    tools: {
+      flutter: 'Flutter',
+      dart: 'Dart',
+      git: 'Git',
+      firebase: 'Firebase CLI',
+      node: 'Node.js',
+      npm: 'npm',
+      java: 'Java',
+      androidSdk: 'Android SDK',
+      androidStudio: 'Android Studio',
+      xcode: 'Xcode',
+      cocoapods: 'CocoaPods',
+      fastlane: 'Fastlane',
+    } satisfies Record<EnvironmentToolId, string>,
+    missing: {
+      flutter:
+        'Install Flutter and add its bin folder to PATH. https://docs.flutter.dev/get-started/install',
+      dart: 'Dart is installed with Flutter. Add the Flutter bin folder to PATH.',
+      git: 'Install Git and check again. https://git-scm.com/downloads',
+      firebase:
+        'Install the CLI with npm install -g firebase-tools after Node.js is available.',
+      node: 'Install Node.js 20 or newer. https://nodejs.org',
+      npm: 'npm is installed together with Node.js.',
+      java: 'Install JDK 17 or newer and make sure java is on PATH. Android Studio can install a JDK.',
+      androidSdk:
+        'Install the Android SDK from Android Studio. If it is already installed, set ANDROID_HOME to the SDK folder.',
+      androidStudio:
+        'Install Android Studio. https://developer.android.com/studio',
+      xcode:
+        'Install Xcode from the App Store and open it once to accept the license.',
+      cocoapods:
+        'Install CocoaPods with brew install cocoapods, or with sudo gem install cocoapods.',
+      fastlane:
+        'Install Fastlane. On macOS, brew install fastlane. https://docs.fastlane.tools',
+    } satisfies Record<EnvironmentToolId, string>,
+    outdated: {
+      flutter:
+        'A newer Flutter is available. In a terminal, run flutter upgrade.',
+      dart: 'Update Flutter with flutter upgrade. Dart is included.',
+      git: 'Install a newer Git.',
+      firebase: 'Update the CLI with npm install -g firebase-tools.',
+      node: 'Install a current Node.js release, from version 20 onward.',
+      npm: 'Update npm with npm install -g npm, or reinstall Node.js.',
+      java: 'JDK 17 or newer is required. The installed Java is older.',
+      androidSdk:
+        'Install Android 14 (API 34) or a newer platform from the SDK Manager.',
+      androidStudio: 'Update Android Studio from inside the application.',
+      xcode: 'Update Xcode from the App Store.',
+      cocoapods:
+        'Update CocoaPods with brew upgrade cocoapods or gem install cocoapods.',
+      fastlane: 'Update Fastlane. On macOS, brew upgrade fastlane.',
+    } satisfies Record<EnvironmentToolId, string>,
+    errors: {
+      offline:
+        'The local helper is not running. Start it with pnpm dev:local and try again.',
+      invalid: 'The helper could not finish this check.',
+    },
   },
   knowledge: {
     loading: 'Loading articles…',

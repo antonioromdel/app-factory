@@ -4,6 +4,13 @@
   gap: var(--space-6);
 }
 
+.development {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
 .header {
   display: flex;
   flex-wrap: wrap;

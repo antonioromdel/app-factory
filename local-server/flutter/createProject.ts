@@ -1,6 +1,7 @@
-import { spawn } from 'node:child_process'
-import { realpath, stat } from 'node:fs/promises'
+import { readdir, realpath, stat } from 'node:fs/promises'
 import path from 'node:path'
+import { runCommand } from '../commands/run.ts'
+import { isSafeDirectory } from '../filesystem/paths.ts'
 import {
   findFlutterTemplate,
   resolveTemplatePackages,
@@ -112,7 +113,6 @@ const dartKeywords = new Set([
   'yield',
 ])
 
-const outputLimit = 100_000
 const createTimeoutMs = 180_000
 
 export async function planFlutterCreate(
@@ -187,25 +187,16 @@ export async function planFlutterCreate(
     return { ok: false, code: 'directory-missing' }
   }
 
-  if (!directoryStat.isDirectory()) {
-    return { ok: false, code: 'invalid-directory' }
-  }
-
-  const projectPath = path.resolve(directory, projectName)
-  const relative = path.relative(directory, projectPath)
   if (
-    relative === '' ||
-    relative.startsWith('..') ||
-    path.isAbsolute(relative)
+    !directoryStat.isDirectory() ||
+    path.parse(directory).root === directory
   ) {
     return { ok: false, code: 'invalid-directory' }
   }
 
-  try {
-    await stat(projectPath)
+  const entries = await readdir(directory)
+  if (entries.length > 0) {
     return { ok: false, code: 'project-exists' }
-  } catch {
-    // The project folder is not there yet, so flutter create may use it.
   }
 
   const description = readDescription(body.description)
@@ -217,7 +208,7 @@ export async function planFlutterCreate(
       org,
       platforms: [...platforms],
       directory,
-      projectPath,
+      projectPath: directory,
       packages: resolved.packages,
       ...(description ? { description } : {}),
     },
@@ -245,7 +236,7 @@ export async function createFlutterProject(
 
   args.push(plan.projectPath)
 
-  const created = await runFlutter(args, plan.directory)
+  const created = await runFlutter(args, path.dirname(plan.projectPath))
   if (!created.ok || plan.packages.length === 0) {
     return created.ok
       ? { ok: true, projectPath: plan.projectPath, output: created.output }
@@ -274,112 +265,28 @@ export async function createFlutterProject(
   }
 }
 
-function runFlutter(args: string[], cwd: string): Promise<CreateProjectResult> {
-  return new Promise((resolve) => {
-    let settled = false
-    let output = ''
-    const child = startFlutter(args, cwd)
-
-    const finish = (result: CreateProjectResult): void => {
-      if (settled) {
-        return
-      }
-      settled = true
-      clearTimeout(timer)
-      resolve(result)
-    }
-
-    const timer = setTimeout(() => {
-      child.kill()
-      finish({ ok: false, code: 'timeout', output })
-    }, createTimeoutMs)
-
-    child.stdout.on('data', (chunk: Buffer) => {
-      output = appendOutput(output, chunk)
-    })
-    child.stderr.on('data', (chunk: Buffer) => {
-      output = appendOutput(output, chunk)
-    })
-    child.on('error', (error: NodeJS.ErrnoException) => {
-      finish({
-        ok: false,
-        code: error.code === 'ENOENT' ? 'flutter-missing' : 'flutter-failed',
-        output,
-      })
-    })
-    child.on('close', (status) => {
-      if (status === 0) {
-        finish({ ok: true, projectPath: cwd, output })
-        return
-      }
-
-      finish({
-        ok: false,
-        code: looksMissing(output) ? 'flutter-missing' : 'flutter-failed',
-        output,
-      })
-    })
+async function runFlutter(
+  args: string[],
+  cwd: string,
+): Promise<CreateProjectResult> {
+  const result = await runCommand('flutter', args, {
+    cwd,
+    timeoutMs: createTimeoutMs,
   })
-}
-
-function appendOutput(current: string, chunk: Buffer): string {
-  const next = current + chunk.toString('utf8')
-  if (next.length <= outputLimit) {
-    return next
+  if (result.ok) {
+    return { ok: true, projectPath: cwd, output: result.output }
   }
 
-  return next.slice(next.length - outputLimit)
-}
-
-function looksMissing(output: string): boolean {
-  return /not recognized as an internal or external command|no se reconoce como un comando|command not found|No such file or directory/i.test(
-    output,
-  )
-}
-
-function startFlutter(args: string[], cwd: string) {
-  if (process.platform !== 'win32') {
-    return spawn('flutter', args, { windowsHide: true, cwd })
+  return {
+    ok: false,
+    code:
+      result.code === 'missing'
+        ? 'flutter-missing'
+        : result.code === 'timeout'
+          ? 'timeout'
+          : 'flutter-failed',
+    output: result.output,
   }
-
-  // flutter.bat cannot be started with CreateProcess. cmd.exe runs the fixed
-  // command name, and each argument is quoted before it is joined.
-  const commandLine = ['flutter', ...args.map(quoteForCmd)].join(' ')
-  return spawn(
-    process.env.ComSpec ?? 'cmd.exe',
-    ['/d', '/s', '/c', commandLine],
-    {
-      windowsVerbatimArguments: true,
-      windowsHide: true,
-      cwd,
-    },
-  )
-}
-
-function quoteForCmd(value: string): string {
-  if (!/[\s"]/.test(value)) {
-    return value
-  }
-
-  return `"${value.replaceAll('"', '""')}"`
-}
-
-function isSafeDirectory(value: string): boolean {
-  if (!value || value.length > 240 || !path.isAbsolute(value)) {
-    return false
-  }
-
-  if (/[&|<>^%!"*?]/.test(value)) {
-    return false
-  }
-
-  for (const character of value) {
-    if (character.charCodeAt(0) < 32) {
-      return false
-    }
-  }
-
-  return true
 }
 
 function readDescription(value: unknown): string | undefined {

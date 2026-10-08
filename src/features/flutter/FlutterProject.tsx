@@ -5,9 +5,9 @@ import { ConfirmDialog } from '@/components/ConfirmDialog.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
 import { Input } from '@/components/Input.tsx'
 import { Select } from '@/components/Select.tsx'
+import { OpenFolderButton } from '@/features/flutter/OpenFolderButton.tsx'
 import {
   parentDirectory,
-  projectDirectory,
   suggestedOrg,
   suggestedProjectName,
 } from '@/features/flutter/projectDefaults.ts'
@@ -52,9 +52,7 @@ export function FlutterProject({
       application.flutter?.bundleId,
     ),
   )
-  const [directory, setDirectory] = useState(() =>
-    parentDirectory(application.repository?.localPath),
-  )
+  const [directory, setDirectory] = useState('')
   const [android, setAndroid] = useState(
     () =>
       Boolean(application.flutter?.packageName) ||
@@ -112,7 +110,7 @@ export function FlutterProject({
     template?.features ?? [],
     selectedFeatures,
   )
-  const destination = projectDirectory(directory, projectName)
+  const destination = directory.trim()
   const canCreate =
     connection === 'online' &&
     !creating &&
@@ -125,7 +123,9 @@ export function FlutterProject({
   async function handlePickDirectory(): Promise<void> {
     setPicking(true)
     setErrorCode(null)
-    const result = await pickFlutterDirectory(directory)
+    const result = await pickFlutterDirectory(
+      directory || parentDirectory(application.repository?.localPath),
+    )
     setPicking(false)
     if (result.ok) {
       setDirectory(result.directory)
@@ -270,14 +270,7 @@ export function FlutterProject({
           onChange={(event) => setOrg(event.target.value)}
         />
         <div className={styles.directory}>
-          <Input
-            className={styles.directoryInput}
-            label={messages.flutterProject.directory}
-            value={directory}
-            disabled={creating || picking}
-            spellCheck={false}
-            onChange={(event) => setDirectory(event.target.value)}
-          />
+          <p className={styles.legend}>{messages.flutterProject.directory}</p>
           <Button
             variant="secondary"
             disabled={connection !== 'online' || creating || picking}
@@ -287,8 +280,12 @@ export function FlutterProject({
               ? messages.flutterProject.choosing
               : messages.flutterProject.chooseFolder}
           </Button>
+          <p className={directory ? styles.path : styles.hint}>
+            {directory
+              ? messages.flutterProject.destination(directory)
+              : messages.flutterProject.folderPrompt}
+          </p>
         </div>
-        <p className={styles.hint}>{messages.flutterProject.directoryHint}</p>
         <div className={styles.platforms}>
           {template?.platforms.includes('android') ? (
             <Checkbox
@@ -307,9 +304,6 @@ export function FlutterProject({
             />
           ) : null}
         </div>
-        <p className={styles.hint}>
-          {messages.flutterProject.destination(destination)}
-        </p>
         <Button disabled={!canCreate} onClick={() => setConfirming(true)}>
           {creating
             ? messages.flutterProject.creating
@@ -327,6 +321,7 @@ export function FlutterProject({
             <p className={styles.status}>{messages.flutterProject.created}</p>
           ) : null}
           <p className={styles.path}>{projectPath}</p>
+          <OpenFolderButton directory={projectPath} />
           <Button disabled={saving} onClick={() => void handleSavePath()}>
             {saving ? messages.common.saving : messages.flutterProject.savePath}
           </Button>

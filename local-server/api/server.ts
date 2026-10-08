@@ -3,9 +3,14 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from 'node:http'
-import { createFlutterProject, planFlutterCreate } from './createProject.ts'
-import { pickProjectDirectory } from './pickDirectory.ts'
-import { publicFlutterCatalog } from './templates.ts'
+import { checkEnvironment } from '../environment/check.ts'
+import { openExistingDirectory } from '../filesystem/openDirectory.ts'
+import { pickProjectDirectory } from '../filesystem/pickDirectory.ts'
+import {
+  createFlutterProject,
+  planFlutterCreate,
+} from '../flutter/createProject.ts'
+import { publicFlutterCatalog } from '../flutter/templates.ts'
 
 const host = '127.0.0.1'
 const port = 3847
@@ -49,7 +54,22 @@ async function handleRequest(
   const url = new URL(request.url ?? '/', `http://${host}:${port}`)
 
   if (request.method === 'GET' && url.pathname === '/health') {
-    sendJson(response, 200, { ok: true })
+    sendJson(response, 200, {
+      ok: true,
+      operations: [
+        'flutter.templates',
+        'flutter.create',
+        'filesystem.pickDirectory',
+        'filesystem.open',
+        'environment.check',
+      ],
+    })
+    return
+  }
+
+  if (request.method === 'GET' && url.pathname === '/environment') {
+    const report = await checkEnvironment()
+    sendJson(response, 200, report)
     return
   }
 
@@ -63,12 +83,44 @@ async function handleRequest(
     return
   }
 
+  if (request.method === 'POST' && url.pathname === '/filesystem/open') {
+    await handleOpenDirectory(request, response)
+    return
+  }
+
   if (request.method === 'POST' && url.pathname === '/flutter/pick-directory') {
     await handlePickDirectory(request, response)
     return
   }
 
   sendJson(response, 404, { ok: false, code: 'invalid-request' })
+}
+
+async function handleOpenDirectory(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  let body: unknown = {}
+  try {
+    const raw = await readBody(request)
+    if (raw.trim()) {
+      body = JSON.parse(raw)
+    }
+  } catch {
+    sendJson(response, 400, { ok: false, code: 'invalid-request' })
+    return
+  }
+
+  const directory =
+    typeof body === 'object' && body !== null && 'path' in body
+      ? body.path
+      : undefined
+  const result = await openExistingDirectory(directory)
+  sendJson(
+    response,
+    result.ok ? 200 : result.code === 'open-failed' ? 500 : 400,
+    result,
+  )
 }
 
 async function handlePickDirectory(

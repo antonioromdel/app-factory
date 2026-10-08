@@ -1,6 +1,6 @@
-import { spawn } from 'node:child_process'
 import { realpath, stat } from 'node:fs/promises'
 import path from 'node:path'
+import { runCommand } from '../commands/run.ts'
 
 export type PickDirectoryResult =
   | { ok: true; directory: string }
@@ -72,54 +72,26 @@ export function directoryFromOutput(stdout: string): string | undefined {
   return lines.at(-1)
 }
 
-function showFolderDialog(startDirectory: string | undefined): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(
-      'powershell.exe',
-      ['-NoProfile', '-STA', '-Command', pickerScript],
-      {
-        windowsHide: false,
-        env: {
-          ...process.env,
-          APP_FACTORY_FOLDER: startDirectory ?? '',
-        },
+async function showFolderDialog(
+  startDirectory: string | undefined,
+): Promise<string> {
+  const result = await runCommand(
+    'powershell',
+    ['-NoProfile', '-STA', '-Command', pickerScript],
+    {
+      timeoutMs: pickTimeoutMs,
+      windowsHide: false,
+      env: {
+        ...process.env,
+        APP_FACTORY_FOLDER: startDirectory ?? '',
       },
-    )
-    let output = ''
-    let settled = false
+    },
+  )
+  if (!result.ok) {
+    throw new Error(result.code)
+  }
 
-    const finish = (error?: Error, value = ''): void => {
-      if (settled) {
-        return
-      }
-      settled = true
-      clearTimeout(timer)
-      if (error) {
-        reject(error)
-        return
-      }
-      resolve(value)
-    }
-
-    const timer = setTimeout(() => {
-      child.kill()
-      finish(undefined, '')
-    }, pickTimeoutMs)
-
-    child.stdout.on('data', (chunk: Buffer) => {
-      output += chunk.toString('utf8')
-    })
-    child.on('error', (error) => {
-      finish(error)
-    })
-    child.on('close', (status) => {
-      if (status === 0) {
-        finish(undefined, output)
-        return
-      }
-      finish(new Error('picker'))
-    })
-  })
+  return result.output
 }
 
 async function existingDirectory(value: unknown): Promise<string | undefined> {
