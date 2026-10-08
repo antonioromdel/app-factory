@@ -422,6 +422,30 @@ export const es = {
     noApplicationsTitle: 'Todavía no hay aplicaciones',
     noApplicationsDescription: 'Crea una aplicación antes de subir recursos.',
     openApplication: 'Abrir aplicación',
+    toolsLead: 'Elige una herramienta.',
+    back: 'Volver a recursos',
+    tools: {
+      icons: {
+        title: 'Generar iconos',
+        description:
+          'Crea los tamaños de Android, iOS y de tienda a partir de una imagen.',
+      },
+      splash: {
+        title: 'Generar splash',
+        description:
+          'Prepara las imágenes de splash y la configuración de flutter_native_splash.',
+      },
+      project: {
+        title: 'Crear proyecto Flutter',
+        description:
+          'Crea un proyecto en una carpeta de este equipo, sin enlazarlo a una aplicación.',
+      },
+      library: {
+        title: 'Recursos subidos',
+        description:
+          'Iconos, capturas e imágenes de tienda guardados en las aplicaciones.',
+      },
+    },
     categories: {
       appIcon: 'Icono de la app',
       androidIcons: 'Iconos de Android',
@@ -580,6 +604,10 @@ export const es = {
       packages
         ? `Esto ejecuta flutter create en ${path} y añade ${packages}.`
         : `Esto ejecuta flutter create y escribe el proyecto en ${path}.`,
+    confirmAndLink: (path: string, packages: string) =>
+      packages
+        ? `Esto ejecuta flutter create en ${path}, añade ${packages} y enlaza la carpeta a esta aplicación.`
+        : `Esto ejecuta flutter create en ${path} y enlaza la carpeta a esta aplicación.`,
     output: 'Salida del comando',
     created: 'El proyecto se ha creado.',
     savePath: 'Guardar esta carpeta en la aplicación',
@@ -698,11 +726,24 @@ export const es = {
       invalid: 'El ayudante no ha podido completar la comprobación.',
     },
   },
+  projectLink: {
+    title: 'Proyecto enlazado',
+    lead: 'Elige la carpeta de un proyecto Flutter que ya exista en este equipo. App Factory la guarda en esta aplicación para abrirla y comprobarla.',
+    mode: 'Qué quieres hacer',
+    createOption: 'Crear el proyecto y enlazarlo',
+    linkOption: 'Enlazar un proyecto ya creado',
+    choose: 'Enlazar carpeta',
+    choosing: 'Elige una carpeta en la ventana del sistema…',
+    change: 'Cambiar carpeta',
+    saved: 'La carpeta se ha enlazado.',
+    confirmTitle: '¿Cambiar la carpeta enlazada?',
+    confirmDescription: (path: string) =>
+      `Esta aplicación pasará a usar ${path}.`,
+  },
   projectHealth: {
     title: 'Salud del proyecto',
-    lead: 'Ejecuta las comprobaciones en la carpeta guardada y muestra la salida de cada comando.',
-    needsFolder:
-      'Guarda una carpeta local en esta aplicación antes de comprobar el proyecto.',
+    lead: 'Ejecuta las comprobaciones en la carpeta enlazada y muestra la salida de cada comando.',
+    needsFolder: 'Enlaza la carpeta del proyecto antes de comprobarlo.',
     run: 'Comprobar proyecto',
     running: 'Comprobando…',
     confirmTitle: '¿Comprobar este proyecto Flutter?',
@@ -733,6 +774,67 @@ export const es = {
       'not-a-flutter-project':
         'Esa carpeta no es un proyecto Flutter. Necesita un archivo pubspec.yaml.',
       'invalid-check': 'El ayudante no conoce esa comprobación.',
+    },
+  },
+  dependencies: {
+    title: 'Dependencias',
+    lead: 'Muestra los paquetes del proyecto enlazado, la versión en uso y la última en pub.dev. No se actualiza nada hasta que confirmes un paquete.',
+    load: 'Ver dependencias',
+    loading: 'Leyendo dependencias…',
+    summary: (total: number, outdated: number) =>
+      `${total} paquetes, ${outdated} desactualizados`,
+    filter: 'Mostrar',
+    filters: {
+      managed: 'Directas y de desarrollo',
+      direct: 'Directas',
+      dev: 'Desarrollo',
+      transitive: 'Transitivas',
+      all: 'Todas',
+    },
+    columns: {
+      package: 'Paquete',
+      current: 'Actual',
+      latest: 'Última',
+      purpose: 'Para qué sirve',
+      status: 'Estado',
+      action: 'Acción',
+    },
+    kinds: {
+      direct: 'Directa',
+      dev: 'Desarrollo',
+      transitive: 'Transitiva',
+    },
+    current: 'Al día',
+    outdated: 'Desactualizado',
+    unknownStatus: 'Sin última versión',
+    unknownVersion: '—',
+    unknownPurpose: 'Sin descripción',
+    discontinued: 'Discontinuado',
+    update: 'Actualizar',
+    updateNamed: (name: string) => `Actualizar ${name}`,
+    updating: 'Actualizando…',
+    confirmTitle: (name: string) => `¿Actualizar ${name}?`,
+    confirmDescription: (name: string, latest: string) =>
+      `Se actualizará ${name} a ${latest} en pubspec.yaml y se ejecutará pub get. Puede incluir cambios incompatibles. No se actualiza ningún otro paquete.`,
+    updated: (name: string) => `${name} se ha actualizado.`,
+    emptyTitle: 'Sin dependencias',
+    emptyDescription: 'Este proyecto todavía no declara paquetes.',
+    emptyFilter: 'Ningún paquete en este filtro.',
+    errors: {
+      offline:
+        'El ayudante local no está en marcha. Arráncalo con pnpm dev:local y vuelve a intentarlo.',
+      'invalid-request': 'El ayudante no ha podido leer esta petición.',
+      'invalid-directory': 'Usa una ruta completa, sin caracteres como & o %.',
+      'directory-missing': 'Esa carpeta no existe.',
+      'not-a-flutter-project':
+        'Esa carpeta no es un proyecto Flutter. Necesita un archivo pubspec.yaml.',
+      'invalid-package':
+        'Ese paquete no es una dependencia directa ni de desarrollo de este proyecto.',
+      'flutter-missing': 'Flutter no está disponible en este equipo.',
+      timeout: 'Leer o actualizar los paquetes ha tardado demasiado.',
+      'read-failed':
+        'No se ha podido leer la lista. Comprueba que el proyecto resuelva y que pub.dev esté accesible.',
+      'upgrade-failed': 'No se ha podido actualizar el paquete.',
     },
   },
   knowledge: {

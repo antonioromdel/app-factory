@@ -1,5 +1,6 @@
 import { useEffect, type ReactElement } from 'react'
 import { Outlet, useLocation } from 'react-router'
+import { assetToolFromPath } from '@/features/assets/assetTools.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import type { Messages } from '@/i18n/en.ts'
 import { Sidebar } from './Sidebar.tsx'
@@ -60,6 +61,11 @@ function pageTitle(
     return messages.shell.article
   }
 
+  const assetTool = assetToolFromPath(pathname)
+  if (assetTool) {
+    return messages.assets.tools[assetTool].title
+  }
+
   return section ? messages.nav[section] : messages.brand
 }
 
@@ -91,6 +97,11 @@ function pageBreadcrumbs(
     /^\/knowledge\/[^/]+$/.test(pathname)
   ) {
     crumbs.push({ label: messages.shell.details })
+  } else if (assetToolFromPath(pathname)) {
+    const assetTool = assetToolFromPath(pathname)
+    if (assetTool) {
+      crumbs.push({ label: messages.assets.tools[assetTool].title })
+    }
   } else {
     crumbs[1] = { label: messages.nav[section] }
   }

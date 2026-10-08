@@ -17,6 +17,7 @@ import {
   ApplicationEditPage,
 } from '@/pages/ApplicationFormPage.tsx'
 import { ApplicationsPage } from '@/pages/ApplicationsPage.tsx'
+import { AssetToolPage } from '@/pages/AssetToolPage.tsx'
 import { AssetsPage } from '@/pages/AssetsPage.tsx'
 import { ChecklistsPage } from '@/pages/ChecklistsPage.tsx'
 import { DashboardPage } from '@/pages/DashboardPage.tsx'
@@ -86,6 +87,7 @@ function AppRoutes(): ReactElement {
         <Route path="knowledge/:articleId" element={<KnowledgeArticlePage />} />
         <Route path="checklists" element={<ChecklistsPage />} />
         <Route path="assets" element={<AssetsPage />} />
+        <Route path="assets/:toolId" element={<AssetToolPage />} />
         <Route
           path="releases"
           element={

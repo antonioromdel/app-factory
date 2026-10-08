@@ -164,3 +164,9 @@ async function flutterProjectDirectory(
 
   return { ok: true, directory }
 }
+
+export function inspectFlutterProject(
+  value: unknown,
+): Promise<ProjectDirectoryResult> {
+  return flutterProjectDirectory(value)
+}

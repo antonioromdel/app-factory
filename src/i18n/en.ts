@@ -1,3 +1,4 @@
+import type { AssetToolId } from '@/features/assets/assetTools.ts'
 import type { IconGroup, IconSizeId } from '@/features/assets/iconSizes.ts'
 import type {
   SplashAlignment,
@@ -14,6 +15,11 @@ import type {
   HealthCheckId,
   HealthErrorCode,
 } from '@/services/localHealthService.ts'
+import type {
+  DependencyErrorCode,
+  DependencyFilter,
+  DependencyKind,
+} from '@/services/localDependencyService.ts'
 import type { LocalFlutterErrorCode } from '@/services/localFlutterService.ts'
 import type {
   EnvironmentStatus,
@@ -445,6 +451,29 @@ export const en = {
     noApplicationsTitle: 'No applications yet',
     noApplicationsDescription: 'Create an application before uploading assets.',
     openApplication: 'Open application',
+    toolsLead: 'Choose a tool.',
+    back: 'Back to resources',
+    tools: {
+      icons: {
+        title: 'Generate icons',
+        description: 'Build the Android, iOS and store sizes from one image.',
+      },
+      splash: {
+        title: 'Generate splash',
+        description:
+          'Prepare the splash images and the flutter_native_splash configuration.',
+      },
+      project: {
+        title: 'Create Flutter project',
+        description:
+          'Create a project in a folder on this computer, without linking it to an application.',
+      },
+      library: {
+        title: 'Uploaded assets',
+        description:
+          'Icons, screenshots and store images saved on the applications.',
+      },
+    } satisfies Record<AssetToolId, { title: string; description: string }>,
     categories: {
       appIcon: 'App icon',
       androidIcons: 'Android icons',
@@ -603,6 +632,10 @@ export const en = {
       packages
         ? `This runs flutter create in ${path} and adds ${packages}.`
         : `This runs flutter create and writes the project to ${path}.`,
+    confirmAndLink: (path: string, packages: string) =>
+      packages
+        ? `This runs flutter create in ${path}, adds ${packages}, and links the folder to this application.`
+        : `This runs flutter create in ${path} and links the folder to this application.`,
     output: 'Command output',
     created: 'The project was created.',
     savePath: 'Save this folder on the application',
@@ -720,11 +753,23 @@ export const en = {
       invalid: 'The helper could not finish this check.',
     },
   },
+  projectLink: {
+    title: 'Linked project',
+    lead: 'Choose the folder of a Flutter project that already exists on this computer. App Factory saves it on this application so you can open it and check it.',
+    mode: 'What do you want to do',
+    createOption: 'Create the project and link it',
+    linkOption: 'Link a project that already exists',
+    choose: 'Link folder',
+    choosing: 'Choose a folder in the system window…',
+    change: 'Change folder',
+    saved: 'The folder is linked.',
+    confirmTitle: 'Change the linked folder?',
+    confirmDescription: (path: string) => `This application will use ${path}.`,
+  },
   projectHealth: {
     title: 'Project health',
-    lead: 'Runs the project checks in the saved folder and shows each command’s output.',
-    needsFolder:
-      'Save a local folder on this application before checking the project.',
+    lead: 'Runs the checks in the linked folder and shows each command’s output.',
+    needsFolder: 'Link the project folder before checking it.',
     run: 'Check project',
     running: 'Checking…',
     confirmTitle: 'Check this Flutter project?',
@@ -757,6 +802,68 @@ export const en = {
         'That folder is not a Flutter project. It needs a pubspec.yaml file.',
       'invalid-check': 'The helper does not know that check.',
     } satisfies Record<HealthErrorCode, string>,
+  },
+  dependencies: {
+    title: 'Dependencies',
+    lead: 'Lists the packages in the linked project, the version in use and the latest version on pub.dev. Nothing is updated until you confirm one package.',
+    load: 'Show dependencies',
+    loading: 'Reading dependencies…',
+    summary: (total: number, outdated: number) =>
+      `${total} packages, ${outdated} outdated`,
+    filter: 'Show',
+    filters: {
+      managed: 'Direct and dev',
+      direct: 'Direct',
+      dev: 'Dev',
+      transitive: 'Transitive',
+      all: 'All',
+    } satisfies Record<DependencyFilter, string>,
+    columns: {
+      package: 'Package',
+      current: 'Current',
+      latest: 'Latest',
+      purpose: 'Purpose',
+      status: 'Status',
+      action: 'Action',
+    },
+    kinds: {
+      direct: 'Direct',
+      dev: 'Dev',
+      transitive: 'Transitive',
+    } satisfies Record<DependencyKind, string>,
+    current: 'Up to date',
+    outdated: 'Outdated',
+    unknownStatus: 'Latest unknown',
+    unknownVersion: '—',
+    unknownPurpose: 'No description',
+    discontinued: 'Discontinued',
+    update: 'Update',
+    updateNamed: (name: string) => `Update ${name}`,
+    updating: 'Updating…',
+    confirmTitle: (name: string) => `Update ${name}?`,
+    confirmDescription: (name: string, latest: string) =>
+      `This updates ${name} to ${latest} in pubspec.yaml and runs pub get. It can include breaking changes. No other package is updated.`,
+    updated: (name: string) => `${name} was updated.`,
+    emptyTitle: 'No dependencies',
+    emptyDescription: 'This project does not list any packages yet.',
+    emptyFilter: 'No packages in this filter.',
+    errors: {
+      offline:
+        'The local helper is not running. Start it with pnpm dev:local and try again.',
+      'invalid-request': 'The helper could not read this request.',
+      'invalid-directory':
+        'Use a full folder path without characters such as & or %.',
+      'directory-missing': 'That folder does not exist.',
+      'not-a-flutter-project':
+        'That folder is not a Flutter project. It needs a pubspec.yaml file.',
+      'invalid-package':
+        'That package is not a direct or dev dependency of this project.',
+      'flutter-missing': 'Flutter is not available on this computer.',
+      timeout: 'Reading or updating the packages took too long.',
+      'read-failed':
+        'The dependency list could not be read. Check that the project resolves and that pub.dev is reachable.',
+      'upgrade-failed': 'The package could not be updated.',
+    } satisfies Record<DependencyErrorCode, string>,
   },
   knowledge: {
     loading: 'Loading articles…',

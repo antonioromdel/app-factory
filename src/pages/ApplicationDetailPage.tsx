@@ -17,9 +17,9 @@ import {
 import { ApplicationStatusSelect } from '@/features/applications/ApplicationStatusSelect.tsx'
 import { ApplicationAssets } from '@/features/assets/ApplicationAssets.tsx'
 import { ApplicationChecklist } from '@/features/checklists/ApplicationChecklist.tsx'
-import { FlutterProject } from '@/features/flutter/FlutterProject.tsx'
-import { OpenFolderButton } from '@/features/flutter/OpenFolderButton.tsx'
+import { ProjectDependencies } from '@/features/flutter/ProjectDependencies.tsx'
 import { ProjectHealth } from '@/features/flutter/ProjectHealth.tsx'
+import { ProjectSource } from '@/features/flutter/ProjectSource.tsx'
 import { useApplication } from '@/hooks/useApplication.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
@@ -344,18 +344,15 @@ function Development({
             label: messages.fields.repository,
             value: repository?.repositoryName,
           },
-          {
-            label: messages.fields.localPath,
-            value: repository?.localPath,
-            wide: true,
-          },
         ]}
       />
+      <ProjectSource application={application} onSaved={onReload} />
       {repository?.localPath ? (
-        <OpenFolderButton directory={repository.localPath} />
+        <>
+          <ProjectHealth directory={repository.localPath} />
+          <ProjectDependencies directory={repository.localPath} />
+        </>
       ) : null}
-      <FlutterProject application={application} onSaved={onReload} />
-      <ProjectHealth directory={repository?.localPath} />
     </div>
   )
 }

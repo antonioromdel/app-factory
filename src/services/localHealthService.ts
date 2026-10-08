@@ -54,6 +54,41 @@ export async function runProjectHealthCheck(
   return readHealthResponse(payload)
 }
 
+export async function inspectFlutterProject(
+  directory: string,
+): Promise<
+  { ok: true; directory: string } | { ok: false; code: HealthErrorCode }
+> {
+  let response: Response
+  try {
+    response = await fetch(`${localFlutterUrl()}/flutter/inspect`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: directory }),
+    })
+  } catch {
+    return { ok: false, code: 'offline' }
+  }
+
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    return { ok: false, code: 'offline' }
+  }
+
+  if (!isRecord(payload) || typeof payload.ok !== 'boolean') {
+    return { ok: false, code: 'invalid-request' }
+  }
+
+  if (payload.ok && typeof payload.directory === 'string') {
+    return { ok: true, directory: payload.directory }
+  }
+
+  const code = healthErrorCodes.find((item) => item === payload.code)
+  return { ok: false, code: code ?? 'not-a-flutter-project' }
+}
+
 function readHealthResponse(value: unknown): HealthCheckResponse {
   if (!isRecord(value) || typeof value.ok !== 'boolean') {
     return { ok: false, code: 'invalid-request' }

@@ -10,7 +10,11 @@ import {
   createFlutterProject,
   planFlutterCreate,
 } from '../flutter/createProject.ts'
-import { runHealthCheck } from '../flutter/health.ts'
+import {
+  listProjectDependencies,
+  upgradeProjectDependency,
+} from '../flutter/dependencies.ts'
+import { inspectFlutterProject, runHealthCheck } from '../flutter/health.ts'
 import { publicFlutterCatalog } from '../flutter/templates.ts'
 
 const host = '127.0.0.1'
@@ -61,6 +65,9 @@ async function handleRequest(
         'flutter.templates',
         'flutter.create',
         'flutter.health',
+        'flutter.inspect',
+        'flutter.dependencies',
+        'flutter.dependencies.upgrade',
         'filesystem.pickDirectory',
         'filesystem.open',
         'environment.check',
@@ -85,8 +92,26 @@ async function handleRequest(
     return
   }
 
+  if (request.method === 'POST' && url.pathname === '/flutter/inspect') {
+    await handleInspect(request, response)
+    return
+  }
+
   if (request.method === 'POST' && url.pathname === '/flutter/health') {
     await handleHealth(request, response)
+    return
+  }
+
+  if (request.method === 'POST' && url.pathname === '/flutter/dependencies') {
+    await handleDependencies(request, response)
+    return
+  }
+
+  if (
+    request.method === 'POST' &&
+    url.pathname === '/flutter/dependencies/upgrade'
+  ) {
+    await handleDependencyUpgrade(request, response)
     return
   }
 
@@ -157,6 +182,26 @@ async function handlePickDirectory(
   )
 }
 
+async function handleInspect(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  let body: unknown
+  try {
+    body = JSON.parse(await readBody(request))
+  } catch {
+    sendJson(response, 400, { ok: false, code: 'invalid-request' })
+    return
+  }
+
+  const pathValue =
+    typeof body === 'object' && body !== null && 'path' in body
+      ? body.path
+      : undefined
+  const result = await inspectFlutterProject(pathValue)
+  sendJson(response, result.ok ? 200 : 400, result)
+}
+
 async function handleHealth(
   request: IncomingMessage,
   response: ServerResponse,
@@ -179,6 +224,77 @@ async function handleHealth(
       : undefined
   const result = await runHealthCheck(pathValue, checkValue)
   sendJson(response, result.ok ? 200 : 400, result)
+}
+
+async function handleDependencies(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  const body = await readJsonBody(request)
+  if (!body.ok) {
+    sendJson(response, 400, { ok: false, code: 'invalid-request' })
+    return
+  }
+
+  const pathValue =
+    typeof body.value === 'object' &&
+    body.value !== null &&
+    'path' in body.value
+      ? body.value.path
+      : undefined
+  const result = await listProjectDependencies(pathValue)
+  sendJson(response, dependencyStatus(result), result)
+}
+
+async function handleDependencyUpgrade(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  const body = await readJsonBody(request)
+  if (!body.ok) {
+    sendJson(response, 400, { ok: false, code: 'invalid-request' })
+    return
+  }
+
+  const pathValue =
+    typeof body.value === 'object' &&
+    body.value !== null &&
+    'path' in body.value
+      ? body.value.path
+      : undefined
+  const packageValue =
+    typeof body.value === 'object' &&
+    body.value !== null &&
+    'package' in body.value
+      ? body.value.package
+      : undefined
+  const result = await upgradeProjectDependency(pathValue, packageValue)
+  sendJson(response, dependencyStatus(result), result)
+}
+
+function dependencyStatus(result: { ok: boolean; code?: string }): number {
+  if (result.ok) {
+    return 200
+  }
+  if (
+    result.code === 'invalid-directory' ||
+    result.code === 'directory-missing' ||
+    result.code === 'not-a-flutter-project' ||
+    result.code === 'invalid-package'
+  ) {
+    return 400
+  }
+  return 500
+}
+
+async function readJsonBody(
+  request: IncomingMessage,
+): Promise<{ ok: true; value: unknown } | { ok: false }> {
+  try {
+    return { ok: true, value: JSON.parse(await readBody(request)) }
+  } catch {
+    return { ok: false }
+  }
 }
 
 async function handleCreate(

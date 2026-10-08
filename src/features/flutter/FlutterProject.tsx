@@ -29,9 +29,11 @@ import styles from './FlutterProject.module.css'
 export function FlutterProject({
   application,
   onSaved,
+  linkOnCreate = false,
 }: {
-  application: Application
-  onSaved: () => void
+  application?: Application
+  onSaved?: () => void
+  linkOnCreate?: boolean
 }): ReactElement {
   const { messages } = useLanguage()
   const [connection, setConnection] = useState<
@@ -44,22 +46,26 @@ export function FlutterProject({
   const [templateId, setTemplateId] = useState('')
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([])
   const [projectName, setProjectName] = useState(() =>
-    suggestedProjectName(application.name),
+    application ? suggestedProjectName(application.name) : '',
   )
   const [org, setOrg] = useState(() =>
-    suggestedOrg(
-      application.flutter?.packageName,
-      application.flutter?.bundleId,
-    ),
+    application
+      ? suggestedOrg(
+          application.flutter?.packageName,
+          application.flutter?.bundleId,
+        )
+      : 'com.example',
   )
   const [directory, setDirectory] = useState('')
   const [android, setAndroid] = useState(
     () =>
+      !application ||
       Boolean(application.flutter?.packageName) ||
       !application.flutter?.bundleId,
   )
   const [ios, setIos] = useState(
     () =>
+      !application ||
       Boolean(application.flutter?.bundleId) ||
       !application.flutter?.packageName,
   )
@@ -124,7 +130,7 @@ export function FlutterProject({
     setPicking(true)
     setErrorCode(null)
     const result = await pickFlutterDirectory(
-      directory || parentDirectory(application.repository?.localPath),
+      directory || parentDirectory(application?.repository?.localPath),
     )
     setPicking(false)
     if (result.ok) {
@@ -156,16 +162,37 @@ export function FlutterProject({
       platforms,
       features: selectedFeatures,
       directory: directory.trim(),
-      description: application.description,
+      description: application?.description,
     })
 
     setCreating(false)
     setOutput(result.ok ? result.output : (result.output ?? ''))
     if (result.projectPath) {
       setProjectPath(result.projectPath)
+      if (linkOnCreate) {
+        await savePath(result.projectPath)
+      }
     }
     if (!result.ok) {
       setErrorCode(result.code)
+    }
+  }
+
+  async function savePath(directory: string): Promise<void> {
+    if (!application || !onSaved) {
+      return
+    }
+
+    setSaving(true)
+    setSaveError(false)
+    try {
+      await saveApplicationLocalPath(application.id, directory)
+      setSaved(true)
+      onSaved()
+    } catch {
+      setSaveError(true)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -174,17 +201,7 @@ export function FlutterProject({
       return
     }
 
-    setSaving(true)
-    setSaveError(false)
-    try {
-      await saveApplicationLocalPath(application.id, projectPath)
-      setSaved(true)
-      onSaved()
-    } catch {
-      setSaveError(true)
-    } finally {
-      setSaving(false)
-    }
+    await savePath(projectPath)
   }
 
   return (
@@ -322,12 +339,19 @@ export function FlutterProject({
           ) : null}
           <p className={styles.path}>{projectPath}</p>
           <OpenFolderButton directory={projectPath} />
-          <Button disabled={saving} onClick={() => void handleSavePath()}>
-            {saving ? messages.common.saving : messages.flutterProject.savePath}
-          </Button>
+          {saving ? (
+            <p className={styles.status}>{messages.common.saving}</p>
+          ) : null}
+          {application && onSaved && (!linkOnCreate || saveError) ? (
+            <Button disabled={saving} onClick={() => void handleSavePath()}>
+              {messages.flutterProject.savePath}
+            </Button>
+          ) : null}
           {saved ? (
             <p className={styles.status} role="status">
-              {messages.flutterProject.saved}
+              {linkOnCreate
+                ? messages.projectLink.saved
+                : messages.flutterProject.saved}
             </p>
           ) : null}
           {saveError ? (
@@ -349,10 +373,17 @@ export function FlutterProject({
         open={confirming}
         tone="primary"
         title={messages.flutterProject.confirmTitle}
-        description={messages.flutterProject.confirmDescription(
-          destination,
-          packages.join(', '),
-        )}
+        description={
+          linkOnCreate
+            ? messages.flutterProject.confirmAndLink(
+                destination,
+                packages.join(', '),
+              )
+            : messages.flutterProject.confirmDescription(
+                destination,
+                packages.join(', '),
+              )
+        }
         confirmLabel={messages.flutterProject.create}
         cancelLabel={messages.common.cancel}
         onConfirm={() => void handleCreate()}
