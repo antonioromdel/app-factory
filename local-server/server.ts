@@ -5,7 +5,7 @@ import {
 } from 'node:http'
 import { createFlutterProject, planFlutterCreate } from './createProject.ts'
 import { pickProjectDirectory } from './pickDirectory.ts'
-import { publicFlutterTemplates } from './templates.ts'
+import { publicFlutterCatalog } from './templates.ts'
 
 const host = '127.0.0.1'
 const port = 3847
@@ -54,7 +54,7 @@ async function handleRequest(
   }
 
   if (request.method === 'GET' && url.pathname === '/flutter/templates') {
-    sendJson(response, 200, { templates: publicFlutterTemplates() })
+    sendJson(response, 200, publicFlutterCatalog())
     return
   }
 

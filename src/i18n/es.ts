@@ -559,7 +559,7 @@ export const es = {
   },
   flutterProject: {
     title: 'Crear proyecto Flutter',
-    lead: 'App Factory pide al ayudante local que ejecute flutter create en la carpeta que elijas. Arranca el ayudante con pnpm dev:local.',
+    lead: 'Elige una plantilla y activa o quita sus piezas. App Factory pide al ayudante local que ejecute flutter create en la carpeta que elijas y después añada los paquetes seleccionados. Arranca el ayudante con pnpm dev:local.',
     checking: 'Comprobando el ayudante local…',
     template: 'Plantilla',
     projectName: 'Nombre del proyecto',
@@ -569,20 +569,39 @@ export const es = {
       'Flutter crea una subcarpeta con el nombre del proyecto. La carpeta padre tiene que existir, y la del proyecto no.',
     chooseFolder: 'Elegir carpeta',
     choosing: 'Elige una carpeta en la ventana del sistema…',
+    pieces: 'Piezas',
+    piecesHint:
+      'Puedes quitar piezas. Los paquetes se añaden al proyecto. Los archivos de configuración de Firebase siguen siendo un paso aparte.',
+    packages: (list: string) => `Paquetes: ${list}`,
+    packagesNone: 'Sin paquetes extra. Solo se crea la aplicación Flutter.',
     android: 'Android',
     ios: 'iOS',
     destination: (path: string) => `Carpeta del proyecto: ${path}`,
     create: 'Crear proyecto',
     creating: 'Creando…',
     confirmTitle: '¿Crear el proyecto Flutter?',
-    confirmDescription: (path: string) =>
-      `Esto ejecuta flutter create y escribe el proyecto en ${path}.`,
+    confirmDescription: (path: string, packages: string) =>
+      packages
+        ? `Esto ejecuta flutter create en ${path} y añade ${packages}.`
+        : `Esto ejecuta flutter create y escribe el proyecto en ${path}.`,
     output: 'Salida del comando',
     created: 'El proyecto se ha creado.',
     savePath: 'Guardar esta carpeta en la aplicación',
     saved: 'La ruta local se ha guardado.',
     templates: {
-      app: 'Aplicación',
+      basic: 'Básica',
+      firebase: 'Firebase',
+      commercial: 'Comercial',
+    },
+    features: {
+      localPersistence: 'Persistencia local',
+      firebase: 'Firebase',
+      authentication: 'Autenticación',
+      firestore: 'Firestore',
+      analytics: 'Analytics',
+      crashlytics: 'Crashlytics',
+      admob: 'AdMob',
+      revenueCat: 'RevenueCat',
     },
     errors: {
       offline:
@@ -601,6 +620,9 @@ export const es = {
         'Flutter no está disponible en este equipo. Instálalo y abre un terminal nuevo.',
       'flutter-failed':
         'flutter create no ha terminado. La salida está debajo.',
+      'packages-failed':
+        'El proyecto se ha creado, pero no se han podido añadir los paquetes. La salida está debajo.',
+      'invalid-features': 'Elige piezas de la plantilla seleccionada.',
       timeout: 'flutter create ha tardado demasiado y se ha detenido.',
       'picker-failed':
         'No se ha podido abrir la ventana de carpetas. Escribe la ruta.',

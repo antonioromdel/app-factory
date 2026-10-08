@@ -3,8 +3,8 @@ import { realpath, stat } from 'node:fs/promises'
 import path from 'node:path'
 import {
   findFlutterTemplate,
+  resolveTemplatePackages,
   type FlutterPlatform,
-  type FlutterTemplate,
 } from './templates.ts'
 
 export const createProjectErrorCodes = [
@@ -18,24 +18,31 @@ export const createProjectErrorCodes = [
   'project-exists',
   'flutter-missing',
   'flutter-failed',
+  'packages-failed',
+  'invalid-features',
   'timeout',
 ] as const
 
 export type CreateProjectErrorCode = (typeof createProjectErrorCodes)[number]
 
 export interface FlutterCreatePlan {
-  template: FlutterTemplate['template']
   projectName: string
   org: string
   platforms: FlutterPlatform[]
   directory: string
   projectPath: string
+  packages: string[]
   description?: string
 }
 
 export type CreateProjectResult =
   | { ok: true; projectPath: string; output: string }
-  | { ok: false; code: CreateProjectErrorCode; output?: string }
+  | {
+      ok: false
+      code: CreateProjectErrorCode
+      output?: string
+      projectPath?: string
+    }
 
 const projectNamePattern = /^[a-z][a-z0-9_]{0,63}$/
 const orgPattern = /^[a-zA-Z][a-zA-Z0-9]*(\.[a-zA-Z][a-zA-Z0-9]*)+$/
@@ -123,6 +130,19 @@ export async function planFlutterCreate(
     return { ok: false, code: 'invalid-template' }
   }
 
+  const requestedFeatures = body.features
+  if (
+    !Array.isArray(requestedFeatures) ||
+    requestedFeatures.some((item) => typeof item !== 'string')
+  ) {
+    return { ok: false, code: 'invalid-features' }
+  }
+
+  const resolved = resolveTemplatePackages(template, requestedFeatures)
+  if (!resolved.ok) {
+    return resolved
+  }
+
   const projectName = readString(body.projectName) ?? ''
   if (!projectNamePattern.test(projectName) || dartKeywords.has(projectName)) {
     return { ok: false, code: 'invalid-name' }
@@ -193,24 +213,24 @@ export async function planFlutterCreate(
   return {
     ok: true,
     plan: {
-      template: template.template,
       projectName,
       org,
       platforms: [...platforms],
       directory,
       projectPath,
+      packages: resolved.packages,
       ...(description ? { description } : {}),
     },
   }
 }
 
-export function createFlutterProject(
+export async function createFlutterProject(
   plan: FlutterCreatePlan,
 ): Promise<CreateProjectResult> {
   const args = [
     'create',
     '--template',
-    plan.template,
+    'app',
     '--project-name',
     plan.projectName,
     '--org',
@@ -225,10 +245,40 @@ export function createFlutterProject(
 
   args.push(plan.projectPath)
 
+  const created = await runFlutter(args, plan.directory)
+  if (!created.ok || plan.packages.length === 0) {
+    return created.ok
+      ? { ok: true, projectPath: plan.projectPath, output: created.output }
+      : created
+  }
+
+  const added = await runFlutter(
+    ['pub', 'add', ...plan.packages],
+    plan.projectPath,
+  )
+  const output = `${created.output}\n${added.output}`
+  if (added.ok) {
+    return { ok: true, projectPath: plan.projectPath, output }
+  }
+
+  return {
+    ok: false,
+    code:
+      added.code === 'flutter-missing'
+        ? 'flutter-missing'
+        : added.code === 'timeout'
+          ? 'timeout'
+          : 'packages-failed',
+    output,
+    projectPath: plan.projectPath,
+  }
+}
+
+function runFlutter(args: string[], cwd: string): Promise<CreateProjectResult> {
   return new Promise((resolve) => {
     let settled = false
     let output = ''
-    const child = startFlutter(args, plan.directory)
+    const child = startFlutter(args, cwd)
 
     const finish = (result: CreateProjectResult): void => {
       if (settled) {
@@ -259,7 +309,7 @@ export function createFlutterProject(
     })
     child.on('close', (status) => {
       if (status === 0) {
-        finish({ ok: true, projectPath: plan.projectPath, output })
+        finish({ ok: true, projectPath: cwd, output })
         return
       }
 

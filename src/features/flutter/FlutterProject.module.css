@@ -61,6 +61,22 @@
   width: 100%;
 }
 
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  margin-bottom: var(--space-1);
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-md);
+}
+
 .platforms {
   display: flex;
   flex-wrap: wrap;

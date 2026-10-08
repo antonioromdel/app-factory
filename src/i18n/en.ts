@@ -574,7 +574,7 @@ export const en = {
   },
   flutterProject: {
     title: 'Create Flutter project',
-    lead: 'App Factory asks the local helper to run flutter create in the folder you choose. Start the helper with pnpm dev:local.',
+    lead: 'Choose a template and turn its pieces on or off. App Factory asks the local helper to run flutter create in the folder you choose, then adds the selected packages. Start the helper with pnpm dev:local.',
     checking: 'Checking the local helper…',
     template: 'Template',
     projectName: 'Project name',
@@ -584,20 +584,39 @@ export const en = {
       'Flutter creates a new subfolder with the project name. The folder must already exist, and the project folder must not.',
     chooseFolder: 'Choose folder',
     choosing: 'Choose a folder in the system window…',
+    pieces: 'Pieces',
+    piecesHint:
+      'You can turn pieces off. The packages are added to the project. Firebase configuration files stay a separate step.',
+    packages: (list: string) => `Packages: ${list}`,
+    packagesNone: 'No extra packages. This creates the Flutter app only.',
     android: 'Android',
     ios: 'iOS',
     destination: (path: string) => `Project folder: ${path}`,
     create: 'Create project',
     creating: 'Creating…',
     confirmTitle: 'Create the Flutter project?',
-    confirmDescription: (path: string) =>
-      `This runs flutter create and writes the project to ${path}.`,
+    confirmDescription: (path: string, packages: string) =>
+      packages
+        ? `This runs flutter create in ${path} and adds ${packages}.`
+        : `This runs flutter create and writes the project to ${path}.`,
     output: 'Command output',
     created: 'The project was created.',
     savePath: 'Save this folder on the application',
     saved: 'The local path was saved.',
     templates: {
-      app: 'Application',
+      basic: 'Basic',
+      firebase: 'Firebase',
+      commercial: 'Commercial',
+    },
+    features: {
+      localPersistence: 'Local persistence',
+      firebase: 'Firebase',
+      authentication: 'Authentication',
+      firestore: 'Firestore',
+      analytics: 'Analytics',
+      crashlytics: 'Crashlytics',
+      admob: 'AdMob',
+      revenueCat: 'RevenueCat',
     },
     errors: {
       offline:
@@ -616,6 +635,9 @@ export const en = {
       'flutter-missing':
         'Flutter is not available on this computer. Install it and open a new terminal.',
       'flutter-failed': 'flutter create did not finish. The output is below.',
+      'packages-failed':
+        'The project was created, but the packages could not be added. The output is below.',
+      'invalid-features': 'Choose pieces from the selected template.',
       timeout: 'flutter create took too long and was stopped.',
       'picker-failed':
         'The folder window could not be opened. Type the path instead.',

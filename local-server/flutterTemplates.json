@@ -1,0 +1,69 @@
+{
+  "platforms": ["android", "ios"],
+  "features": [
+    {
+      "id": "localPersistence",
+      "packages": ["shared_preferences"]
+    },
+    {
+      "id": "firebase",
+      "packages": ["firebase_core"]
+    },
+    {
+      "id": "authentication",
+      "packages": ["firebase_auth"],
+      "requires": ["firebase"]
+    },
+    {
+      "id": "firestore",
+      "packages": ["cloud_firestore"],
+      "requires": ["firebase"]
+    },
+    {
+      "id": "analytics",
+      "packages": ["firebase_analytics"],
+      "requires": ["firebase"]
+    },
+    {
+      "id": "crashlytics",
+      "packages": ["firebase_crashlytics"],
+      "requires": ["firebase"]
+    },
+    {
+      "id": "admob",
+      "packages": ["google_mobile_ads"]
+    },
+    {
+      "id": "revenueCat",
+      "packages": ["purchases_flutter"]
+    }
+  ],
+  "templates": [
+    {
+      "id": "basic",
+      "features": ["localPersistence", "analytics", "crashlytics", "admob"]
+    },
+    {
+      "id": "firebase",
+      "features": [
+        "firebase",
+        "authentication",
+        "firestore",
+        "analytics",
+        "crashlytics"
+      ]
+    },
+    {
+      "id": "commercial",
+      "features": [
+        "firebase",
+        "authentication",
+        "firestore",
+        "admob",
+        "revenueCat",
+        "analytics",
+        "crashlytics"
+      ]
+    }
+  ]
+}

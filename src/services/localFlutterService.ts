@@ -1,8 +1,20 @@
 const localFlutterPort = 3847
 
+export interface FlutterFeatureOption {
+  id: string
+  packages: string[]
+  requires: string[]
+}
+
 export interface FlutterTemplateOption {
   id: string
   platforms: FlutterPlatformName[]
+  features: string[]
+}
+
+export interface FlutterTemplateCatalog {
+  features: FlutterFeatureOption[]
+  templates: FlutterTemplateOption[]
 }
 
 export const flutterPlatformNames = ['android', 'ios'] as const
@@ -20,6 +32,8 @@ export const localFlutterErrorCodes = [
   'project-exists',
   'flutter-missing',
   'flutter-failed',
+  'packages-failed',
+  'invalid-features',
   'timeout',
   'offline',
   'picker-failed',
@@ -34,12 +48,18 @@ export interface FlutterCreateInput {
   org: string
   platforms: FlutterPlatformName[]
   directory: string
+  features: string[]
   description?: string
 }
 
 export type FlutterCreateResponse =
   | { ok: true; projectPath: string; output: string }
-  | { ok: false; code: LocalFlutterErrorCode; output?: string }
+  | {
+      ok: false
+      code: LocalFlutterErrorCode
+      output?: string
+      projectPath?: string
+    }
 
 export type PickDirectoryResponse =
   | { ok: true; directory: string }
@@ -56,7 +76,7 @@ export function localFlutterUrl(): string {
 
 export async function fetchFlutterTemplates(
   signal: AbortSignal,
-): Promise<FlutterTemplateOption[]> {
+): Promise<FlutterTemplateCatalog> {
   const response = await fetch(`${localFlutterUrl()}/flutter/templates`, {
     signal,
   })
@@ -65,11 +85,18 @@ export async function fetchFlutterTemplates(
   }
 
   const payload: unknown = await response.json()
-  if (!isRecord(payload) || !Array.isArray(payload.templates)) {
+  if (
+    !isRecord(payload) ||
+    !Array.isArray(payload.features) ||
+    !Array.isArray(payload.templates)
+  ) {
     throw new Error('templates')
   }
 
-  return payload.templates.flatMap(readTemplate)
+  return {
+    features: payload.features.flatMap(readFeature),
+    templates: payload.templates.flatMap(readTemplate),
+  }
 }
 
 export async function createFlutterProject(
@@ -133,6 +160,27 @@ export async function pickFlutterDirectory(
   return { ok: false, code: code ?? 'picker-failed' }
 }
 
+function readFeature(value: unknown): FlutterFeatureOption[] {
+  if (!isRecord(value) || typeof value.id !== 'string') {
+    return []
+  }
+
+  if (!Array.isArray(value.packages) || !Array.isArray(value.requires)) {
+    return []
+  }
+
+  const packages = value.packages.filter((item) => typeof item === 'string')
+  const requires = value.requires.filter((item) => typeof item === 'string')
+  if (
+    packages.length !== value.packages.length ||
+    requires.length !== value.requires.length
+  ) {
+    return []
+  }
+
+  return [{ id: value.id, packages, requires }]
+}
+
 function readTemplate(value: unknown): FlutterTemplateOption[] {
   if (!isRecord(value) || typeof value.id !== 'string') {
     return []
@@ -150,7 +198,17 @@ function readTemplate(value: unknown): FlutterTemplateOption[] {
     return []
   }
 
-  return [{ id: value.id, platforms: [...platforms] }]
+  const featureIds = value.features
+  if (!Array.isArray(featureIds)) {
+    return []
+  }
+
+  const features = featureIds.filter((item) => typeof item === 'string')
+  if (features.length !== featureIds.length) {
+    return []
+  }
+
+  return [{ id: value.id, platforms: [...platforms], features }]
 }
 
 function readCreateResponse(value: unknown): FlutterCreateResponse {
@@ -163,8 +221,48 @@ function readCreateResponse(value: unknown): FlutterCreateResponse {
     return { ok: true, projectPath: value.projectPath, output: output ?? '' }
   }
 
+  const projectPath =
+    typeof value.projectPath === 'string' ? value.projectPath : undefined
   const code = localFlutterErrorCodes.find((item) => item === value.code)
-  return { ok: false, code: code ?? 'flutter-failed', output }
+  return { ok: false, code: code ?? 'flutter-failed', output, projectPath }
+}
+
+export function selectedPackages(
+  features: FlutterFeatureOption[],
+  templateFeatureIds: string[],
+  selectedIds: string[],
+): string[] {
+  const allowed = new Set(templateFeatureIds)
+  const included = new Set(selectedIds.filter((id) => allowed.has(id)))
+  const byId = new Map(features.map((feature) => [feature.id, feature]))
+  let pending = true
+
+  while (pending) {
+    pending = false
+    for (const id of included) {
+      const feature = byId.get(id)
+      for (const required of feature?.requires ?? []) {
+        if (!included.has(required) && byId.has(required)) {
+          included.add(required)
+          pending = true
+        }
+      }
+    }
+  }
+
+  const packages: string[] = []
+  for (const feature of features) {
+    if (!included.has(feature.id)) {
+      continue
+    }
+    for (const packageName of feature.packages) {
+      if (!packages.includes(packageName)) {
+        packages.push(packageName)
+      }
+    }
+  }
+
+  return packages
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

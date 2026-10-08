@@ -17,6 +17,8 @@ import {
   createFlutterProject,
   fetchFlutterTemplates,
   pickFlutterDirectory,
+  selectedPackages,
+  type FlutterFeatureOption,
   type FlutterPlatformName,
   type FlutterTemplateOption,
   type LocalFlutterErrorCode,
@@ -35,8 +37,12 @@ export function FlutterProject({
   const [connection, setConnection] = useState<
     'checking' | 'online' | 'offline'
   >('checking')
+  const [catalogFeatures, setCatalogFeatures] = useState<
+    FlutterFeatureOption[]
+  >([])
   const [templates, setTemplates] = useState<FlutterTemplateOption[]>([])
   const [templateId, setTemplateId] = useState('')
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([])
   const [projectName, setProjectName] = useState(() =>
     suggestedProjectName(application.name),
   )
@@ -77,8 +83,14 @@ export function FlutterProject({
         if (controller.signal.aborted) {
           return
         }
-        setTemplates(next)
-        setTemplateId((current) => current || next[0]?.id || '')
+        setCatalogFeatures(next.features)
+        setTemplates(next.templates)
+        setTemplateId((current) => current || next.templates[0]?.id || '')
+        setSelectedFeatures((current) =>
+          current.length > 0
+            ? current
+            : [...(next.templates[0]?.features ?? [])],
+        )
         setConnection('online')
       })
       .catch((error: unknown) => {
@@ -95,6 +107,11 @@ export function FlutterProject({
 
   const template = templates.find((item) => item.id === templateId)
   const platforms = selectedPlatforms(template, android, ios)
+  const packages = selectedPackages(
+    catalogFeatures,
+    template?.features ?? [],
+    selectedFeatures,
+  )
   const destination = projectDirectory(directory, projectName)
   const canCreate =
     connection === 'online' &&
@@ -137,17 +154,19 @@ export function FlutterProject({
       projectName: projectName.trim(),
       org: org.trim(),
       platforms,
+      features: selectedFeatures,
       directory: directory.trim(),
       description: application.description,
     })
 
     setCreating(false)
     setOutput(result.ok ? result.output : (result.output ?? ''))
-    if (result.ok) {
+    if (result.projectPath) {
       setProjectPath(result.projectPath)
-      return
     }
-    setErrorCode(result.code)
+    if (!result.ok) {
+      setErrorCode(result.code)
+    }
   }
 
   async function handleSavePath(): Promise<void> {
@@ -193,8 +212,51 @@ export function FlutterProject({
             value: item.id,
             label: templateLabel(messages.flutterProject.templates, item.id),
           }))}
-          onChange={(event) => setTemplateId(event.target.value)}
+          onChange={(event) => {
+            const id = event.target.value
+            const nextTemplate = templates.find((item) => item.id === id)
+            setTemplateId(id)
+            setSelectedFeatures([...(nextTemplate?.features ?? [])])
+          }}
         />
+        {template ? (
+          <fieldset className={styles.features}>
+            <legend className={styles.legend}>
+              {messages.flutterProject.pieces}
+            </legend>
+            {template.features.map((id) => {
+              const feature = catalogFeatures.find((item) => item.id === id)
+              if (!feature) {
+                return null
+              }
+              return (
+                <Checkbox
+                  key={id}
+                  label={featureLabel(
+                    messages.flutterProject.features,
+                    feature,
+                  )}
+                  checked={selectedFeatures.includes(id)}
+                  disabled={creating}
+                  onChange={(event) => {
+                    const checked = event.target.checked
+                    setSelectedFeatures((current) =>
+                      checked
+                        ? [...current, id]
+                        : current.filter((item) => item !== id),
+                    )
+                  }}
+                />
+              )
+            })}
+          </fieldset>
+        ) : null}
+        <p className={styles.hint}>{messages.flutterProject.piecesHint}</p>
+        <p className={styles.hint}>
+          {packages.length > 0
+            ? messages.flutterProject.packages(packages.join(', '))
+            : messages.flutterProject.packagesNone}
+        </p>
         <Input
           label={messages.flutterProject.projectName}
           value={projectName}
@@ -261,7 +323,9 @@ export function FlutterProject({
 
       {projectPath ? (
         <div className={styles.success}>
-          <p className={styles.status}>{messages.flutterProject.created}</p>
+          {!errorCode ? (
+            <p className={styles.status}>{messages.flutterProject.created}</p>
+          ) : null}
           <p className={styles.path}>{projectPath}</p>
           <Button disabled={saving} onClick={() => void handleSavePath()}>
             {saving ? messages.common.saving : messages.flutterProject.savePath}
@@ -290,7 +354,10 @@ export function FlutterProject({
         open={confirming}
         tone="primary"
         title={messages.flutterProject.confirmTitle}
-        description={messages.flutterProject.confirmDescription(destination)}
+        description={messages.flutterProject.confirmDescription(
+          destination,
+          packages.join(', '),
+        )}
         confirmLabel={messages.flutterProject.create}
         cancelLabel={messages.common.cancel}
         onConfirm={() => void handleCreate()}
@@ -314,9 +381,39 @@ function selectedPlatforms(
   )
 }
 
-function templateLabel(labels: { app: string }, id: string): string {
-  if (id === 'app') {
-    return labels.app
+function templateLabel(
+  labels: { basic: string; firebase: string; commercial: string },
+  id: string,
+): string {
+  if (id === 'basic' || id === 'firebase' || id === 'commercial') {
+    return labels[id]
   }
   return id
+}
+
+function featureLabel(
+  labels: {
+    localPersistence: string
+    firebase: string
+    authentication: string
+    firestore: string
+    analytics: string
+    crashlytics: string
+    admob: string
+    revenueCat: string
+  },
+  feature: FlutterFeatureOption,
+): string {
+  const name =
+    feature.id === 'localPersistence' ||
+    feature.id === 'firebase' ||
+    feature.id === 'authentication' ||
+    feature.id === 'firestore' ||
+    feature.id === 'analytics' ||
+    feature.id === 'crashlytics' ||
+    feature.id === 'admob' ||
+    feature.id === 'revenueCat'
+      ? labels[feature.id]
+      : feature.id
+  return `${name} · ${feature.packages.join(', ')}`
 }
