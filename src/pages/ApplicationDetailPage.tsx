@@ -15,7 +15,9 @@ import {
   versionLabel,
 } from '@/features/applications/applicationDisplay.ts'
 import { ApplicationStatusSelect } from '@/features/applications/ApplicationStatusSelect.tsx'
+import { ApplicationAssets } from '@/features/assets/ApplicationAssets.tsx'
 import { ApplicationChecklist } from '@/features/checklists/ApplicationChecklist.tsx'
+import { FlutterProject } from '@/features/flutter/FlutterProject.tsx'
 import { useApplication } from '@/hooks/useApplication.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
@@ -206,7 +208,9 @@ export function ApplicationDetailPage(): ReactElement {
           {
             id: 'development',
             label: messages.fields.development,
-            content: <Development application={application} />,
+            content: (
+              <Development application={application} onReload={reload} />
+            ),
           },
           {
             id: 'firebase',
@@ -246,12 +250,7 @@ export function ApplicationDetailPage(): ReactElement {
           {
             id: 'assets',
             label: messages.fields.assets,
-            content: (
-              <EmptyState
-                title={messages.detail.assetsTitle}
-                description={messages.detail.assetsDescription}
-              />
-            ),
+            content: <ApplicationAssets applicationId={application.id} />,
           },
         ]}
       />
@@ -301,52 +300,57 @@ function Overview({
 
 function Development({
   application,
+  onReload,
 }: {
   application: Application
+  onReload: () => void
 }): ReactElement {
   const { messages } = useLanguage()
   const flutter = application.flutter
   const repository = application.repository
 
   return (
-    <FieldList
-      fields={[
-        {
-          label: messages.fields.flutterVersion,
-          value: flutter?.flutterVersion,
-        },
-        { label: messages.fields.dartVersion, value: flutter?.dartVersion },
-        { label: messages.fields.packageName, value: flutter?.packageName },
-        { label: messages.fields.bundleId, value: flutter?.bundleId },
-        {
-          label: messages.fields.minimumAndroidSdk,
-          value: flutter?.minimumAndroidSdk,
-        },
-        {
-          label: messages.fields.iosDeploymentTarget,
-          value: flutter?.iosDeploymentTarget,
-        },
-        { label: messages.fields.architecture, value: flutter?.architecture },
-        {
-          label: messages.fields.stateManagement,
-          value: flutter?.stateManagement,
-        },
-        {
-          label: messages.fields.githubUrl,
-          value: repository?.githubUrl,
-          link: true,
-        },
-        {
-          label: messages.fields.repository,
-          value: repository?.repositoryName,
-        },
-        {
-          label: messages.fields.localPath,
-          value: repository?.localPath,
-          wide: true,
-        },
-      ]}
-    />
+    <>
+      <FieldList
+        fields={[
+          {
+            label: messages.fields.flutterVersion,
+            value: flutter?.flutterVersion,
+          },
+          { label: messages.fields.dartVersion, value: flutter?.dartVersion },
+          { label: messages.fields.packageName, value: flutter?.packageName },
+          { label: messages.fields.bundleId, value: flutter?.bundleId },
+          {
+            label: messages.fields.minimumAndroidSdk,
+            value: flutter?.minimumAndroidSdk,
+          },
+          {
+            label: messages.fields.iosDeploymentTarget,
+            value: flutter?.iosDeploymentTarget,
+          },
+          { label: messages.fields.architecture, value: flutter?.architecture },
+          {
+            label: messages.fields.stateManagement,
+            value: flutter?.stateManagement,
+          },
+          {
+            label: messages.fields.githubUrl,
+            value: repository?.githubUrl,
+            link: true,
+          },
+          {
+            label: messages.fields.repository,
+            value: repository?.repositoryName,
+          },
+          {
+            label: messages.fields.localPath,
+            value: repository?.localPath,
+            wide: true,
+          },
+        ]}
+      />
+      <FlutterProject application={application} onSaved={onReload} />
+    </>
   )
 }
 

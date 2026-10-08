@@ -1,18 +1,23 @@
-import { useState, type FormEvent, type ReactElement } from 'react'
+import { useId, useState, type FormEvent, type ReactElement } from 'react'
 import { Button } from '@/components/Button.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
 import { Input } from '@/components/Input.tsx'
-import { Select } from '@/components/Select.tsx'
 import { Switch } from '@/components/Switch.tsx'
 import { TextArea } from '@/components/TextArea.tsx'
+import { useKnowledgeArticles } from '@/hooks/useKnowledgeArticles.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import type { KnowledgeErrorCode } from '@/services/knowledgeService.ts'
-import { knowledgeCategories } from '@/types/knowledge.ts'
 import type { KnowledgeArticleInput } from '@/types/knowledge.ts'
+import {
+  knowledgeCategoryLabel,
+  sortKnowledgeCategories,
+  uniqueKnowledgeCategories,
+} from './knowledgeDisplay.ts'
 import {
   toKnowledgeInput,
   type KnowledgeFormState,
 } from './knowledgeFormState.ts'
+import { libraryArticles } from './knowledgeLibrary.ts'
 import styles from './KnowledgeForm.module.css'
 
 export function KnowledgeForm({
@@ -28,7 +33,17 @@ export function KnowledgeForm({
   onSubmit: (input: KnowledgeArticleInput) => Promise<void>
   onCancel: () => void
 }): ReactElement {
-  const { messages } = useLanguage()
+  const { language, messages } = useLanguage()
+  const userArticles = useKnowledgeArticles()
+  const categoryListId = useId()
+  const suggestions = sortKnowledgeCategories(
+    uniqueKnowledgeCategories([
+      ...libraryArticles(language).map((article) => article.category),
+      ...userArticles.articles.map((article) => article.category),
+    ]),
+    messages.knowledge.categories,
+    language,
+  )
   const [form, setForm] = useState(initial)
   const [titleError, setTitleError] = useState(false)
   const [categoryError, setCategoryError] = useState(false)
@@ -43,7 +58,7 @@ export function KnowledgeForm({
   ): Promise<void> {
     event.preventDefault()
     const titleMissing = form.title.trim().length === 0
-    const categoryMissing = form.category === ''
+    const categoryMissing = form.category.trim().length === 0
     setTitleError(titleMissing)
     setCategoryError(categoryMissing)
     const input = toKnowledgeInput(form)
@@ -75,30 +90,28 @@ export function KnowledgeForm({
           setTitleError(false)
         }}
       />
-      <Select
+      <Input
         label={messages.knowledge.category}
         value={form.category}
+        list={categoryListId}
+        placeholder={messages.knowledge.chooseCategory}
+        error={
+          categoryError ? messages.knowledge.chooseCategoryError : undefined
+        }
         disabled={isSubmitting}
-        options={[
-          { value: '', label: messages.knowledge.chooseCategory },
-          ...knowledgeCategories.map((category) => ({
-            value: category,
-            label: messages.knowledge.categories[category],
-          })),
-        ]}
         onChange={(event) => {
-          const value = event.target.value
-          update({
-            category: isCategory(value) ? value : '',
-          })
+          update({ category: event.target.value })
           setCategoryError(false)
         }}
       />
-      {categoryError ? (
-        <p className={styles.error} role="alert">
-          {messages.knowledge.chooseCategoryError}
-        </p>
-      ) : null}
+      <datalist id={categoryListId}>
+        {suggestions.map((category) => (
+          <option key={category} value={category}>
+            {knowledgeCategoryLabel(category, messages.knowledge.categories)}
+          </option>
+        ))}
+      </datalist>
+      <p className={styles.hint}>{messages.knowledge.categoryHint}</p>
       <Input
         label={messages.knowledge.tags}
         value={form.tags}
@@ -132,11 +145,5 @@ export function KnowledgeForm({
         </Button>
       </div>
     </form>
-  )
-}
-
-function isCategory(value: string): value is KnowledgeFormState['category'] {
-  return (
-    value === '' || knowledgeCategories.some((category) => category === value)
   )
 }

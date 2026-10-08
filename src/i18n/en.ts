@@ -1,12 +1,20 @@
+import type { IconGroup, IconSizeId } from '@/features/assets/iconSizes.ts'
+import type {
+  SplashAlignment,
+  SplashBackgroundId,
+  SplashFileId,
+} from '@/features/assets/splashConfig.ts'
+import type { AssetErrorCode } from '@/services/assetService.ts'
 import type { AuthErrorCode } from '@/services/authService.ts'
 import type { ApplicationErrorCode } from '@/services/applicationService.ts'
 import type { ChecklistErrorCode } from '@/services/checklistService.ts'
 import type { ConnectionErrorCode } from '@/services/firebaseConnectionService.ts'
 import type { KnowledgeErrorCode } from '@/services/knowledgeService.ts'
+import type { LocalFlutterErrorCode } from '@/services/localFlutterService.ts'
+import type { AssetCategory } from '@/types/asset.ts'
 import type { ApplicationStatus, FirebaseService } from '@/types/application.ts'
 import type { ChecklistCategory, ChecklistItemId } from '@/types/checklist.ts'
 import type { ChecklistTemplateId } from '@/types/checklistTemplates.ts'
-import type { KnowledgeCategory } from '@/types/knowledge.ts'
 
 export const en = {
   brand: 'App Factory',
@@ -408,6 +416,207 @@ export const en = {
     emptyDescription: 'These details can stay empty until you know them.',
     opensInNewTab: 'Opens in a new tab',
   },
+  assets: {
+    loading: 'Loading assets…',
+    lead: 'Icons, splash screens, screenshots and store images for this application.',
+    libraryLead:
+      'Each application keeps its own icons, screenshots and store images.',
+    upload: 'Upload',
+    uploading: 'Uploading…',
+    category: 'Category',
+    file: 'Image',
+    fileHint: 'PNG, JPEG, WebP, GIF or SVG. Up to 10 MB.',
+    preview: 'Preview',
+    download: 'Download',
+    delete: 'Delete',
+    deleteTitle: 'Delete asset',
+    deleteDescription: (name: string) =>
+      `Delete ${name}? This cannot be undone.`,
+    moveUp: 'Up',
+    moveDown: 'Down',
+    emptyTitle: 'No assets yet',
+    emptyDescription: 'Upload an icon, a screenshot or a store image.',
+    noApplicationsTitle: 'No applications yet',
+    noApplicationsDescription: 'Create an application before uploading assets.',
+    openApplication: 'Open application',
+    openApplications: 'Open applications',
+    categories: {
+      appIcon: 'App icon',
+      androidIcons: 'Android icons',
+      iosIcons: 'iOS icons',
+      splash: 'Splash',
+      screenshots: 'Screenshots',
+      featureGraphic: 'Feature graphic',
+      storeImages: 'Store images',
+      logos: 'Logos',
+    } satisfies Record<AssetCategory, string>,
+    errors: {
+      incomplete: 'This asset record is incomplete.',
+      load: 'Could not load assets.',
+      upload: 'Could not upload the asset.',
+      save: 'Could not save the asset.',
+      delete: 'Could not delete the asset.',
+      download: 'Could not download the asset.',
+      'too-large': 'The image is larger than 10 MB.',
+      'unsupported-type': 'Use a PNG, JPEG, WebP, GIF or SVG image.',
+      permission: 'You do not have access to assets.',
+      unreachable: 'Could not reach Firebase.',
+    } satisfies Record<AssetErrorCode, string>,
+  },
+  icons: {
+    title: 'Icon generator',
+    lead: 'Use one square image of at least 1024 pixels. The icons are resized in the browser, only smaller than the source.',
+    source: 'Source image',
+    sourceHint: 'PNG, JPEG or WebP. At least 1024 × 1024.',
+    reading: 'Reading the image…',
+    generate: 'Generate icons',
+    generating: 'Generating…',
+    download: 'Download',
+    downloadAll: 'Download all',
+    dimensions: (width: number, height: number) => `${width} × ${height}`,
+    pixels: (size: number) => `${size} px`,
+    transparent:
+      'This image has transparent pixels. iOS icons and the Play Store icon need a solid background. Android adaptive icons can keep the transparency.',
+    reduced:
+      'The image is larger than 4096 pixels, so it is reduced to 4096 before the icons are made.',
+    failed: 'Could not generate the icons.',
+    groups: {
+      android: 'Android',
+      ios: 'iOS',
+      store: 'Stores',
+    } satisfies Record<IconGroup, string>,
+    errors: {
+      notImage: 'Choose a PNG, JPEG or WebP image.',
+      notSquare: (width: number, height: number) =>
+        `The image is ${width} × ${height}. Use a square image.`,
+      tooSmall: (width: number, height: number) =>
+        `The image is ${width} × ${height}. Use at least 1024 × 1024 so the icons are not enlarged.`,
+    },
+    sizes: {
+      'android-mdpi': 'mdpi',
+      'android-hdpi': 'hdpi',
+      'android-xhdpi': 'xhdpi',
+      'android-xxhdpi': 'xxhdpi',
+      'android-xxxhdpi': 'xxxhdpi',
+      'android-adaptive-mdpi': 'Adaptive mdpi',
+      'android-adaptive-hdpi': 'Adaptive hdpi',
+      'android-adaptive-xhdpi': 'Adaptive xhdpi',
+      'android-adaptive-xxhdpi': 'Adaptive xxhdpi',
+      'android-adaptive-xxxhdpi': 'Adaptive xxxhdpi',
+      'ios-20-1x': '20 pt @1x',
+      'ios-20-2x': '20 pt @2x',
+      'ios-20-3x': '20 pt @3x',
+      'ios-29-1x': '29 pt @1x',
+      'ios-29-2x': '29 pt @2x',
+      'ios-29-3x': '29 pt @3x',
+      'ios-40-1x': '40 pt @1x',
+      'ios-40-2x': '40 pt @2x',
+      'ios-40-3x': '40 pt @3x',
+      'ios-60-2x': '60 pt @2x',
+      'ios-60-3x': '60 pt @3x',
+      'ios-76-1x': '76 pt @1x',
+      'ios-76-2x': '76 pt @2x',
+      'ios-83-2x': '83.5 pt @2x',
+      'store-play': 'Play Store',
+      'store-app-store': 'App Store',
+    } satisfies Record<IconSizeId, string>,
+  },
+  splash: {
+    title: 'Splash generator',
+    lead: 'Upload a logo, choose a background color and an alignment. App Factory builds the PNG files and a flutter_native_splash configuration in the browser. The create command is left for you to run in the Flutter project.',
+    logo: 'Logo',
+    logoHint:
+      'PNG, JPEG or WebP. The shortest side should be at least 512 pixels. The image is treated as the 4x logo and is never enlarged.',
+    reading: 'Reading the logo…',
+    background: 'Background',
+    alignment: 'Alignment',
+    preview: 'Preview',
+    android12Note:
+      'Android 12 centers the icon inside a circle. Alignment applies to earlier Android versions and to iOS.',
+    generate: 'Generate splash',
+    generating: 'Generating…',
+    download: 'Download',
+    downloadAll: 'Download all',
+    copy: 'Copy',
+    copied: 'Copied',
+    small:
+      'This logo is smaller than 512 pixels on its shortest side. A larger PNG stays sharper at 4x.',
+    reduced:
+      'The logo is larger than 4096 pixels, so it is reduced to 4096 before the splash files are made.',
+    failed: 'Could not generate the splash.',
+    presets: {
+      white: 'White',
+      black: 'Black',
+      ink: 'Ink',
+    } satisfies Record<SplashBackgroundId, string>,
+    alignments: {
+      center: 'Center',
+      top: 'Top',
+      bottom: 'Bottom',
+      left: 'Left',
+      right: 'Right',
+    } satisfies Record<SplashAlignment, string>,
+    errors: {
+      notImage: 'Choose a PNG, JPEG or WebP image.',
+      tooSmall: (width: number, height: number) =>
+        `The logo is ${width} × ${height}. Use at least 128 pixels on the shortest side so it is not enlarged.`,
+    },
+    files: {
+      splash: 'Logo, 4x',
+      'android-mdpi': 'Android mdpi',
+      'android-hdpi': 'Android hdpi',
+      'android-xhdpi': 'Android xhdpi',
+      'android-xxhdpi': 'Android xxhdpi',
+      'android-xxxhdpi': 'Android xxxhdpi',
+      android12: 'Android 12',
+      config: 'Flutter configuration',
+    } satisfies Record<SplashFileId, string>,
+  },
+  flutterProject: {
+    title: 'Create Flutter project',
+    lead: 'App Factory asks the local helper to run flutter create in the folder you choose. Start the helper with pnpm dev:local.',
+    checking: 'Checking the local helper…',
+    template: 'Template',
+    projectName: 'Project name',
+    org: 'Organization',
+    directory: 'Parent folder',
+    directoryHint:
+      'Flutter creates a new subfolder with the project name. The folder must already exist, and the project folder must not.',
+    android: 'Android',
+    ios: 'iOS',
+    destination: (path: string) => `Project folder: ${path}`,
+    create: 'Create project',
+    creating: 'Creating…',
+    confirmTitle: 'Create the Flutter project?',
+    confirmDescription: (path: string) =>
+      `This runs flutter create and writes the project to ${path}.`,
+    output: 'Command output',
+    created: 'The project was created.',
+    savePath: 'Save this folder on the application',
+    saved: 'The local path was saved.',
+    templates: {
+      app: 'Application',
+    },
+    errors: {
+      offline:
+        'The local helper is not running. Start it with pnpm dev:local and try again.',
+      'invalid-request': 'The helper could not read this request.',
+      'invalid-name':
+        'Use a Dart package name: lowercase letters, digits and underscores, starting with a letter.',
+      'invalid-org':
+        'Use an organization like com.example, with at least two parts.',
+      'invalid-platforms': 'Choose Android, iOS, or both.',
+      'invalid-template': 'Choose a template from the list.',
+      'invalid-directory':
+        'Use a full folder path without characters such as & or %.',
+      'directory-missing': 'That parent folder does not exist.',
+      'project-exists': 'A folder with this project name is already there.',
+      'flutter-missing':
+        'Flutter is not available on this computer. Install it and open a new terminal.',
+      'flutter-failed': 'flutter create did not finish. The output is below.',
+      timeout: 'flutter create took too long and was stopped.',
+    } satisfies Record<LocalFlutterErrorCode, string>,
+  },
   knowledge: {
     loading: 'Loading articles…',
     loadingYours: 'Loading your articles…',
@@ -429,8 +638,6 @@ export const en = {
     notFound: 'Article not found',
     removed: 'It may have been deleted.',
     back: 'Back to articles',
-    recent: 'Recently viewed',
-    allArticles: 'All articles',
     title: 'Title',
     tags: 'Tags',
     tagsHint: 'Separate tags with commas.',
@@ -457,8 +664,10 @@ export const en = {
       `Delete ${title}? This cannot be undone.`,
     updated: 'Updated',
     viewed: 'Viewed',
-    chooseCategory: 'Choose a category',
-    chooseCategoryError: 'Choose a category.',
+    chooseCategory: 'e.g. automation',
+    categoryHint:
+      'Existing categories appear as you type. A name that is not in the list becomes its own category.',
+    chooseCategoryError: 'Write a category.',
     enterTitle: 'Write a title.',
     emptyContentTitle: 'No content yet',
     emptyContentDescription: 'Edit the article to add Markdown.',
@@ -489,7 +698,10 @@ export const en = {
       performance: 'Performance',
       security: 'Security',
       troubleshooting: 'Troubleshooting',
-    } satisfies Record<KnowledgeCategory, string>,
+      automation: 'Automation',
+      assets: 'Assets',
+      'app-factory': 'App Factory',
+    },
   },
   form: {
     saveChanges: 'Save changes',

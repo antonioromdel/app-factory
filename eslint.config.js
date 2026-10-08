@@ -20,5 +20,11 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['local-server/**/*.ts'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
   prettier,
 ])

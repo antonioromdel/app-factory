@@ -1,185 +1,558 @@
 {
   "articles": [
     {
-      "id": "library-flutter",
+      "id": "library-flutter-cli",
       "category": "flutter",
-      "tags": ["flutter", "cli"],
+      "tags": [
+        "flutter",
+        "cli",
+        "commands"
+      ],
       "title": {
-        "en": "Flutter commands I keep nearby",
-        "es": "Comandos de Flutter que tengo a mano"
+        "en": "Flutter CLI commands I use regularly",
+        "es": "Comandos de Flutter que uso habitualmente"
       },
       "content": {
-        "en": "Create the project from the app directory. The organization name becomes the start of the package name and the bundle ID.\n\n```command\nflutter create --org com.example app_name\n```\n\nAfter pulling changes, or when a package fails to resolve:\n\n```command\nflutter pub get\nflutter analyze\n```\n\n> [!NOTE]\n> `flutter --version` should match the version written on the application record.\n\n> [!WARNING]\n> Do not upgrade Flutter in the middle of a release. Finish the store build first.",
-        "es": "Crea el proyecto desde la carpeta de la app. El nombre de organización pasa a ser el inicio del package name y del bundle ID.\n\n```command\nflutter create --org com.example nombre_app\n```\n\nDespués de traer cambios, o cuando un paquete no resuelve:\n\n```command\nflutter pub get\nflutter analyze\n```\n\n> [!NOTE]\n> `flutter --version` tiene que coincidir con la versión anotada en la ficha de la aplicación.\n\n> [!WARNING]\n> No actualices Flutter a mitad de una publicación. Termina antes la build de la tienda."
+        "en": "Useful Flutter commands for everyday development.\n\n### Project\n\n```bash\nflutter create my_app\ncd my_app\nflutter pub get\nflutter run\n```\n\n### Information\n\n```bash\nflutter --version\nflutter doctor -v\nflutter devices\nflutter pub deps\n```\n\n### Development\n\n```bash\nflutter run\nflutter run -d <device>\nflutter analyze\nflutter test\n```\n\n### Dependencies\n\n```bash\nflutter pub get\nflutter pub add package_name\nflutter pub remove package_name\nflutter pub outdated\nflutter pub upgrade\n```\n\n### Build\n\n```bash\nflutter build apk --release\nflutter build appbundle --release\nflutter build ipa --release\n```\n\n### Cleaning\n\n```bash\nflutter clean\nflutter pub get\n```\n\n> [!NOTE]\n> Prefer using the Flutter CLI instead of manually editing generated files whenever Flutter provides an official command for the operation.",
+        "es": "Comandos de Flutter útiles para el desarrollo diario.\n\n### Proyecto\n\n```bash\nflutter create mi_app\ncd mi_app\nflutter pub get\nflutter run\n```\n\n### Información\n\n```bash\nflutter --version\nflutter doctor -v\nflutter devices\nflutter pub deps\n```\n\n### Desarrollo\n\n```bash\nflutter run\nflutter run -d <device>\nflutter analyze\nflutter test\n```\n\n### Dependencias\n\n```bash\nflutter pub get\nflutter pub add package_name\nflutter pub remove package_name\nflutter pub outdated\nflutter pub upgrade\n```\n\n### Build\n\n```bash\nflutter build apk --release\nflutter build appbundle --release\nflutter build ipa --release\n```\n\n### Limpiar\n\n```bash\nflutter clean\nflutter pub get\n```\n\n> [!NOTE]\n> Es preferible utilizar la CLI de Flutter en lugar de modificar manualmente archivos generados cuando Flutter proporciona un comando oficial para realizar la operación."
       }
     },
     {
-      "id": "library-firebase",
-      "category": "firebase",
-      "tags": ["firebase", "flutterfire"],
+      "id": "library-dart-basics",
+      "category": "dart",
+      "tags": [
+        "dart",
+        "syntax",
+        "language"
+      ],
       "title": {
-        "en": "Connect a Flutter app to Firebase",
-        "es": "Conectar una app Flutter a Firebase"
+        "en": "Dart syntax and concepts to keep nearby",
+        "es": "Sintaxis y conceptos de Dart que conviene tener a mano"
       },
       "content": {
-        "en": "Create the Firebase project first, then register the Android and iOS apps with the same package name and bundle ID stored in App Factory.\n\n```command\ndart pub global activate flutterfire_cli\nflutterfire configure\n```\n\nThe command writes `lib/firebase_options.dart` and the native config files.\n\n```config\nlib/firebase_options.dart\nandroid/app/google-services.json\nios/Runner/GoogleService-Info.plist\n```\n\n> [!NOTE]\n> Enable only the services the app really uses: Auth, Firestore, Storage, Analytics, Crashlytics, Messaging.\n\n> [!WARNING]\n> The Firebase web API key is not a secret. Access is enforced by Auth and Security Rules, not by hiding that key.",
-        "es": "Crea primero el proyecto de Firebase y registra las apps Android e iOS con el mismo package name y bundle ID que están en App Factory.\n\n```command\ndart pub global activate flutterfire_cli\nflutterfire configure\n```\n\nEl comando escribe `lib/firebase_options.dart` y los archivos nativos.\n\n```config\nlib/firebase_options.dart\nandroid/app/google-services.json\nios/Runner/GoogleService-Info.plist\n```\n\n> [!NOTE]\n> Activa solo los servicios que la app usa de verdad: Auth, Firestore, Storage, Analytics, Crashlytics, Messaging.\n\n> [!WARNING]\n> La API key web de Firebase no es un secreto. El acceso lo marcan Auth y las Security Rules, no esconder esa clave."
+        "en": "### Variables\n\n```dart\nfinal name = 'Antonio';\nconst maxItems = 10;\nString? nickname;\n```\n\nUse `final` when a value is assigned once at runtime and `const` when the value can be known at compile time.\n\n### Null safety\n\n```dart\nString? name;\nprint(name?.length);\n```\n\nUseful operators:\n\n```dart\nvalue ?? defaultValue\nvalue?.property\nvalue!\n```\n\nAvoid `!` unless you know the value cannot be null.\n\n### Functions\n\n```dart\nString greet(String name) {\n  return 'Hello $name';\n}\n\nfinal result = greet('Antonio');\n```\n\n### Collections\n\n```dart\nfinal names = ['Ana', 'Luis'];\nfinal user = {\n  'name': 'Antonio',\n  'age': 32,\n};\n```\n\n### Async\n\n```dart\nFuture<void> loadData() async {\n  final data = await fetchData();\n}\n```\n\nUse `Future` for a single asynchronous result and `Stream` for a sequence of asynchronous events.",
+        "es": "### Variables\n\n```dart\nfinal name = 'Antonio';\nconst maxItems = 10;\nString? nickname;\n```\n\nUsa `final` cuando el valor se asigna una vez durante la ejecución y `const` cuando puede conocerse en tiempo de compilación.\n\n### Null safety\n\n```dart\nString? name;\nprint(name?.length);\n```\n\nOperadores útiles:\n\n```dart\nvalue ?? defaultValue\nvalue?.property\nvalue!\n```\n\nEvita `!` salvo que sepas con seguridad que el valor no puede ser null.\n\n### Funciones\n\n```dart\nString greet(String name) {\n  return 'Hello $name';\n}\n\nfinal result = greet('Antonio');\n```\n\n### Colecciones\n\n```dart\nfinal names = ['Ana', 'Luis'];\nfinal user = {\n  'name': 'Antonio',\n  'age': 32,\n};\n```\n\n### Asincronía\n\n```dart\nFuture<void> loadData() async {\n  final data = await fetchData();\n}\n```\n\nUtiliza `Future` para un único resultado asíncrono y `Stream` para una secuencia de eventos asíncronos."
       }
     },
     {
-      "id": "library-android",
-      "category": "android",
-      "tags": ["android", "aab"],
+      "id": "library-flutter-widgets",
+      "category": "flutter",
+      "tags": [
+        "flutter",
+        "widgets",
+        "ui"
+      ],
       "title": {
-        "en": "Android application ID and release build",
-        "es": "Application ID de Android y build de publicación"
+        "en": "Flutter widgets and widget composition",
+        "es": "Widgets de Flutter y composición de interfaces"
       },
       "content": {
-        "en": "The application ID lives in `android/app/build.gradle` and must match the package name in App Factory and in Play Console.\n\n```config\nandroid {\n    defaultConfig {\n        applicationId \"com.example.app\"\n        minSdk 24\n    }\n}\n```\n\nBuild the store file only after analyze and tests pass:\n\n```command\nflutter build appbundle --release\n```\n\n> [!NOTE]\n> The AAB is uploaded to an internal track before production.\n\n> [!WARNING]\n> A release keystore cannot be replaced later. Keep the file and the passwords outside Firestore.",
-        "es": "El application ID está en `android/app/build.gradle` y tiene que coincidir con el package name de App Factory y de Play Console.\n\n```config\nandroid {\n    defaultConfig {\n        applicationId \"com.example.app\"\n        minSdk 24\n    }\n}\n```\n\nCompila el archivo de tienda solo cuando analyze y los tests pasen:\n\n```command\nflutter build appbundle --release\n```\n\n> [!NOTE]\n> El AAB se sube primero a un canal interno, antes de producción.\n\n> [!WARNING]\n> Un keystore de publicación no se puede sustituir después. Guarda el archivo y las contraseñas fuera de Firestore."
+        "en": "Everything visible in a Flutter application is built from widgets. Prefer composing small widgets instead of creating very large widget trees inside one `build()` method.\n\n### Stateless widget\n\n```dart\nclass WelcomeText extends StatelessWidget {\n  const WelcomeText({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return const Text('Welcome');\n  }\n}\n```\n\n### Stateful widget\n\nUse `StatefulWidget` when the widget owns mutable UI state.\n\n```dart\nclass Counter extends StatefulWidget {\n  const Counter({super.key});\n\n  @override\n  State<Counter> createState() => _CounterState();\n}\n```\n\nPrefer extracting repeated or conceptually independent UI into reusable widgets.\n\n> [!NOTE]\n> A widget should ideally have one clear responsibility. If a screen becomes difficult to read, extract meaningful sections into widgets.",
+        "es": "Todo lo visible en una aplicación Flutter está construido mediante widgets. Es preferible componer widgets pequeños en lugar de crear árboles enormes dentro de un único método `build()`.\n\n### Stateless widget\n\n```dart\nclass WelcomeText extends StatelessWidget {\n  const WelcomeText({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return const Text('Welcome');\n  }\n}\n```\n\n### Stateful widget\n\nUtiliza `StatefulWidget` cuando el widget sea responsable de un estado mutable de la interfaz.\n\n```dart\nclass Counter extends StatefulWidget {\n  const Counter({super.key});\n\n  @override\n  State<Counter> createState() => _CounterState();\n}\n```\n\nExtrae las partes repetidas o conceptualmente independientes de la interfaz a widgets reutilizables.\n\n> [!NOTE]\n> Un widget debería tener idealmente una única responsabilidad. Si una pantalla empieza a ser difícil de leer, extrae secciones significativas a widgets independientes."
       }
     },
     {
-      "id": "library-ios",
-      "category": "ios",
-      "tags": ["ios", "xcode"],
+      "id": "library-flutter-layout",
+      "category": "flutter",
+      "tags": [
+        "flutter",
+        "layout",
+        "responsive",
+        "ui"
+      ],
       "title": {
-        "en": "iOS bundle ID and signing",
-        "es": "Bundle ID de iOS y firma"
+        "en": "Flutter layout essentials",
+        "es": "Fundamentos del layout en Flutter"
       },
       "content": {
-        "en": "The bundle ID in Xcode must match the one stored on the application. Set the deployment target in the Runner target, not only in the Podfile.\n\n```command\nflutter build ipa --release\n```\n\nOpen the Xcode project when signing or capabilities change:\n\n```command\nopen ios/Runner.xcworkspace\n```\n\n> [!NOTE]\n> Use the `.xcworkspace`, not the `.xcodeproj`, once CocoaPods is installed.\n\n> [!WARNING]\n> Do not submit a build for review until the version, signing and screenshots are checked.",
-        "es": "El bundle ID de Xcode tiene que coincidir con el de la ficha. El destino de despliegue se cambia en el target Runner, no solo en el Podfile.\n\n```command\nflutter build ipa --release\n```\n\nAbre el proyecto de Xcode cuando cambie la firma o alguna capability:\n\n```command\nopen ios/Runner.xcworkspace\n```\n\n> [!NOTE]\n> Con CocoaPods instalado se abre el `.xcworkspace`, no el `.xcodeproj`.\n\n> [!WARNING]\n> No envíes una build a revisión hasta comprobar versión, firma y capturas."
+        "en": "The most common layout widgets are:\n\n```text\nRow          horizontal layout\nColumn       vertical layout\nStack        overlapping widgets\nExpanded     fills available space\nFlexible     flexible space\nPadding       adds spacing\nCenter       centers content\nContainer    decoration and constraints\nListView     scrollable list\n```\n\nA common structure:\n\n```dart\nColumn(\n  children: [\n    const Text('Title'),\n    const SizedBox(height: 16),\n    Expanded(\n      child: ListView(),\n    ),\n  ],\n)\n```\n\nRemember Flutter's constraint model: constraints go down, sizes go up, and parents set positions.\n\n> [!WARNING]\n> Many `RenderFlex overflowed` errors come from placing content with unbounded or insufficient constraints. Inspect the parent layout before adding arbitrary sizes.",
+        "es": "Los widgets de layout más habituales son:\n\n```text\nRow          layout horizontal\nColumn       layout vertical\nStack        widgets superpuestos\nExpanded     ocupa el espacio disponible\nFlexible     espacio flexible\nPadding       añade separación\nCenter       centra contenido\nContainer    decoración y restricciones\nListView     lista desplazable\n```\n\nUna estructura habitual:\n\n```dart\nColumn(\n  children: [\n    const Text('Title'),\n    const SizedBox(height: 16),\n    Expanded(\n      child: ListView(),\n    ),\n  ],\n)\n```\n\nRecuerda el modelo de restricciones de Flutter: las restricciones bajan, los tamaños suben y los padres determinan las posiciones.\n\n> [!WARNING]\n> Muchos errores `RenderFlex overflowed` aparecen por utilizar contenido con restricciones insuficientes o no acotadas. Revisa primero el layout padre antes de añadir tamaños arbitrarios."
       }
     },
     {
-      "id": "library-admob",
-      "category": "admob",
-      "tags": ["admob", "ads"],
+      "id": "library-navigation",
+      "category": "flutter",
+      "tags": [
+        "flutter",
+        "navigation",
+        "routing"
+      ],
       "title": {
-        "en": "AdMob IDs without shipping test ads",
-        "es": "IDs de AdMob sin publicar anuncios de prueba"
+        "en": "Navigation and routing in Flutter",
+        "es": "Navegación y routing en Flutter"
       },
       "content": {
-        "en": "Store the real app ID and unit IDs on the application record. Keep a console URL so the AdMob app opens in one click.\n\nGoogle's sample app ID for Android:\n\n```config\nca-app-pub-3940256099942544~3347511713\n```\n\n> [!NOTE]\n> Use sample IDs only on debug builds. Release builds read the IDs saved in App Factory.\n\n> [!WARNING]\n> Shipping a build that still requests test ads can suspend the AdMob account.",
-        "es": "Guarda el ID real de la app y los IDs de bloque en la ficha. Deja también la URL de la consola para abrir AdMob en un clic.\n\nEl ID de app de ejemplo de Google para Android:\n\n```config\nca-app-pub-3940256099942544~3347511713\n```\n\n> [!NOTE]\n> Los IDs de ejemplo solo van en builds de depuración. Las builds de publicación leen los IDs guardados en App Factory.\n\n> [!WARNING]\n> Publicar una build que sigue pidiendo anuncios de prueba puede suspender la cuenta de AdMob."
+        "en": "For simple applications, `Navigator` can be enough:\n\n```dart\nNavigator.push(\n  context,\n  MaterialPageRoute(\n    builder: (_) => const DetailsPage(),\n  ),\n);\n```\n\nReturn to the previous screen:\n\n```dart\nNavigator.pop(context);\n```\n\nReturn data:\n\n```dart\nfinal result = await Navigator.push<String>(...);\n```\n\nFor larger applications, use a centralized routing solution so authentication redirects, deep links and nested navigation remain manageable.\n\nA route should represent application state, not just a button click.\n\n> [!NOTE]\n> Keep navigation decisions out of low-level reusable widgets whenever possible. Screens or routing layers should decide where the application goes.",
+        "es": "En aplicaciones sencillas, `Navigator` puede ser suficiente:\n\n```dart\nNavigator.push(\n  context,\n  MaterialPageRoute(\n    builder: (_) => const DetailsPage(),\n  ),\n);\n```\n\nVolver a la pantalla anterior:\n\n```dart\nNavigator.pop(context);\n```\n\nDevolver datos:\n\n```dart\nfinal result = await Navigator.push<String>(...);\n```\n\nEn aplicaciones grandes, utiliza una solución de routing centralizada para mantener controlables los redirects de autenticación, deep links y navegación anidada.\n\nUna ruta debería representar un estado de la aplicación, no simplemente el clic de un botón.\n\n> [!NOTE]\n> Siempre que sea posible, evita tomar decisiones de navegación dentro de widgets reutilizables de bajo nivel. Las pantallas o la capa de routing deberían decidir hacia dónde va la aplicación."
       }
     },
     {
-      "id": "library-monetization",
-      "category": "monetization",
-      "tags": ["admob", "revenuecat"],
+      "id": "library-state-management",
+      "category": "flutter",
+      "tags": [
+        "flutter",
+        "state",
+        "riverpod",
+        "bloc"
+      ],
       "title": {
-        "en": "Choose how the app makes money",
-        "es": "Elegir cómo gana dinero la app"
+        "en": "State management: choose the simplest approach",
+        "es": "Gestión de estado: elegir el enfoque más sencillo"
       },
       "content": {
-        "en": "Turn on only the models the app will use: AdMob, in-app purchases, subscriptions, RevenueCat. Each one adds store setup and a checklist.\n\n- Ads are configured in the AdMob console.\n- A one-time purchase is created in Play Console and App Store Connect.\n- A subscription uses the same stores, plus RevenueCat if you use it.\n\n> [!NOTE]\n> RevenueCat does not replace the store products. Create the products in both stores, then map them in RevenueCat.\n\n> [!WARNING]\n> Do not put RevenueCat secret keys or AdMob account secrets in Firestore. The record only keeps IDs and console URLs.",
-        "es": "Activa solo los modelos que la app va a usar: AdMob, compras, suscripciones, RevenueCat. Cada uno añade configuración en las tiendas y tareas en la lista.\n\n- Los anuncios se configuran en la consola de AdMob.\n- Una compra única se crea en Play Console y en App Store Connect.\n- Una suscripción usa las mismas tiendas, y RevenueCat si lo usas.\n\n> [!NOTE]\n> RevenueCat no sustituye los productos de la tienda. Créalos en las dos tiendas y luego mapeálos en RevenueCat.\n\n> [!WARNING]\n> No guardes claves secretas de RevenueCat ni de la cuenta de AdMob en Firestore. La ficha solo lleva IDs y URLs de consola."
-      }
-    },
-    {
-      "id": "library-publishing",
-      "category": "publishing",
-      "tags": ["play", "app-store"],
-      "title": {
-        "en": "What has to exist before a store release",
-        "es": "Qué tiene que existir antes de publicar"
-      },
-      "content": {
-        "en": "A release is not only a binary. Both stores ask for a listing, screenshots, a privacy policy and a content rating before production.\n\nAndroid track order:\n\n```command\ninternal → closed or open testing → production\n```\n\niOS order:\n\n```command\nTestFlight → App Review → App Store\n```\n\n> [!NOTE]\n> Paste the Play Console, Play Store, App Store Connect, store and TestFlight URLs on the application so they open from the detail page.\n\n> [!WARNING]\n> Review steps on the App Store stay manual. Do not treat them as something the app can finish by itself.",
-        "es": "Una publicación no es solo el binario. Las dos tiendas piden ficha, capturas, política de privacidad y clasificación antes de producción.\n\nOrden de canales en Android:\n\n```command\ninterno → pruebas cerradas o abiertas → producción\n```\n\nOrden en iOS:\n\n```command\nTestFlight → revisión → App Store\n```\n\n> [!NOTE]\n> Pega en la ficha las URLs de Play Console, Play Store, App Store Connect, la tienda y TestFlight para abrirlas desde el detalle.\n\n> [!WARNING]\n> Los pasos de revisión de App Store siguen siendo manuales. No cuentes con que la herramienta los cierre sola."
-      }
-    },
-    {
-      "id": "library-git",
-      "category": "git",
-      "tags": ["git"],
-      "title": {
-        "en": "Git commands that are safe to repeat",
-        "es": "Comandos de Git que se pueden repetir"
-      },
-      "content": {
-        "en": "Check the branch before changing files.\n\n```command\ngit status\ngit diff\n```\n\nCommit only what you reviewed:\n\n```command\ngit add -p\ngit commit\n```\n\nTag a release after the store build exists:\n\n```command\ngit tag v1.0.0\n```\n\n> [!NOTE]\n> The GitHub URL and the local path belong on the application record.\n\n> [!WARNING]\n> Do not force push, and do not delete a branch, unless you have decided that on purpose.",
-        "es": "Mira la rama antes de tocar archivos.\n\n```command\ngit status\ngit diff\n```\n\nHaz commit solo de lo que hayas revisado:\n\n```command\ngit add -p\ngit commit\n```\n\nEtiqueta la versión cuando ya exista la build de la tienda:\n\n```command\ngit tag v1.0.0\n```\n\n> [!NOTE]\n> La URL de GitHub y la ruta local van en la ficha de la aplicación.\n\n> [!WARNING]\n> No hagas force push ni borres una rama si no lo has decidido a propósito."
-      }
-    },
-    {
-      "id": "library-testing",
-      "category": "testing",
-      "tags": ["testing", "flutter"],
-      "title": {
-        "en": "Run the analyzer and the tests before a build",
-        "es": "Ejecutar el analizador y los tests antes de compilar"
-      },
-      "content": {
-        "en": "These two commands are the minimum before an AAB or an IPA:\n\n```command\nflutter analyze\nflutter test\n```\n\nRun the app on a device when the change is visual or depends on a store SDK:\n\n```command\nflutter run\n```\n\n> [!NOTE]\n> Analyze can pass while a widget test still fails. Run both.\n\n> [!WARNING]\n> A green test suite on the desktop does not replace a pass on an Android device and on an iOS simulator.",
-        "es": "Estos dos comandos son el mínimo antes de un AAB o un IPA:\n\n```command\nflutter analyze\nflutter test\n```\n\nArranca la app en un dispositivo cuando el cambio sea visual o dependa de un SDK de tienda:\n\n```command\nflutter run\n```\n\n> [!NOTE]\n> El analizador puede pasar y un test de widget fallar. Ejecuta los dos.\n\n> [!WARNING]\n> Una suite verde en el escritorio no sustituye una prueba en un Android y en un simulador de iOS."
+        "en": "Not every application needs a state-management package.\n\nFor local widget state:\n\n```dart\nsetState(() {\n  counter++;\n});\n```\n\nAs the application grows, consider a structured solution such as Riverpod or BLoC when you need:\n\n- Shared state.\n- Dependency management.\n- Testable business logic.\n- Complex asynchronous state.\n- Clear separation between UI and application logic.\n\nA useful mental model is:\n\n```text\nUI\n↓\nstate/controller\n↓\nrepository/service\n↓\ndata source\n```\n\n> [!NOTE]\n> Choose one main state-management approach for a project unless there is a strong reason to mix several.",
+        "es": "No todas las aplicaciones necesitan una librería de gestión de estado.\n\nPara estado local de un widget:\n\n```dart\nsetState(() {\n  counter++;\n});\n```\n\nA medida que crece la aplicación, considera soluciones como Riverpod o BLoC cuando necesites:\n\n- Estado compartido.\n- Gestión de dependencias.\n- Lógica de negocio testeable.\n- Estado asíncrono complejo.\n- Separación clara entre interfaz y lógica.\n\nUn modelo mental útil es:\n\n```text\nUI\n↓\nestado/controlador\n↓\nrepositorio/servicio\n↓\nfuente de datos\n```\n\n> [!NOTE]\n> Elige un enfoque principal de gestión de estado para cada proyecto salvo que exista una razón clara para mezclar varios."
       }
     },
     {
       "id": "library-architecture",
       "category": "architecture",
-      "tags": ["architecture", "flutter"],
+      "tags": [
+        "flutter",
+        "architecture",
+        "clean-code",
+        "maintainability"
+      ],
       "title": {
-        "en": "Keep a Flutter app easy to open again",
-        "es": "Dejar una app Flutter fácil de retomar"
+        "en": "A maintainable Flutter project structure",
+        "es": "Una estructura mantenible para proyectos Flutter"
       },
       "content": {
-        "en": "Write the architecture and the state management choice on the application record. The code should match that note.\n\nA small layout that stays readable:\n\n```config\nlib/\n  app/\n  features/\n  shared/\n```\n\nEach feature keeps its screen, its state and its data access together.\n\n> [!NOTE]\n> Prefer one state approach per app. Mixing several libraries makes the next change slower.\n\n> [!WARNING]\n> Do not hide network or Firestore calls inside widgets. A feature that calls data from the screen is hard to test.",
-        "es": "Anota en la ficha la arquitectura y la gestión de estado. El código tiene que coincidir con esa nota.\n\nUna estructura pequeña que se sigue entendiendo:\n\n```config\nlib/\n  app/\n  features/\n  shared/\n```\n\nCada feature junta su pantalla, su estado y el acceso a datos.\n\n> [!NOTE]\n> Una sola forma de estado por app. Mezclar varias librerías hace más lento el siguiente cambio.\n\n> [!WARNING]\n> No escondas llamadas de red o de Firestore dentro de los widgets. Una feature que llama a los datos desde la pantalla se prueba mal."
+        "en": "A practical feature-oriented structure can look like:\n\n```text\nlib/\n├── app/\n│   ├── app.dart\n│   ├── router/\n│   └── theme/\n├── core/\n│   ├── errors/\n│   ├── network/\n│   └── utils/\n├── features/\n│   ├── auth/\n│   ├── home/\n│   └── settings/\n└── shared/\n    ├── widgets/\n    └── models/\n```\n\nInside a feature, separate presentation from data when the feature becomes complex.\n\n```text\nfeature/\n├── data/\n├── domain/\n└── presentation/\n```\n\nDo not create layers just for the sake of architecture. The goal is to make code easy to find, test and change.",
+        "es": "Una estructura práctica orientada a funcionalidades puede ser:\n\n```text\nlib/\n├── app/\n│   ├── app.dart\n│   ├── router/\n│   └── theme/\n├── core/\n│   ├── errors/\n│   ├── network/\n│   └── utils/\n├── features/\n│   ├── auth/\n│   ├── home/\n│   └── settings/\n└── shared/\n    ├── widgets/\n    └── models/\n```\n\nDentro de una funcionalidad, separa presentación y datos cuando la funcionalidad empiece a crecer.\n\n```text\nfeature/\n├── data/\n├── domain/\n└── presentation/\n```\n\nNo crees capas simplemente por seguir una arquitectura. El objetivo es que el código sea fácil de encontrar, probar y modificar."
       }
     },
     {
-      "id": "library-uiux",
-      "category": "uiux",
-      "tags": ["ui", "flutter"],
+      "id": "library-http-api",
+      "category": "networking",
+      "tags": [
+        "flutter",
+        "http",
+        "api",
+        "rest"
+      ],
       "title": {
-        "en": "UI checks before taking store screenshots",
-        "es": "Revisión de UI antes de las capturas de tienda"
+        "en": "Calling REST APIs from Flutter",
+        "es": "Consumir APIs REST desde Flutter"
       },
       "content": {
-        "en": "Screenshots show empty, loading and error states, not only the happy path. Use the same spacing scale on every screen.\n\nCheck on a small phone and on a tall phone:\n\n```command\nflutter run\n```\n\n> [!NOTE]\n> Text and an icon should agree. Color alone does not explain a status.\n\n> [!WARNING]\n> A layout that only fits the device you use every day will clip on the store reviewer's phone.",
-        "es": "Las capturas tienen que enseñar vacío, carga y error, no solo el camino feliz. Usa la misma escala de espaciado en todas las pantallas.\n\nComprueba un teléfono pequeño y uno alto:\n\n```command\nflutter run\n```\n\n> [!NOTE]\n> El texto y el icono tienen que decir lo mismo. El color solo no explica un estado.\n\n> [!WARNING]\n> Un diseño que solo cabe en el teléfono que usas a diario se recorta en el teléfono de quien revisa la tienda."
+        "en": "Keep HTTP calls outside UI widgets. A service or repository should handle the network operation.\n\nExample using `http`:\n\n```dart\nfinal response = await http.get(\n  Uri.parse('https://api.example.com/users'),\n);\n\nif (response.statusCode == 200) {\n  final data = jsonDecode(response.body);\n}\n```\n\nHandle at least:\n\n```text\n200-299 → success\n400-499 → client/request error\n500-599 → server error\nnetwork failure → connection error\n```\n\nAvoid scattering raw URLs and headers throughout the application.\n\n> [!NOTE]\n> Centralize base URLs, authentication headers and error mapping so the rest of the application does not need to know HTTP implementation details.",
+        "es": "Mantén las llamadas HTTP fuera de los widgets de interfaz. Un servicio o repositorio debería encargarse de la comunicación con la API.\n\nEjemplo utilizando `http`:\n\n```dart\nfinal response = await http.get(\n  Uri.parse('https://api.example.com/users'),\n);\n\nif (response.statusCode == 200) {\n  final data = jsonDecode(response.body);\n}\n```\n\nGestiona al menos:\n\n```text\n200-299 → éxito\n400-499 → error de petición/cliente\n500-599 → error de servidor\nfallo de red → error de conexión\n```\n\nEvita repartir URLs y headers por toda la aplicación.\n\n> [!NOTE]\n> Centraliza las URLs base, headers de autenticación y conversión de errores para que el resto de la aplicación no tenga que conocer los detalles de HTTP."
+      }
+    },
+    {
+      "id": "library-json-models",
+      "category": "dart",
+      "tags": [
+        "dart",
+        "json",
+        "serialization",
+        "models"
+      ],
+      "title": {
+        "en": "JSON serialization and data models",
+        "es": "Serialización JSON y modelos de datos"
+      },
+      "content": {
+        "en": "Avoid passing raw `Map<String, dynamic>` objects through the entire application.\n\nCreate typed models:\n\n```dart\nclass User {\n  final String id;\n  final String name;\n\n  const User({\n    required this.id,\n    required this.name,\n  });\n\n  factory User.fromJson(Map<String, dynamic> json) {\n    return User(\n      id: json['id'] as String,\n      name: json['name'] as String,\n    );\n  }\n}\n```\n\nFor larger projects, code generation can reduce repetitive serialization code.\n\nKeep API models separate from domain models when the external API structure differs significantly from the application's internal representation.",
+        "es": "Evita pasar objetos `Map<String, dynamic>` por toda la aplicación.\n\nCrea modelos tipados:\n\n```dart\nclass User {\n  final String id;\n  final String name;\n\n  const User({\n    required this.id,\n    required this.name,\n  });\n\n  factory User.fromJson(Map<String, dynamic> json) {\n    return User(\n      id: json['id'] as String,\n      name: json['name'] as String,\n    );\n  }\n}\n```\n\nEn proyectos grandes, la generación de código puede reducir el código repetitivo de serialización.\n\nMantén separados los modelos de API de los modelos de dominio cuando la estructura externa sea muy diferente de la representación interna de la aplicación."
+      }
+    },
+    {
+      "id": "library-firebase-setup",
+      "category": "firebase",
+      "tags": [
+        "firebase",
+        "flutterfire",
+        "setup"
+      ],
+      "title": {
+        "en": "Add Firebase to a Flutter project",
+        "es": "Añadir Firebase a un proyecto Flutter"
+      },
+      "content": {
+        "en": "Install FlutterFire CLI and configure the project:\n\n```bash\ndart pub global activate flutterfire_cli\nflutterfire configure\n```\n\nInitialize Firebase:\n\n```dart\nawait Firebase.initializeApp(\n  options: DefaultFirebaseOptions.currentPlatform,\n);\n```\n\nThe Firebase ecosystem for Flutter includes services such as Authentication, Firestore, Storage, Analytics, Crashlytics, Messaging and Remote Config. :contentReference[oaicite:1]{index=1}\n\nOnly add the plugins actually needed by the application.\n\n> [!WARNING]\n> Verify that Android and iOS are registered with the correct application identifiers. A Firebase project can contain multiple platform applications, and mixing identifiers between projects is an easy source of configuration errors.",
+        "es": "Instala FlutterFire CLI y configura el proyecto:\n\n```bash\ndart pub global activate flutterfire_cli\nflutterfire configure\n```\n\nInicializa Firebase:\n\n```dart\nawait Firebase.initializeApp(\n  options: DefaultFirebaseOptions.currentPlatform,\n);\n```\n\nEl ecosistema Firebase para Flutter incluye servicios como Authentication, Firestore, Storage, Analytics, Crashlytics, Messaging y Remote Config. :contentReference[oaicite:2]{index=2}\n\nAñade únicamente los plugins que realmente necesite la aplicación.\n\n> [!WARNING]\n> Comprueba que Android e iOS estén registrados con los identificadores correctos. Un proyecto Firebase puede contener varias aplicaciones de distintas plataformas y mezclar identificadores entre proyectos es una fuente habitual de errores."
+      }
+    },
+    {
+      "id": "library-firebase-auth",
+      "category": "firebase",
+      "tags": [
+        "firebase",
+        "authentication",
+        "auth",
+        "security"
+      ],
+      "title": {
+        "en": "Firebase Authentication with Flutter",
+        "es": "Firebase Authentication con Flutter"
+      },
+      "content": {
+        "en": "Enable the required authentication providers in Firebase Console and add the Flutter plugin.\n\nTypical operations:\n\n```dart\nFirebaseAuth.instance.signInWithEmailAndPassword(\n  email: email,\n  password: password,\n);\n```\n\nCreate an account:\n\n```dart\nFirebaseAuth.instance.createUserWithEmailAndPassword(\n  email: email,\n  password: password,\n);\n```\n\nSign out:\n\n```dart\nFirebaseAuth.instance.signOut();\n```\n\nListen for authentication changes:\n\n```dart\nFirebaseAuth.instance.authStateChanges()\n```\n\nFirebase Authentication provides the identity of the user; it does not automatically authorize access to every Firestore document. Authorization must be enforced with Security Rules. :contentReference[oaicite:3]{index=3}",
+        "es": "Activa en Firebase Console los proveedores de autenticación necesarios y añade el plugin correspondiente de Flutter.\n\nOperación habitual:\n\n```dart\nFirebaseAuth.instance.signInWithEmailAndPassword(\n  email: email,\n  password: password,\n);\n```\n\nCrear una cuenta:\n\n```dart\nFirebaseAuth.instance.createUserWithEmailAndPassword(\n  email: email,\n  password: password,\n);\n```\n\nCerrar sesión:\n\n```dart\nFirebaseAuth.instance.signOut();\n```\n\nEscuchar cambios de autenticación:\n\n```dart\nFirebaseAuth.instance.authStateChanges()\n```\n\nFirebase Authentication proporciona la identidad del usuario, pero no autoriza automáticamente el acceso a todos los documentos de Firestore. La autorización debe estar protegida mediante Security Rules. :contentReference[oaicite:4]{index=4}"
+      }
+    },
+    {
+      "id": "library-firestore",
+      "category": "firebase",
+      "tags": [
+        "firebase",
+        "firestore",
+        "database",
+        "nosql"
+      ],
+      "title": {
+        "en": "Cloud Firestore fundamentals",
+        "es": "Fundamentos de Cloud Firestore"
+      },
+      "content": {
+        "en": "Firestore is a NoSQL document database. Think in terms of collections and documents rather than relational tables.\n\nExample:\n\n```text\nusers/{uid}\nusers/{uid}/tasks/{taskId}\n```\n\nCreate a document:\n\n```dart\nawait FirebaseFirestore.instance\n    .collection('tasks')\n    .add({\n      'title': 'Learn Flutter',\n      'completed': false,\n    });\n```\n\nRead a document:\n\n```dart\nfinal snapshot = await FirebaseFirestore.instance\n    .collection('tasks')\n    .doc(taskId)\n    .get();\n```\n\nListen in real time:\n\n```dart\nFirebaseFirestore.instance\n    .collection('tasks')\n    .snapshots();\n```\n\nDesign the database around the queries the application needs rather than trying to reproduce a relational database model.",
+        "es": "Firestore es una base de datos NoSQL basada en documentos. Piensa en colecciones y documentos en lugar de tablas relacionales.\n\nEjemplo:\n\n```text\nusers/{uid}\nusers/{uid}/tasks/{taskId}\n```\n\nCrear un documento:\n\n```dart\nawait FirebaseFirestore.instance\n    .collection('tasks')\n    .add({\n      'title': 'Learn Flutter',\n      'completed': false,\n    });\n```\n\nLeer un documento:\n\n```dart\nfinal snapshot = await FirebaseFirestore.instance\n    .collection('tasks')\n    .doc(taskId)\n    .get();\n```\n\nEscuchar cambios en tiempo real:\n\n```dart\nFirebaseFirestore.instance\n    .collection('tasks')\n    .snapshots();\n```\n\nDiseña la base de datos pensando en las consultas que necesita la aplicación en lugar de intentar reproducir un modelo relacional."
+      }
+    },
+    {
+      "id": "library-firestore-rules",
+      "category": "firebase",
+      "tags": [
+        "firebase",
+        "firestore",
+        "security",
+        "rules"
+      ],
+      "title": {
+        "en": "Firestore Security Rules basics",
+        "es": "Fundamentos de las Security Rules de Firestore"
+      },
+      "content": {
+        "en": "Authentication and authorization are different concepts. Rules should determine which authenticated users can access each document.\n\nExample for user-owned data:\n\n```text\nmatch /users/{userId} {\n  allow read, write: if request.auth != null\n                    && request.auth.uid == userId;\n}\n```\n\nFor nested data, keep ownership rules consistent with the data model.\n\nNever rely on the Flutter UI to protect data. A hidden button does not prevent a direct API request.\n\nUse the Firebase Emulator Suite when possible to test rules before deployment.\n\n> [!WARNING]\n> Avoid deploying broad rules such as `allow read, write: if true` for private data.",
+        "es": "Autenticación y autorización son conceptos diferentes. Las Rules deben determinar qué usuarios autenticados pueden acceder a cada documento.\n\nEjemplo para datos propiedad del usuario:\n\n```text\nmatch /users/{userId} {\n  allow read, write: if request.auth != null\n                    && request.auth.uid == userId;\n}\n```\n\nPara datos anidados, mantén las reglas de propiedad coherentes con el modelo de datos.\n\nNunca dependas de la interfaz Flutter para proteger los datos. Ocultar un botón no impide una petición directa a la API.\n\nCuando sea posible, utiliza Firebase Emulator Suite para probar las reglas antes de desplegarlas.\n\n> [!WARNING]\n> Evita desplegar reglas amplias como `allow read, write: if true` para datos privados."
+      }
+    },
+    {
+      "id": "library-firebase-storage",
+      "category": "firebase",
+      "tags": [
+        "firebase",
+        "storage",
+        "files",
+        "images"
+      ],
+      "title": {
+        "en": "Firebase Cloud Storage for images and files",
+        "es": "Firebase Cloud Storage para imágenes y archivos"
+      },
+      "content": {
+        "en": "Use Cloud Storage when users need to upload files such as images, videos or documents.\n\nA common flow is:\n\n```text\nselect file\n→ validate type/size\n→ upload\n→ obtain download URL\n→ store metadata in Firestore\n```\n\nKeep the actual file in Storage and store references such as:\n\n```text\nstoragePath\nfileName\ncontentType\nsize\ncreatedAt\nownerId\n```\n\nin Firestore when the application needs to query the file metadata.\n\nProtect Storage with rules based on authentication and ownership.\n\n> [!WARNING]\n> Do not allow unrestricted uploads. Validate file size/type and restrict who can read or write files.",
+        "es": "Utiliza Cloud Storage cuando los usuarios necesiten subir archivos como imágenes, vídeos o documentos.\n\nUn flujo habitual es:\n\n```text\nseleccionar archivo\n→ validar tipo/tamaño\n→ subir\n→ obtener URL\n→ guardar metadatos en Firestore\n```\n\nGuarda el archivo real en Storage y, si necesitas consultar sus metadatos, guarda en Firestore datos como:\n\n```text\nstoragePath\nfileName\ncontentType\nsize\ncreatedAt\nownerId\n```\n\nProtege Storage mediante reglas basadas en autenticación y propiedad.\n\n> [!WARNING]\n> No permitas subidas sin restricciones. Valida tamaño/tipo y limita quién puede leer o escribir archivos."
+      }
+    },
+    {
+      "id": "library-local-storage",
+      "category": "persistence",
+      "tags": [
+        "flutter",
+        "storage",
+        "shared-preferences",
+        "sqlite"
+      ],
+      "title": {
+        "en": "Choosing local persistence in Flutter",
+        "es": "Elegir persistencia local en Flutter"
+      },
+      "content": {
+        "en": "Choose the persistence mechanism according to the data.\n\n### Simple preferences\n\nUse key-value storage for small settings:\n\n```text\ntheme\nonboardingCompleted\nselectedLanguage\nsimple preferences\n```\n\n### SQLite\n\nUse a relational local database for structured collections and queries.\n\n### Files\n\nUse files for documents, exported data or binary content.\n\n### Secure storage\n\nUse a secure credential store for sensitive local values such as tokens when appropriate.\n\nDo not use a simple preference store as a replacement for a database.\n\n> [!NOTE]\n> Flutter's documentation covers multiple persistence approaches including files, SQLite and key-value storage. :contentReference[oaicite:5]{index=5}",
+        "es": "Elige el mecanismo de persistencia según el tipo de información.\n\n### Preferencias simples\n\nUtiliza almacenamiento clave-valor para pequeños ajustes:\n\n```text\ntheme\nonboardingCompleted\nselectedLanguage\npreferencias simples\n```\n\n### SQLite\n\nUtiliza una base de datos relacional local para colecciones estructuradas y consultas.\n\n### Archivos\n\nUtiliza archivos para documentos, datos exportados o contenido binario.\n\n### Almacenamiento seguro\n\nUtiliza un almacén seguro para valores locales sensibles como tokens cuando corresponda.\n\nNo utilices un almacenamiento de preferencias como sustituto de una base de datos.\n\n> [!NOTE]\n> La documentación de Flutter contempla diferentes mecanismos de persistencia, incluyendo archivos, SQLite y almacenamiento clave-valor. :contentReference[oaicite:6]{index=6}"
+      }
+    },
+    {
+      "id": "library-localization",
+      "category": "flutter",
+      "tags": [
+        "flutter",
+        "localization",
+        "i18n",
+        "l10n"
+      ],
+      "title": {
+        "en": "Internationalization and localization",
+        "es": "Internacionalización y localización"
+      },
+      "content": {
+        "en": "Do not hard-code user-facing text throughout widgets if the application will support multiple languages.\n\nKeep translations organized by locale:\n\n```text\nlib/l10n/\n  app_en.arb\n  app_es.arb\n```\n\nConsider:\n\n- Translated strings.\n- Date formats.\n- Number formats.\n- Currency.\n- Pluralization.\n- Text direction.\n- Locale-specific layouts.\n\nAvoid concatenating translated fragments when word order may change between languages.\n\n> [!NOTE]\n> Even if the first version only supports Spanish, keeping user-facing text centralized makes future localization much easier.",
+        "es": "No escribas textos visibles para el usuario directamente por todos los widgets si la aplicación va a soportar varios idiomas.\n\nOrganiza las traducciones por locale:\n\n```text\nlib/l10n/\n  app_en.arb\n  app_es.arb\n```\n\nTen en cuenta:\n\n- Textos traducidos.\n- Formatos de fecha.\n- Formatos numéricos.\n- Moneda.\n- Plurales.\n- Dirección del texto.\n- Layouts específicos por idioma.\n\nEvita concatenar fragmentos traducidos cuando el orden de las palabras pueda cambiar entre idiomas.\n\n> [!NOTE]\n> Aunque la primera versión solo tenga español, centralizar los textos facilita mucho añadir otros idiomas posteriormente."
+      }
+    },
+    {
+      "id": "library-forms-validation",
+      "category": "flutter",
+      "tags": [
+        "flutter",
+        "forms",
+        "validation",
+        "ux"
+      ],
+      "title": {
+        "en": "Forms and input validation",
+        "es": "Formularios y validación de entradas"
+      },
+      "content": {
+        "en": "Use `Form` and `TextFormField` for structured forms.\n\n```dart\nfinal formKey = GlobalKey<FormState>();\n\nForm(\n  key: formKey,\n  child: TextFormField(\n    validator: (value) {\n      if (value == null || value.isEmpty) {\n        return 'Required';\n      }\n      return null;\n    },\n  ),\n)\n```\n\nValidate at the appropriate boundaries:\n\n```text\nUI → basic format validation\nbackend → authorization and business rules\nserver → final trust boundary\n```\n\nExamples:\n\n- Required fields.\n- Email format.\n- Minimum password length.\n- Numeric ranges.\n- Maximum text length.\n- File size/type.\n\n> [!WARNING]\n> Client-side validation improves UX but must never be treated as the only security validation.",
+        "es": "Utiliza `Form` y `TextFormField` para formularios estructurados.\n\n```dart\nfinal formKey = GlobalKey<FormState>();\n\nForm(\n  key: formKey,\n  child: TextFormField(\n    validator: (value) {\n      if (value == null || value.isEmpty) {\n        return 'Required';\n      }\n      return null;\n    },\n  ),\n)\n```\n\nValida en el nivel adecuado:\n\n```text\nUI → formato básico\nbackend → autorización y reglas de negocio\nservidor → frontera final de confianza\n```\n\nEjemplos:\n\n- Campos obligatorios.\n- Formato de email.\n- Longitud mínima de contraseña.\n- Rangos numéricos.\n- Longitud máxima de texto.\n- Tamaño/tipo de archivos.\n\n> [!WARNING]\n> La validación del cliente mejora la experiencia, pero nunca debe considerarse la única medida de seguridad."
+      }
+    },
+    {
+      "id": "library-error-handling",
+      "category": "flutter",
+      "tags": [
+        "flutter",
+        "errors",
+        "exceptions",
+        "debugging"
+      ],
+      "title": {
+        "en": "Error handling in Flutter applications",
+        "es": "Gestión de errores en aplicaciones Flutter"
+      },
+      "content": {
+        "en": "Separate technical errors from messages shown to users.\n\nAvoid:\n\n```dart\ncatch (e) {\n  showDialog(...);\n}\n```\n\ninside every service.\n\nInstead, map technical failures into application-level errors:\n\n```text\nNetworkException\nAuthenticationException\nPermissionException\nValidationException\nUnknownException\n```\n\nThen the UI decides how to present them.\n\nAlways consider:\n\n```text\nloading\nsuccess\nempty\nerror\n```\n\nfor asynchronous operations.\n\n> [!NOTE]\n> Logs should contain enough information to diagnose a problem without exposing passwords, tokens or unnecessary personal data.",
+        "es": "Separa los errores técnicos de los mensajes que se muestran al usuario.\n\nEvita:\n\n```dart\ncatch (e) {\n  showDialog(...);\n}\n```\n\ndentro de cada servicio.\n\nEn su lugar, transforma los fallos técnicos en errores de aplicación:\n\n```text\nNetworkException\nAuthenticationException\nPermissionException\nValidationException\nUnknownException\n```\n\nDespués la interfaz decide cómo mostrarlos.\n\nTen siempre en cuenta:\n\n```text\nloading\nsuccess\nempty\nerror\n```\n\npara operaciones asíncronas.\n\n> [!NOTE]\n> Los logs deben contener información suficiente para diagnosticar un problema sin exponer contraseñas, tokens ni datos personales innecesarios."
+      }
+    },
+    {
+      "id": "library-testing",
+      "category": "testing",
+      "tags": [
+        "flutter",
+        "testing",
+        "unit",
+        "widget",
+        "integration"
+      ],
+      "title": {
+        "en": "Testing strategy for Flutter",
+        "es": "Estrategia de testing en Flutter"
+      },
+      "content": {
+        "en": "Use different test levels for different problems.\n\n### Unit tests\n\nTest pure business logic:\n\n```text\ncalculations\nvalidators\nformatters\nrepositories\nuse cases\n```\n\n### Widget tests\n\nTest widgets and UI behavior.\n\n```dart\ntestWidgets('shows title', (tester) async {\n  await tester.pumpWidget(const MyWidget());\n  expect(find.text('Title'), findsOneWidget);\n});\n```\n\n### Integration tests\n\nTest complete flows on a device or emulator.\n\nA practical balance is to keep most tests fast and focused, with integration tests covering critical user journeys.",
+        "es": "Utiliza distintos niveles de testing para problemas diferentes.\n\n### Tests unitarios\n\nPrueba la lógica de negocio pura:\n\n```text\ncálculos\nvalidadores\nformateadores\nrepositorios\ncasos de uso\n```\n\n### Widget tests\n\nPrueba widgets y comportamiento de la interfaz.\n\n```dart\ntestWidgets('shows title', (tester) async {\n  await tester.pumpWidget(const MyWidget());\n  expect(find.text('Title'), findsOneWidget);\n});\n```\n\n### Integration tests\n\nPrueba flujos completos en un dispositivo o emulador.\n\nUn equilibrio práctico es mantener la mayoría de los tests rápidos y específicos y utilizar integration tests para los recorridos críticos del usuario."
+      }
+    },
+    {
+      "id": "library-git",
+      "category": "git",
+      "tags": [
+        "git",
+        "commands",
+        "workflow"
+      ],
+      "title": {
+        "en": "Git commands for everyday development",
+        "es": "Comandos Git para el desarrollo diario"
+      },
+      "content": {
+        "en": "### Status\n\n```bash\ngit status\n```\n\n### Inspect changes\n\n```bash\ngit diff\ngit diff --staged\n```\n\n### Commit\n\n```bash\ngit add .\ngit commit -m \"feat: add login\"\n```\n\n### History\n\n```bash\ngit log --oneline --graph --decorate\n```\n\n### Branches\n\n```bash\ngit branch\ngit switch -c feature/login\ngit switch main\n```\n\n### Remote\n\n```bash\ngit remote -v\ngit pull\ngit push\n```\n\n### Undo unstaged changes\n\n```bash\ngit restore file.dart\n```\n\n### Stash\n\n```bash\ngit stash\ngit stash pop\n```\n\n> [!WARNING]\n> Be careful with `reset --hard`, force push and history rewriting. Do not use destructive commands just to make the working tree look clean.",
+        "es": "### Estado\n\n```bash\ngit status\n```\n\n### Revisar cambios\n\n```bash\ngit diff\ngit diff --staged\n```\n\n### Commit\n\n```bash\ngit add .\ngit commit -m \"feat: add login\"\n```\n\n### Historial\n\n```bash\ngit log --oneline --graph --decorate\n```\n\n### Ramas\n\n```bash\ngit branch\ngit switch -c feature/login\ngit switch main\n```\n\n### Remoto\n\n```bash\ngit remote -v\ngit pull\ngit push\n```\n\n### Deshacer cambios sin commit\n\n```bash\ngit restore file.dart\n```\n\n### Stash\n\n```bash\ngit stash\ngit stash pop\n```\n\n> [!WARNING]\n> Ten cuidado con `reset --hard`, force push y la reescritura del historial. No utilices comandos destructivos simplemente para limpiar el árbol de trabajo."
+      }
+    },
+    {
+      "id": "library-git-release",
+      "category": "git",
+      "tags": [
+        "git",
+        "release",
+        "tags",
+        "versioning"
+      ],
+      "title": {
+        "en": "Git workflow for mobile releases",
+        "es": "Flujo de Git para releases móviles"
+      },
+      "content": {
+        "en": "A simple release workflow:\n\n```text\nfeature development\n↓\ntest\n↓\nmerge\n↓\nversion/build update\n↓\ntag\n↓\nbuild release\n↓\npublish\n```\n\nCreate a version tag:\n\n```bash\ngit tag v1.2.0\ngit push origin v1.2.0\n```\n\nUseful commands:\n\n```bash\ngit tag\ngit show v1.2.0\ngit log v1.2.0\n```\n\nTags make it easier to identify the source code associated with a released version.\n\n> [!NOTE]\n> Keep version numbers in the application and Git tags synchronized with the release process.",
+        "es": "Un flujo sencillo de release:\n\n```text\ndesarrollo de funcionalidad\n↓\ntests\n↓\nmerge\n↓\nactualizar versión/build\n↓\ntag\n↓\nbuild release\n↓\npublicar\n```\n\nCrear un tag de versión:\n\n```bash\ngit tag v1.2.0\ngit push origin v1.2.0\n```\n\nComandos útiles:\n\n```bash\ngit tag\ngit show v1.2.0\ngit log v1.2.0\n```\n\nLos tags facilitan identificar el código fuente correspondiente a una versión publicada.\n\n> [!NOTE]\n> Mantén sincronizados los números de versión de la aplicación y los tags Git dentro del proceso de release."
+      }
+    },
+    {
+      "id": "library-versioning",
+      "category": "release",
+      "tags": [
+        "flutter",
+        "version",
+        "build",
+        "release"
+      ],
+      "title": {
+        "en": "Flutter version and build numbers",
+        "es": "Versiones y números de build en Flutter"
+      },
+      "content": {
+        "en": "Flutter defines the application version in `pubspec.yaml`:\n\n```yaml\nversion: 1.2.0+15\n```\n\nThe semantic version is:\n\n```text\n1.2.0\n```\n\nThe build number is:\n\n```text\n15\n```\n\nUse semantic versioning consistently:\n\n```text\nMAJOR.MINOR.PATCH\n```\n\nA typical interpretation:\n\n```text\nMAJOR → incompatible changes\nMINOR → new backwards-compatible functionality\nPATCH → fixes\n```\n\nStore releases should always use a build number that satisfies the platform's versioning requirements.",
+        "es": "Flutter define la versión de la aplicación en `pubspec.yaml`:\n\n```yaml\nversion: 1.2.0+15\n```\n\nLa versión semántica es:\n\n```text\n1.2.0\n```\n\nEl número de build es:\n\n```text\n15\n```\n\nUtiliza versionado semántico de forma coherente:\n\n```text\nMAJOR.MINOR.PATCH\n```\n\nInterpretación habitual:\n\n```text\nMAJOR → cambios incompatibles\nMINOR → nueva funcionalidad compatible\nPATCH → correcciones\n```\n\nLas releases de las tiendas deben utilizar un número de build que cumpla los requisitos de versionado de cada plataforma."
+      }
+    },
+    {
+      "id": "library-android-release",
+      "category": "android",
+      "tags": [
+        "android",
+        "flutter",
+        "release",
+        "aab",
+        "apk"
+      ],
+      "title": {
+        "en": "Build and release a Flutter Android application",
+        "es": "Generar y publicar una aplicación Flutter Android"
+      },
+      "content": {
+        "en": "Before a release:\n\n```bash\nflutter clean\nflutter pub get\nflutter analyze\nflutter test\n```\n\nFor Google Play, the preferred release artifact is generally an Android App Bundle:\n\n```bash\nflutter build appbundle --release\n```\n\nFor a standalone APK:\n\n```bash\nflutter build apk --release\n```\n\nCheck:\n\n```text\napplicationId\nversion/build number\nrelease signing\npermissions\nFirebase configuration\nAdMob configuration\nprivacy declarations\n```\n\nKeep the release keystore and passwords securely backed up.\n\n> [!WARNING]\n> Do not commit keystores, passwords or signing credentials to Git.",
+        "es": "Antes de una release:\n\n```bash\nflutter clean\nflutter pub get\nflutter analyze\nflutter test\n```\n\nPara Google Play, el artefacto habitual de publicación es un Android App Bundle:\n\n```bash\nflutter build appbundle --release\n```\n\nPara generar un APK independiente:\n\n```bash\nflutter build apk --release\n```\n\nComprueba:\n\n```text\napplicationId\nversión/número de build\nfirma de release\npermisos\nconfiguración Firebase\nconfiguración AdMob\ndeclaraciones de privacidad\n```\n\nGuarda de forma segura una copia del keystore de publicación y sus contraseñas.\n\n> [!WARNING]\n> No hagas commit de keystores, contraseñas ni credenciales de firma en Git."
+      }
+    },
+    {
+      "id": "library-ios-release",
+      "category": "ios",
+      "tags": [
+        "ios",
+        "flutter",
+        "release",
+        "xcode",
+        "ipa"
+      ],
+      "title": {
+        "en": "Build and release a Flutter iOS application",
+        "es": "Generar y publicar una aplicación Flutter iOS"
+      },
+      "content": {
+        "en": "iOS builds require macOS with the appropriate Apple development tools.\n\nBefore building:\n\n```bash\nflutter clean\nflutter pub get\nflutter analyze\nflutter test\n```\n\nBuild an IPA:\n\n```bash\nflutter build ipa --release\n```\n\nCheck in Xcode:\n\n```text\nBundle Identifier\nTeam\nSigning\nCapabilities\nDeployment Target\nVersion\nBuild Number\n```\n\nUse TestFlight to distribute test builds before App Store review.\n\n> [!WARNING]\n> Keep Apple certificates, provisioning profiles and private signing credentials protected and backed up.",
+        "es": "Las builds de iOS requieren macOS con las herramientas de desarrollo de Apple correspondientes.\n\nAntes de generar la build:\n\n```bash\nflutter clean\nflutter pub get\nflutter analyze\nflutter test\n```\n\nGenerar un IPA:\n\n```bash\nflutter build ipa --release\n```\n\nComprueba en Xcode:\n\n```text\nBundle Identifier\nTeam\nSigning\nCapabilities\nDeployment Target\nVersion\nBuild Number\n```\n\nUtiliza TestFlight para distribuir builds de prueba antes de la revisión de App Store.\n\n> [!WARNING]\n> Mantén protegidos y respaldados los certificados de Apple, provisioning profiles y credenciales privadas de firma."
+      }
+    },
+    {
+      "id": "library-admob",
+      "category": "monetization",
+      "tags": [
+        "admob",
+        "ads",
+        "flutter",
+        "monetization"
+      ],
+      "title": {
+        "en": "Integrating AdMob in a Flutter app",
+        "es": "Integrar AdMob en una app Flutter"
+      },
+      "content": {
+        "en": "Separate the AdMob application ID from individual ad unit IDs.\n\nTypical ad formats:\n\n```text\nBanner\nInterstitial\nRewarded\nNative\nApp Open\n```\n\nDuring development, use Google's test ads or test devices. Never repeatedly interact with production ads during testing.\n\nKeep ad configuration centralized rather than scattering IDs throughout widgets.\n\nA useful structure is:\n\n```text\nlib/core/config/ad_config.dart\nlib/features/ads/\n```\n\nConsider the user experience before placing ads. Ads should not interfere with navigation or critical actions.",
+        "es": "Separa el AdMob app ID de los IDs de cada bloque de anuncios.\n\nFormatos habituales:\n\n```text\nBanner\nInterstitial\nRewarded\nNative\nApp Open\n```\n\nDurante el desarrollo utiliza anuncios de prueba de Google o dispositivos de prueba. No interactúes repetidamente con anuncios de producción durante las pruebas.\n\nMantén la configuración de anuncios centralizada en lugar de repartir los IDs por los widgets.\n\nUna estructura posible es:\n\n```text\nlib/core/config/ad_config.dart\nlib/features/ads/\n```\n\nTen en cuenta la experiencia del usuario antes de colocar anuncios. No deben interferir con la navegación ni con acciones importantes."
       }
     },
     {
       "id": "library-performance",
       "category": "performance",
-      "tags": ["performance", "flutter"],
+      "tags": [
+        "flutter",
+        "performance",
+        "devtools",
+        "optimization"
+      ],
       "title": {
-        "en": "Find jank before the release build",
-        "es": "Encontrar tirones antes de la build de publicación"
+        "en": "Flutter performance and DevTools",
+        "es": "Rendimiento de Flutter y DevTools"
       },
       "content": {
-        "en": "Run a profile build when a list or an animation feels slow. Debug mode is not an honest measure.\n\n```command\nflutter run --profile\n```\n\nOpen the performance overlay from DevTools while scrolling the longest list.\n\n> [!NOTE]\n> Cache network images and avoid rebuilding the whole page when one field changes.\n\n> [!WARNING]\n> Do not ship a release build that still prints large objects on every frame.",
-        "es": "Usa una build de perfil cuando una lista o una animación vaya lenta. El modo debug no mide de forma honesta.\n\n```command\nflutter run --profile\n```\n\nAbre la capa de rendimiento de DevTools mientras haces scroll en la lista más larga.\n\n> [!NOTE]\n> Cachea las imágenes de red y evita reconstruir toda la página cuando cambia un solo campo.\n\n> [!WARNING]\n> No publiques una build de release que siga imprimiendo objetos grandes en cada frame."
+        "en": "Do not optimize blindly. First reproduce and measure the problem.\n\nUse profile mode:\n\n```bash\nflutter run --profile\n```\n\nFlutter DevTools can help inspect:\n\n```text\nframe rendering\nCPU\nmemory\nnetwork\nwidget rebuilds\nperformance timeline\n```\n\nCommon causes of poor performance:\n\n- Excessive widget rebuilds.\n- Large images.\n- Expensive work during build.\n- Unbounded lists.\n- Heavy synchronous operations.\n- Excessive network requests.\n\nFor long lists, prefer lazy builders such as `ListView.builder`.\n\n> [!NOTE]\n> Flutter's documentation provides dedicated tooling for inspecting performance, CPU, memory and widget behavior. :contentReference[oaicite:7]{index=7}",
+        "es": "No optimices a ciegas. Primero reproduce y mide el problema.\n\nUtiliza profile mode:\n\n```bash\nflutter run --profile\n```\n\nFlutter DevTools permite inspeccionar:\n\n```text\nrenderizado de frames\nCPU\nmemoria\nred\nrebuilds de widgets\ntimeline de rendimiento\n```\n\nCausas habituales de bajo rendimiento:\n\n- Demasiados rebuilds.\n- Imágenes grandes.\n- Trabajo costoso durante `build`.\n- Listas sin optimizar.\n- Operaciones síncronas pesadas.\n- Demasiadas peticiones de red.\n\nPara listas grandes, utiliza builders perezosos como `ListView.builder`.\n\n> [!NOTE]\n> La documentación de Flutter incluye herramientas específicas para inspeccionar rendimiento, CPU, memoria y comportamiento de los widgets. :contentReference[oaicite:8]{index=8}"
       }
     },
     {
       "id": "library-security",
       "category": "security",
-      "tags": ["security", "firebase"],
+      "tags": [
+        "security",
+        "flutter",
+        "firebase",
+        "secrets"
+      ],
       "title": {
-        "en": "What must stay out of Firestore",
-        "es": "Qué no debe entrar en Firestore"
+        "en": "Security checklist for mobile apps",
+        "es": "Checklist de seguridad para aplicaciones móviles"
       },
       "content": {
-        "en": "App Factory records IDs, URLs and notes. It does not store keystores, private API secrets, service-account JSON or passwords.\n\nCheck the rules before sharing the project with another machine:\n\n```config\nmatch /{document=**} {\n  allow read, write: if request.auth.token.email == 'you@example.com';\n}\n```\n\n> [!NOTE]\n> Sign-in on the client is not enough. The rules have to allow only the authorized account.\n\n> [!WARNING]\n> A rule of `allow read, write: if true` exposes every application and article.",
-        "es": "App Factory guarda IDs, URLs y notas. No guarda keystores, secretos de API, JSON de cuentas de servicio ni contraseñas.\n\nRevisa las reglas antes de usar el proyecto en otro ordenador:\n\n```config\nmatch /{document=**} {\n  allow read, write: if request.auth.token.email == 'tu@ejemplo.com';\n}\n```\n\n> [!NOTE]\n> Iniciar sesión en el cliente no basta. Las reglas tienen que permitir solo la cuenta autorizada.\n\n> [!WARNING]\n> Una regla `allow read, write: if true` deja al descubierto todas las aplicaciones y los artículos."
+        "en": "Never assume that anything inside the mobile application is secret.\n\nDo not embed:\n\n```text\nserver passwords\nprivate API keys\nservice account credentials\nprivate certificates\nsigning passwords\n```\n\nRemember that application binaries can be inspected.\n\nSecurity should be enforced server-side for:\n\n```text\nauthorization\npayments\npremium access\nprivate data\nadministrative actions\n```\n\nFor Firebase applications, use Authentication and Security Rules and consider App Check where appropriate.\n\n> [!WARNING]\n> A secret hidden in Dart code, an environment file bundled into the application or an obfuscated string should not be considered a secure server secret.",
+        "es": "Nunca asumas que algo incluido dentro de la aplicación móvil es secreto.\n\nNo incluyas:\n\n```text\ncontraseñas de servidor\nAPI keys privadas\ncredenciales de cuentas de servicio\ncertificados privados\ncontraseñas de firma\n```\n\nRecuerda que los binarios de las aplicaciones pueden ser inspeccionados.\n\nLa seguridad debe aplicarse en el servidor para:\n\n```text\nautorización\npagos\nacceso premium\ndatos privados\nacciones administrativas\n```\n\nEn aplicaciones Firebase utiliza Authentication y Security Rules y considera App Check cuando corresponda.\n\n> [!WARNING]\n> Un secreto escondido en código Dart, en un archivo de entorno incluido en la aplicación o mediante ofuscación no debe considerarse un secreto seguro de servidor."
       }
     },
     {
-      "id": "library-troubleshooting",
-      "category": "troubleshooting",
-      "tags": ["flutter", "gradle"],
+      "id": "library-publishing",
+      "category": "publishing",
+      "tags": [
+        "google-play",
+        "app-store",
+        "release",
+        "publishing"
+      ],
       "title": {
-        "en": "When a Flutter build starts failing",
-        "es": "Cuando una build de Flutter empieza a fallar"
+        "en": "Mobile app publishing checklist",
+        "es": "Checklist para publicar una aplicación móvil"
       },
       "content": {
-        "en": "Clean the tool cache before changing versions or signing.\n\n```command\nflutter clean\nflutter pub get\n```\n\nIf Android still fails, stop Gradle daemons and build again:\n\n```command\ncd android\n./gradlew --stop\n```\n\nOn iOS, reinstall pods after a plugin change:\n\n```command\ncd ios\npod install\n```\n\n> [!NOTE]\n> Read the first error in the log. Later lines are often the same failure repeated.\n\n> [!WARNING]\n> Do not delete the release keystore or the iOS certificates while cleaning a build.",
-        "es": "Limpia la caché de la herramienta antes de cambiar versiones o la firma.\n\n```command\nflutter clean\nflutter pub get\n```\n\nSi Android sigue fallando, para los demonios de Gradle y vuelve a compilar:\n\n```command\ncd android\n./gradlew --stop\n```\n\nEn iOS, reinstala los pods después de cambiar un plugin:\n\n```command\ncd ios\npod install\n```\n\n> [!NOTE]\n> Lee el primer error del registro. Las líneas de después suelen ser el mismo fallo repetido.\n\n> [!WARNING]\n> No borres el keystore de publicación ni los certificados de iOS mientras limpias una build."
+        "en": "Before publishing, verify:\n\n```text\n□ App name\n□ Package name / Bundle ID\n□ Version\n□ Build number\n□ App icon\n□ Splash screen\n□ Screenshots\n□ Store description\n□ Privacy policy\n□ Data/privacy declarations\n□ Content rating\n□ Permissions\n□ Release signing\n□ Production configuration\n□ Analytics configuration\n□ Crash reporting\n□ Ads configuration\n□ Test account if necessary\n□ Release notes\n```\n\nThen:\n\n```text\nbuild release\n→ test release build\n→ upload to testing track\n→ verify store version\n→ submit review\n→ publish\n```\n\nRequirements can change, so verify the current requirements in the official Google Play Console and App Store Connect documentation before each major release.",
+        "es": "Antes de publicar, comprueba:\n\n```text\n□ Nombre de la app\n□ Package name / Bundle ID\n□ Versión\n□ Número de build\n□ Icono\n□ Splash screen\n□ Capturas\n□ Descripción de la tienda\n□ Política de privacidad\n□ Declaraciones de datos/privacidad\n□ Clasificación de contenido\n□ Permisos\n□ Firma de release\n□ Configuración de producción\n□ Analytics\n□ Crash reporting\n□ Configuración de anuncios\n□ Cuenta de prueba si es necesaria\n□ Notas de versión\n```\n\nDespués:\n\n```text\ngenerar release\n→ probar la build\n→ subir al canal de pruebas\n→ verificar la versión\n→ enviar a revisión\n→ publicar\n```\n\nLos requisitos pueden cambiar, así que comprueba los requisitos actuales de Google Play Console y App Store Connect antes de cada release importante."
+      }
+    },
+    {
+      "id": "library-debugging",
+      "category": "debugging",
+      "tags": [
+        "flutter",
+        "debugging",
+        "errors",
+        "development"
+      ],
+      "title": {
+        "en": "A systematic debugging process",
+        "es": "Proceso sistemático para depurar errores"
+      },
+      "content": {
+        "en": "When something breaks, avoid changing multiple things at once.\n\nUse this process:\n\n```text\n1. Reproduce the problem.\n2. Read the complete error.\n3. Find the first meaningful error.\n4. Identify the layer involved.\n5. Form a hypothesis.\n6. Make one controlled change.\n7. Reproduce the problem.\n8. Verify the result.\n```\n\nUseful commands:\n\n```bash\nflutter doctor -v\nflutter analyze\nflutter clean\nflutter pub get\nflutter pub deps\n```\n\nFor dependency/build problems, check compatibility between:\n\n```text\nFlutter\nDart\nAndroid Gradle Plugin\nGradle\nJava\nXcode\nCocoaPods\nnative plugins\n```\n\n> [!WARNING]\n> Avoid deleting `pubspec.lock`, native folders or recreating the whole project as a first troubleshooting step. Understand the cause before destroying state.",
+        "es": "Cuando algo falla, evita cambiar varias cosas a la vez.\n\nUtiliza este proceso:\n\n```text\n1. Reproducir el problema.\n2. Leer el error completo.\n3. Encontrar el primer error relevante.\n4. Identificar la capa afectada.\n5. Formular una hipótesis.\n6. Hacer un cambio controlado.\n7. Reproducir el problema.\n8. Verificar el resultado.\n```\n\nComandos útiles:\n\n```bash\nflutter doctor -v\nflutter analyze\nflutter clean\nflutter pub get\nflutter pub deps\n```\n\nEn problemas de dependencias/build comprueba la compatibilidad entre:\n\n```text\nFlutter\nDart\nAndroid Gradle Plugin\nGradle\nJava\nXcode\nCocoaPods\nplugins nativos\n```\n\n> [!WARNING]\n> Evita borrar `pubspec.lock`, las carpetas nativas o recrear el proyecto entero como primera solución. Comprende la causa antes de destruir estado."
+      }
+    },
+    {
+      "id": "library-app-lifecycle",
+      "category": "mobile-development",
+      "tags": [
+        "mobile",
+        "lifecycle",
+        "flutter",
+        "development"
+      ],
+      "title": {
+        "en": "Mobile app development lifecycle",
+        "es": "Ciclo de desarrollo de una aplicación móvil"
+      },
+      "content": {
+        "en": "A repeatable mobile development process:\n\n```text\n1. Idea\n2. Requirements\n3. UX/UI design\n4. Technical decisions\n5. Project setup\n6. Core development\n7. Backend/integrations\n8. Testing\n9. Performance review\n10. Release preparation\n11. Beta/testing distribution\n12. Store publication\n13. Monitoring\n14. Maintenance\n```\n\nDo not postpone technical decisions that affect the whole application, such as:\n\n```text\npackage/bundle identifiers\nbackend\nauthentication\nlocal/cloud persistence\narchitecture\nstate management\nmonetization\nanalytics\n```\n\nAfter publication, development does not stop. Monitor crashes, reviews, analytics and support requests and use them to prioritize the next release.",
+        "es": "Un proceso repetible para desarrollar aplicaciones móviles:\n\n```text\n1. Idea\n2. Requisitos\n3. Diseño UX/UI\n4. Decisiones técnicas\n5. Configuración del proyecto\n6. Desarrollo principal\n7. Backend/integraciones\n8. Testing\n9. Revisión de rendimiento\n10. Preparación de release\n11. Distribución beta/pruebas\n12. Publicación\n13. Monitorización\n14. Mantenimiento\n```\n\nNo pospongas decisiones técnicas que afectan a toda la aplicación, como:\n\n```text\npackage/bundle identifiers\nbackend\nautenticación\npersistencia local/cloud\narquitectura\ngestión de estado\nmonetización\nanalytics\n```\n\nDespués de publicar, el desarrollo continúa. Controla crashes, reviews, analytics y peticiones de soporte para decidir qué incluir en las siguientes versiones."
+      }
+    },
+    {
+      "id": "library-code-quality",
+      "category": "programming",
+      "tags": [
+        "clean-code",
+        "dart",
+        "flutter",
+        "quality"
+      ],
+      "title": {
+        "en": "Clean code principles for Flutter projects",
+        "es": "Principios de clean code para proyectos Flutter"
+      },
+      "content": {
+        "en": "Prefer code that is easy to understand six months later.\n\n### Keep functions focused\n\nAvoid methods that:\n\n```text\nload data\nvalidate data\nmodify state\nshow dialogs\nnavigate\nlog errors\n```\n\nall at once.\n\n### Use meaningful names\n\nPrefer:\n\n```dart\nfinal activeSubscriptions = ...;\n```\n\nover:\n\n```dart\nfinal x = ...;\n```\n\n### Avoid duplication\n\nIf the same business rule appears in several places, centralize it.\n\n### Keep UI thin\n\nWidgets should primarily describe UI and react to state. Business logic should live in appropriate services, controllers, repositories or use cases.\n\n### Delete dead code\n\nDo not keep commented-out implementations “just in case”. Git already contains history.",
+        "es": "Prioriza un código que siga siendo fácil de entender dentro de seis meses.\n\n### Mantén las funciones enfocadas\n\nEvita métodos que hagan a la vez:\n\n```text\ncargar datos\nvalidar datos\nmodificar estado\nmostrar diálogos\nnavegar\nregistrar errores\n```\n\n### Utiliza nombres significativos\n\nMejor:\n\n```dart\nfinal activeSubscriptions = ...;\n```\n\nque:\n\n```dart\nfinal x = ...;\n```\n\n### Evita duplicación\n\nSi una regla de negocio aparece en varios lugares, centralízala.\n\n### Mantén la UI ligera\n\nLos widgets deberían describir principalmente la interfaz y reaccionar al estado. La lógica de negocio debe estar en servicios, controladores, repositorios o casos de uso adecuados.\n\n### Elimina código muerto\n\nNo mantengas implementaciones comentadas “por si acaso”. Git ya conserva el historial."
       }
     }
   ]

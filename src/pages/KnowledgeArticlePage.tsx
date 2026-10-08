@@ -7,11 +7,13 @@ import { EmptyState } from '@/components/EmptyState.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
 import { LoadingState } from '@/components/LoadingState.tsx'
 import { KnowledgeArticleBody } from '@/features/knowledge/KnowledgeArticleBody.tsx'
-import { knowledgeDateLabel } from '@/features/knowledge/knowledgeDisplay.ts'
+import {
+  knowledgeCategoryLabel,
+  knowledgeDateLabel,
+} from '@/features/knowledge/knowledgeDisplay.ts'
 import {
   isLibraryArticleId,
   libraryArticle,
-  markLibraryViewed,
 } from '@/features/knowledge/knowledgeLibrary.ts'
 import { useKnowledgeArticle } from '@/hooks/useKnowledgeArticle.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
@@ -41,10 +43,6 @@ function LibraryArticleView({
   const { language, messages } = useLanguage()
   const article = libraryArticle(articleId, language)
 
-  useEffect(() => {
-    markLibraryViewed(articleId)
-  }, [articleId])
-
   if (!article) {
     return (
       <EmptyState
@@ -65,7 +63,12 @@ function LibraryArticleView({
         <div className={styles.heading}>
           <h2 className={styles.title}>{article.title}</h2>
           <div className={styles.meta}>
-            <Badge>{messages.knowledge.categories[article.category]}</Badge>
+            <Badge>
+              {knowledgeCategoryLabel(
+                article.category,
+                messages.knowledge.categories,
+              )}
+            </Badge>
             <Badge tone="info">{messages.knowledge.library}</Badge>
           </div>
         </div>
@@ -183,7 +186,12 @@ function UserKnowledgeArticlePage(): ReactElement {
         <div className={styles.heading}>
           <h2 className={styles.title}>{article.title}</h2>
           <div className={styles.meta}>
-            <Badge>{messages.knowledge.categories[article.category]}</Badge>
+            <Badge>
+              {knowledgeCategoryLabel(
+                article.category,
+                messages.knowledge.categories,
+              )}
+            </Badge>
             {isFavorite ? (
               <Badge tone="warning">{messages.knowledge.favorite}</Badge>
             ) : null}

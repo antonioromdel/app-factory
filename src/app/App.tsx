@@ -17,6 +17,7 @@ import {
   ApplicationEditPage,
 } from '@/pages/ApplicationFormPage.tsx'
 import { ApplicationsPage } from '@/pages/ApplicationsPage.tsx'
+import { AssetsPage } from '@/pages/AssetsPage.tsx'
 import { ChecklistsPage } from '@/pages/ChecklistsPage.tsx'
 import { DashboardPage } from '@/pages/DashboardPage.tsx'
 import { KnowledgeArticlePage } from '@/pages/KnowledgeArticlePage.tsx'
@@ -83,15 +84,7 @@ function AppRoutes(): ReactElement {
         />
         <Route path="knowledge/:articleId" element={<KnowledgeArticlePage />} />
         <Route path="checklists" element={<ChecklistsPage />} />
-        <Route
-          path="assets"
-          element={
-            <PlaceholderPage
-              title={messages.placeholders.assetsTitle}
-              description={messages.placeholders.assetsDescription}
-            />
-          }
-        />
+        <Route path="assets" element={<AssetsPage />} />
         <Route
           path="releases"
           element={

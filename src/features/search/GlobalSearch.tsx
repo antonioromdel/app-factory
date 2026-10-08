@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type ReactElement } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Input } from '@/components/Input.tsx'
 import { Modal } from '@/components/Modal.tsx'
+import { knowledgeCategoryLabel } from '@/features/knowledge/knowledgeDisplay.ts'
 import { libraryArticles } from '@/features/knowledge/knowledgeLibrary.ts'
 import { useApplications } from '@/hooks/useApplications.ts'
 import { useKnowledgeArticles } from '@/hooks/useKnowledgeArticles.ts'
@@ -46,7 +47,10 @@ export function GlobalSearch({
       ...libraryArticles(language).map((article) => ({
         id: article.id,
         title: article.title,
-        categoryLabel: messages.knowledge.categories[article.category],
+        categoryLabel: knowledgeCategoryLabel(
+          article.category,
+          messages.knowledge.categories,
+        ),
         tags: article.tags,
         content: article.content,
         included: true,
@@ -55,7 +59,10 @@ export function GlobalSearch({
         ? knowledge.articles.map((article) => ({
             id: article.id,
             title: article.title,
-            categoryLabel: messages.knowledge.categories[article.category],
+            categoryLabel: knowledgeCategoryLabel(
+              article.category,
+              messages.knowledge.categories,
+            ),
             tags: article.tags,
             content: article.content,
             included: false,

@@ -1,0 +1,135 @@
+.generator {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-bottom: var(--space-6);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.lead,
+.hint,
+.status,
+.pixels {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-md);
+}
+
+.lead {
+  max-width: 68ch;
+}
+
+.warning {
+  margin: 0;
+  max-width: 68ch;
+  color: var(--color-warning);
+  font-size: var(--font-size-md);
+}
+
+.fileLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 420px;
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-md);
+}
+
+.file {
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-md);
+}
+
+.file:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.source {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.generate {
+  align-self: flex-start;
+}
+
+.sourcePreview {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  background: var(--color-bg-muted);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.groupTitle,
+.name {
+  margin: 0;
+}
+
+.groupTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-raised);
+}
+
+.preview {
+  width: 100%;
+  height: 96px;
+  object-fit: contain;
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-sm);
+}
+
+.name {
+  font-size: var(--font-size-md);
+}

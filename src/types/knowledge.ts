@@ -1,23 +1,6 @@
 import type { Timestamp } from 'firebase/firestore'
 
-export const knowledgeCategories = [
-  'flutter',
-  'firebase',
-  'android',
-  'ios',
-  'admob',
-  'monetization',
-  'publishing',
-  'git',
-  'testing',
-  'architecture',
-  'uiux',
-  'performance',
-  'security',
-  'troubleshooting',
-] as const
-
-export type KnowledgeCategory = (typeof knowledgeCategories)[number]
+export type KnowledgeCategory = string
 
 export interface KnowledgeArticle {
   id: string

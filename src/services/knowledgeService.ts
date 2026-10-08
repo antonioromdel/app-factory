@@ -12,12 +12,12 @@ import {
   updateDoc,
   type DocumentData,
 } from 'firebase/firestore'
+import { normalizeKnowledgeCategory } from '@/features/knowledge/knowledgeDisplay.ts'
 import { getFirebaseServices } from '@/lib/firebase.ts'
-import {
-  knowledgeCategories,
-  type KnowledgeArticle,
-  type KnowledgeArticleInput,
-  type KnowledgeCategory,
+import type {
+  KnowledgeArticle,
+  KnowledgeArticleInput,
+  KnowledgeCategory,
 } from '@/types/knowledge.ts'
 
 export const knowledgeCollection = 'knowledge'
@@ -182,13 +182,14 @@ function newArticleDocument(input: KnowledgeArticleInput): DocumentData {
   if (!title) {
     throw new KnowledgeDataError('title-required')
   }
-  if (!isKnowledgeCategory(input.category)) {
+  const category = normalizeKnowledgeCategory(input.category)
+  if (!category) {
     throw new KnowledgeDataError('category-required')
   }
 
   const document: DocumentData = {
     title,
-    category: input.category,
+    category,
     favorite: input.favorite,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -210,7 +211,8 @@ function articleUpdate(input: KnowledgeArticleInput): DocumentData {
   if (!title) {
     throw new KnowledgeDataError('title-required')
   }
-  if (!isKnowledgeCategory(input.category)) {
+  const category = normalizeKnowledgeCategory(input.category)
+  if (!category) {
     throw new KnowledgeDataError('category-required')
   }
 
@@ -219,7 +221,7 @@ function articleUpdate(input: KnowledgeArticleInput): DocumentData {
 
   return {
     title,
-    category: input.category,
+    category,
     favorite: input.favorite,
     updatedAt: serverTimestamp(),
     tags: tags.length > 0 ? tags : deleteField(),
@@ -290,14 +292,7 @@ function normalizeTags(values: readonly string[]): string[] {
 }
 
 function readCategory(value: unknown): KnowledgeCategory | undefined {
-  return isKnowledgeCategory(value) ? value : undefined
-}
-
-function isKnowledgeCategory(value: unknown): value is KnowledgeCategory {
-  return (
-    typeof value === 'string' &&
-    knowledgeCategories.some((category) => category === value)
-  )
+  return normalizeKnowledgeCategory(value) ?? undefined
 }
 
 function readTimestamp(value: unknown): Timestamp {

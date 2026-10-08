@@ -3,6 +3,7 @@ import type {
   KnowledgeArticleInput,
   KnowledgeCategory,
 } from '@/types/knowledge.ts'
+import { normalizeKnowledgeCategory } from './knowledgeDisplay.ts'
 
 export interface KnowledgeFormState {
   title: string
@@ -36,13 +37,14 @@ export function toKnowledgeInput(
   form: KnowledgeFormState,
 ): KnowledgeArticleInput | null {
   const title = form.title.trim()
-  if (!title || !form.category) {
+  const category = normalizeKnowledgeCategory(form.category)
+  if (!title || !category) {
     return null
   }
 
   return {
     title,
-    category: form.category,
+    category,
     tags: parseTags(form.tags),
     content: form.content.trim(),
     favorite: form.favorite,

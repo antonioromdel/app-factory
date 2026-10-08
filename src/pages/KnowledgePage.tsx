@@ -9,13 +9,13 @@ import { Input } from '@/components/Input.tsx'
 import { Select } from '@/components/Select.tsx'
 import { Switch } from '@/components/Switch.tsx'
 import {
+  knowledgeCategoryLabel,
   knowledgeDateLabel,
+  sortKnowledgeCategories,
+  uniqueKnowledgeCategories,
   type ListedKnowledgeArticle,
 } from '@/features/knowledge/knowledgeDisplay.ts'
-import {
-  libraryArticles,
-  libraryViewedAt,
-} from '@/features/knowledge/knowledgeLibrary.ts'
+import { libraryArticles } from '@/features/knowledge/knowledgeLibrary.ts'
 import { useKnowledgeArticles } from '@/hooks/useKnowledgeArticles.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import type { Messages } from '@/i18n/en.ts'
@@ -24,18 +24,14 @@ import {
   knowledgeErrorCode,
   setKnowledgeFavorite,
 } from '@/services/knowledgeService.ts'
-import {
-  knowledgeCategories,
-  type KnowledgeArticle,
-  type KnowledgeCategory,
-} from '@/types/knowledge.ts'
+import type { KnowledgeArticle } from '@/types/knowledge.ts'
 import styles from './KnowledgePage.module.css'
 
 export function KnowledgePage(): ReactElement {
   const { language, messages } = useLanguage()
   const { status, articles, errorCode, reload } = useKnowledgeArticles()
   const [query, setQuery] = useState('')
-  const [category, setCategory] = useState<KnowledgeCategory | ''>('')
+  const [category, setCategory] = useState('')
   const [favoritesOnly, setFavoritesOnly] = useState(false)
   const [pendingDelete, setPendingDelete] =
     useState<ListedKnowledgeArticle | null>(null)
@@ -43,20 +39,21 @@ export function KnowledgePage(): ReactElement {
   const [busyId, setBusyId] = useState<string | null>(null)
 
   const listed = [
-    ...libraryArticles(language).map((article) =>
-      toListedLibrary(article, libraryViewedAt(article.id)),
-    ),
+    ...libraryArticles(language).map(toListedLibrary),
     ...(status === 'ready' ? articles.map(toListedUser) : []),
   ]
+  const categories = sortKnowledgeCategories(
+    uniqueKnowledgeCategories(listed.map((article) => article.category)),
+    messages.knowledge.categories,
+    language,
+  )
   const filtered = sortArticles(
     listed.filter((article) =>
       matchesArticle(article, query, category, favoritesOnly, messages),
     ),
+    messages.knowledge.categories,
+    language,
   )
-  const showRecent =
-    query.trim().length === 0 && category === '' && !favoritesOnly
-  const recent = showRecent ? recentArticles(listed) : []
-
   async function handleFavorite(
     article: ListedKnowledgeArticle,
   ): Promise<void> {
@@ -119,15 +116,15 @@ export function KnowledgePage(): ReactElement {
           value={category}
           options={[
             { value: '', label: messages.knowledge.allCategories },
-            ...knowledgeCategories.map((item) => ({
+            ...categories.map((item) => ({
               value: item,
-              label: messages.knowledge.categories[item],
+              label: knowledgeCategoryLabel(
+                item,
+                messages.knowledge.categories,
+              ),
             })),
           ]}
-          onChange={(event) => {
-            const value = event.target.value
-            setCategory(isKnowledgeCategory(value) ? value : '')
-          }}
+          onChange={(event) => setCategory(event.target.value)}
         />
         <Switch
           label={messages.knowledge.favoritesOnly}
@@ -159,56 +156,20 @@ export function KnowledgePage(): ReactElement {
         />
       ) : null}
 
-      {recent.length > 0 ? (
-        <section
-          className={styles.section}
-          aria-label={messages.knowledge.recent}
-        >
-          <h2 className={styles.sectionTitle}>{messages.knowledge.recent}</h2>
-          <ul className={styles.list}>
-            {recent.map((article) => (
-              <ArticleRow
-                key={article.id}
-                article={article}
-                locale={language}
-                busy={busyId === article.id}
-                onTag={setQuery}
-                onFavorite={() => void handleFavorite(article)}
-                onDelete={() => setPendingDelete(article)}
-              />
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
       {filtered.length > 0 ? (
-        <section
-          className={styles.section}
-          aria-label={
-            recent.length > 0
-              ? messages.knowledge.allArticles
-              : messages.nav.knowledge
-          }
-        >
-          {recent.length > 0 ? (
-            <h2 className={styles.sectionTitle}>
-              {messages.knowledge.allArticles}
-            </h2>
-          ) : null}
-          <ul className={styles.list}>
-            {filtered.map((article) => (
-              <ArticleRow
-                key={article.id}
-                article={article}
-                locale={language}
-                busy={busyId === article.id}
-                onTag={setQuery}
-                onFavorite={() => void handleFavorite(article)}
-                onDelete={() => setPendingDelete(article)}
-              />
-            ))}
-          </ul>
-        </section>
+        <ul className={styles.list} aria-label={messages.nav.knowledge}>
+          {filtered.map((article) => (
+            <ArticleRow
+              key={article.id}
+              article={article}
+              locale={language}
+              busy={busyId === article.id}
+              onTag={setQuery}
+              onFavorite={() => void handleFavorite(article)}
+              onDelete={() => setPendingDelete(article)}
+            />
+          ))}
+        </ul>
       ) : null}
 
       <ConfirmDialog
@@ -252,7 +213,12 @@ function ArticleRow({
           {article.title}
         </Link>
         <div className={styles.meta}>
-          <Badge>{messages.knowledge.categories[article.category]}</Badge>
+          <Badge>
+            {knowledgeCategoryLabel(
+              article.category,
+              messages.knowledge.categories,
+            )}
+          </Badge>
           {article.source === 'library' ? (
             <Badge tone="info">{messages.knowledge.library}</Badge>
           ) : null}
@@ -299,22 +265,18 @@ function ArticleRow({
   )
 }
 
-function toListedLibrary(
-  article: {
-    id: string
-    title: string
-    category: KnowledgeCategory
-    tags: string[]
-    content: string
-  },
-  viewedAt: Date | null,
-): ListedKnowledgeArticle {
+function toListedLibrary(article: {
+  id: string
+  title: string
+  category: string
+  tags: string[]
+  content: string
+}): ListedKnowledgeArticle {
   return {
     ...article,
     favorite: false,
     source: 'library',
     updatedAt: null,
-    viewedAt,
   }
 }
 
@@ -328,14 +290,13 @@ function toListedUser(article: KnowledgeArticle): ListedKnowledgeArticle {
     favorite: article.favorite,
     source: 'user',
     updatedAt: article.updatedAt.toDate(),
-    viewedAt: article.viewedAt?.toDate() ?? null,
   }
 }
 
 function matchesArticle(
   article: ListedKnowledgeArticle,
   query: string,
-  category: KnowledgeCategory | '',
+  category: string,
   favoritesOnly: boolean,
   messages: Messages,
 ): boolean {
@@ -356,7 +317,7 @@ function matchesArticle(
     article.title,
     article.content,
     article.tags.join(' '),
-    messages.knowledge.categories[article.category],
+    knowledgeCategoryLabel(article.category, messages.knowledge.categories),
   ]
     .join(' ')
     .toLocaleLowerCase()
@@ -366,15 +327,18 @@ function matchesArticle(
 
 function sortArticles(
   articles: ListedKnowledgeArticle[],
+  labels: object,
+  locale: string,
 ): ListedKnowledgeArticle[] {
   return [...articles].sort((left, right) => {
     if (left.favorite !== right.favorite) {
       return left.favorite ? -1 : 1
     }
 
-    const categoryDelta =
-      knowledgeCategories.indexOf(left.category) -
-      knowledgeCategories.indexOf(right.category)
+    const categoryDelta = knowledgeCategoryLabel(
+      left.category,
+      labels,
+    ).localeCompare(knowledgeCategoryLabel(right.category, labels), locale)
     if (categoryDelta !== 0) {
       return categoryDelta
     }
@@ -385,20 +349,4 @@ function sortArticles(
 
     return (right.updatedAt?.getTime() ?? 0) - (left.updatedAt?.getTime() ?? 0)
   })
-}
-
-function recentArticles(
-  articles: ListedKnowledgeArticle[],
-): ListedKnowledgeArticle[] {
-  return articles
-    .filter((article) => article.viewedAt)
-    .sort(
-      (left, right) =>
-        (right.viewedAt?.getTime() ?? 0) - (left.viewedAt?.getTime() ?? 0),
-    )
-    .slice(0, 5)
-}
-
-function isKnowledgeCategory(value: string): value is KnowledgeCategory {
-  return knowledgeCategories.some((category) => category === value)
 }

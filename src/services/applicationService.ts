@@ -260,6 +260,26 @@ export async function updateApplication(
   }
 }
 
+export async function saveApplicationLocalPath(
+  id: string,
+  localPath: string,
+): Promise<void> {
+  const path = localPath.trim()
+  if (!path) {
+    throw new ApplicationDataError('save')
+  }
+
+  try {
+    const { db } = getFirebaseServices()
+    await updateDoc(doc(db, applicationsCollection, id), {
+      'repository.localPath': path,
+      updatedAt: serverTimestamp(),
+    })
+  } catch (error: unknown) {
+    throw toApplicationError(error, 'save')
+  }
+}
+
 export async function updateApplicationStatus(
   id: string,
   status: ApplicationStatus,
