@@ -19,6 +19,12 @@ import {
 import { ApplicationsPage } from '@/pages/ApplicationsPage.tsx'
 import { ChecklistsPage } from '@/pages/ChecklistsPage.tsx'
 import { DashboardPage } from '@/pages/DashboardPage.tsx'
+import { KnowledgeArticlePage } from '@/pages/KnowledgeArticlePage.tsx'
+import {
+  KnowledgeCreatePage,
+  KnowledgeEditPage,
+} from '@/pages/KnowledgeFormPage.tsx'
+import { KnowledgePage } from '@/pages/KnowledgePage.tsx'
 import { PlaceholderPage } from '@/pages/PlaceholderPage.tsx'
 
 export function App(): ReactElement {
@@ -69,15 +75,13 @@ function AppRoutes(): ReactElement {
           path="applications/:applicationId"
           element={<ApplicationDetailPage />}
         />
+        <Route path="knowledge" element={<KnowledgePage />} />
+        <Route path="knowledge/new" element={<KnowledgeCreatePage />} />
         <Route
-          path="knowledge"
-          element={
-            <PlaceholderPage
-              title={messages.placeholders.knowledgeTitle}
-              description={messages.placeholders.knowledgeDescription}
-            />
-          }
+          path="knowledge/:articleId/edit"
+          element={<KnowledgeEditPage />}
         />
+        <Route path="knowledge/:articleId" element={<KnowledgeArticlePage />} />
         <Route path="checklists" element={<ChecklistsPage />} />
         <Route
           path="assets"

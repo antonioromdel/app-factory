@@ -2,22 +2,27 @@ import { useEffect, useState } from 'react'
 import { toggleChecklistItem } from '@/features/checklists/checklistProgress.ts'
 import {
   checklistErrorCode,
-  getChecklistProgress,
+  getProjectChecklist,
   saveChecklistProgress,
   type ChecklistErrorCode,
 } from '@/services/checklistService.ts'
 import type { ChecklistItemId } from '@/types/checklist.ts'
+import type { ChecklistTemplateId } from '@/types/checklistTemplates.ts'
 
 interface ChecklistState {
   loadedId: string | undefined
   status: 'ready' | 'error'
+  itemIds: ChecklistItemId[] | null
   completed: ChecklistItemId[]
+  templateId: ChecklistTemplateId | null
   errorCode: ChecklistErrorCode | null
 }
 
 export function useChecklistProgress(applicationId: string): {
   status: 'loading' | 'ready' | 'error'
+  itemIds: ChecklistItemId[] | null
   completed: ChecklistItemId[]
+  templateId: ChecklistTemplateId | null
   errorCode: ChecklistErrorCode | null
   isSaving: boolean
   reload: () => void
@@ -28,15 +33,17 @@ export function useChecklistProgress(applicationId: string): {
   const [state, setState] = useState<ChecklistState>({
     loadedId: undefined,
     status: 'error',
+    itemIds: null,
     completed: [],
+    templateId: null,
     errorCode: null,
   })
 
   useEffect(() => {
     let active = true
 
-    getChecklistProgress(applicationId)
-      .then((completed) => {
+    getProjectChecklist(applicationId)
+      .then((checklist) => {
         if (!active) {
           return
         }
@@ -44,7 +51,9 @@ export function useChecklistProgress(applicationId: string): {
         setState({
           loadedId: applicationId,
           status: 'ready',
-          completed,
+          itemIds: checklist.itemIds,
+          completed: checklist.completedItemIds,
+          templateId: checklist.templateId,
           errorCode: null,
         })
       })
@@ -56,7 +65,9 @@ export function useChecklistProgress(applicationId: string): {
         setState({
           loadedId: applicationId,
           status: 'error',
+          itemIds: null,
           completed: [],
+          templateId: null,
           errorCode: checklistErrorCode(error, 'load'),
         })
       })
@@ -85,7 +96,9 @@ export function useChecklistProgress(applicationId: string): {
     setState({
       loadedId: applicationId,
       status: 'ready',
+      itemIds: state.itemIds,
       completed: next,
+      templateId: state.templateId,
       errorCode: null,
     })
 
@@ -95,7 +108,9 @@ export function useChecklistProgress(applicationId: string): {
       setState({
         loadedId: applicationId,
         status: 'ready',
+        itemIds: state.itemIds,
         completed: previous,
+        templateId: state.templateId,
         errorCode: checklistErrorCode(error, 'save'),
       })
     } finally {
@@ -106,7 +121,9 @@ export function useChecklistProgress(applicationId: string): {
   if (state.loadedId !== applicationId) {
     return {
       status: 'loading',
+      itemIds: null,
       completed: [],
+      templateId: null,
       errorCode: null,
       isSaving: false,
       reload,
@@ -116,7 +133,9 @@ export function useChecklistProgress(applicationId: string): {
 
   return {
     status: state.status,
+    itemIds: state.itemIds,
     completed: state.completed,
+    templateId: state.templateId,
     errorCode: state.errorCode,
     isSaving,
     reload,

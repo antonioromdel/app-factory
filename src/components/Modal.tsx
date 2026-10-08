@@ -7,6 +7,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useLanguage } from '@/hooks/useLanguage.ts'
+import { joinClasses } from '@/utils/joinClasses.ts'
 import styles from './Modal.module.css'
 
 export function Modal({
@@ -14,11 +15,13 @@ export function Modal({
   title,
   onClose,
   children,
+  panelClassName,
 }: {
   open: boolean
   title: string
   onClose: () => void
   children: ReactNode
+  panelClassName?: string
 }): ReactElement | null {
   const { messages } = useLanguage()
   const titleId = useId()
@@ -90,7 +93,7 @@ export function Modal({
     >
       <div
         ref={panelRef}
-        className={styles.panel}
+        className={joinClasses(styles.panel, panelClassName)}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

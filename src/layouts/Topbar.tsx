@@ -1,10 +1,10 @@
-import { useState, type ReactElement } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import { Search } from 'lucide-react'
 import { useLocation } from 'react-router'
 import { Breadcrumbs } from '@/components/Breadcrumbs.tsx'
 import { Dropdown } from '@/components/Dropdown.tsx'
-import { Input } from '@/components/Input.tsx'
 import { LanguageSelect } from '@/components/LanguageSelect.tsx'
+import { GlobalSearch } from '@/features/search/GlobalSearch.tsx'
 import { useAuth } from '@/hooks/useAuth.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import { AuthError, type AuthErrorCode } from '@/services/authService.ts'
@@ -20,6 +20,32 @@ export function Topbar({
 }): ReactElement {
   const { pathname } = useLocation()
   const { messages } = useLanguage()
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchSession, setSearchSession] = useState(0)
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent): void {
+      if (event.repeat) {
+        return
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        if (searchOpen) {
+          setSearchOpen(false)
+          return
+        }
+
+        setSearchSession((current) => current + 1)
+        setSearchOpen(true)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [searchOpen])
 
   return (
     <header className={styles.topbar}>
@@ -27,24 +53,26 @@ export function Topbar({
         <Breadcrumbs items={breadcrumbs} />
         <h1 className={styles.title}>{title}</h1>
       </div>
-      <form
-        className={styles.search}
-        role="search"
-        onSubmit={(event) => {
-          event.preventDefault()
+      <button
+        className={styles.searchButton}
+        type="button"
+        aria-keyshortcuts="Control+K"
+        onClick={() => {
+          setSearchSession((current) => current + 1)
+          setSearchOpen(true)
         }}
       >
-        <Input
-          className={styles.searchField}
-          label={messages.common.search}
-          hideLabel
-          type="search"
-          placeholder={messages.common.search}
-          leading={<Search size={20} strokeWidth={1.5} aria-hidden="true" />}
-        />
-      </form>
+        <Search size={20} strokeWidth={1.5} aria-hidden="true" />
+        <span>{messages.search.placeholder}</span>
+        <kbd>{messages.search.shortcut}</kbd>
+      </button>
       <LanguageSelect className={styles.language} />
       <AccountMenu key={pathname} />
+      <GlobalSearch
+        open={searchOpen}
+        session={searchSession}
+        onClose={() => setSearchOpen(false)}
+      />
     </header>
   )
 }

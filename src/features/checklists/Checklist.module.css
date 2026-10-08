@@ -58,6 +58,19 @@
   font-size: var(--font-size-md);
 }
 
+.templates {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.template {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  scroll-margin-top: 96px;
+}
+
 .categories {
   display: flex;
   flex-direction: column;
@@ -87,6 +100,12 @@
   letter-spacing: -0.03em;
 }
 
+.groupTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
 .categoryCount {
   margin: 0;
   color: var(--color-text-muted);
@@ -109,4 +128,5 @@
 
 .catalogItem {
   font-size: var(--font-size-lg);
+  scroll-margin-top: 96px;
 }

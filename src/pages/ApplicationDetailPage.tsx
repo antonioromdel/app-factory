@@ -1,6 +1,6 @@
-import { useState, type ReactElement } from 'react'
+import { useRef, useState, type ReactElement } from 'react'
 import { ExternalLink } from 'lucide-react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { Badge } from '@/components/Badge.tsx'
 import { Button } from '@/components/Button.tsx'
 import { ConfirmDialog } from '@/components/ConfirmDialog.tsx'
@@ -23,19 +23,45 @@ import {
   archiveApplication,
   duplicateApplication,
 } from '@/services/applicationService.ts'
+import {
+  checklistErrorCode,
+  copyProjectChecklist,
+} from '@/services/checklistService.ts'
 import { firebaseServices, type Application } from '@/types/application.ts'
 import styles from './ApplicationDetailPage.module.css'
+
+const detailTabIds = [
+  'overview',
+  'development',
+  'firebase',
+  'monetization',
+  'stores',
+  'checklist',
+  'notes',
+  'releases',
+  'assets',
+] as const
+
+type DetailTabId = (typeof detailTabIds)[number]
+
+function detailTabFromQuery(value: string | null): DetailTabId {
+  const match = detailTabIds.find((tab) => tab === value)
+  return match ?? 'overview'
+}
 
 export function ApplicationDetailPage(): ReactElement {
   const { applicationId } = useParams()
   const navigate = useNavigate()
   const { language, messages } = useLanguage()
+  const [searchParams] = useSearchParams()
+  const tab = detailTabFromQuery(searchParams.get('tab'))
   const { status, application, errorCode, reload } =
     useApplication(applicationId)
   const [isArchiving, setIsArchiving] = useState(false)
   const [confirmArchive, setConfirmArchive] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
   const [isDuplicating, setIsDuplicating] = useState(false)
+  const copiedId = useRef<string | null>(null)
 
   if (status === 'loading') {
     return <LoadingState message={messages.common.loadingApplication} />
@@ -73,18 +99,28 @@ export function ApplicationDetailPage(): ReactElement {
     setIsDuplicating(true)
 
     try {
-      const id = await duplicateApplication(
-        application,
-        messages.applications.copyOf(application.name),
-      )
+      const id =
+        copiedId.current ??
+        (await duplicateApplication(
+          application,
+          messages.applications.copyOf(application.name),
+        ))
+      copiedId.current = id
+      await copyProjectChecklist(application.id, id)
       navigate(`/applications/${id}`)
     } catch (error: unknown) {
-      const code = applicationErrorCode(error, 'create')
-      setActionError(
-        code === 'create'
-          ? messages.applications.duplicateFailed
-          : messages.applicationErrors[code],
-      )
+      if (copiedId.current) {
+        setActionError(
+          messages.checklist.errors[checklistErrorCode(error, 'copy')],
+        )
+      } else {
+        const code = applicationErrorCode(error, 'create')
+        setActionError(
+          code === 'create'
+            ? messages.applications.duplicateFailed
+            : messages.applicationErrors[code],
+        )
+      }
       setIsDuplicating(false)
     }
   }
@@ -158,7 +194,9 @@ export function ApplicationDetailPage(): ReactElement {
       {actionError ? <ErrorState message={actionError} /> : null}
 
       <Tabs
+        key={tab}
         label={messages.detail.sections}
+        initialId={tab}
         tabs={[
           {
             id: 'overview',

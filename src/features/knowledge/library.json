@@ -1,0 +1,186 @@
+{
+  "articles": [
+    {
+      "id": "library-flutter",
+      "category": "flutter",
+      "tags": ["flutter", "cli"],
+      "title": {
+        "en": "Flutter commands I keep nearby",
+        "es": "Comandos de Flutter que tengo a mano"
+      },
+      "content": {
+        "en": "Create the project from the app directory. The organization name becomes the start of the package name and the bundle ID.\n\n```command\nflutter create --org com.example app_name\n```\n\nAfter pulling changes, or when a package fails to resolve:\n\n```command\nflutter pub get\nflutter analyze\n```\n\n> [!NOTE]\n> `flutter --version` should match the version written on the application record.\n\n> [!WARNING]\n> Do not upgrade Flutter in the middle of a release. Finish the store build first.",
+        "es": "Crea el proyecto desde la carpeta de la app. El nombre de organización pasa a ser el inicio del package name y del bundle ID.\n\n```command\nflutter create --org com.example nombre_app\n```\n\nDespués de traer cambios, o cuando un paquete no resuelve:\n\n```command\nflutter pub get\nflutter analyze\n```\n\n> [!NOTE]\n> `flutter --version` tiene que coincidir con la versión anotada en la ficha de la aplicación.\n\n> [!WARNING]\n> No actualices Flutter a mitad de una publicación. Termina antes la build de la tienda."
+      }
+    },
+    {
+      "id": "library-firebase",
+      "category": "firebase",
+      "tags": ["firebase", "flutterfire"],
+      "title": {
+        "en": "Connect a Flutter app to Firebase",
+        "es": "Conectar una app Flutter a Firebase"
+      },
+      "content": {
+        "en": "Create the Firebase project first, then register the Android and iOS apps with the same package name and bundle ID stored in App Factory.\n\n```command\ndart pub global activate flutterfire_cli\nflutterfire configure\n```\n\nThe command writes `lib/firebase_options.dart` and the native config files.\n\n```config\nlib/firebase_options.dart\nandroid/app/google-services.json\nios/Runner/GoogleService-Info.plist\n```\n\n> [!NOTE]\n> Enable only the services the app really uses: Auth, Firestore, Storage, Analytics, Crashlytics, Messaging.\n\n> [!WARNING]\n> The Firebase web API key is not a secret. Access is enforced by Auth and Security Rules, not by hiding that key.",
+        "es": "Crea primero el proyecto de Firebase y registra las apps Android e iOS con el mismo package name y bundle ID que están en App Factory.\n\n```command\ndart pub global activate flutterfire_cli\nflutterfire configure\n```\n\nEl comando escribe `lib/firebase_options.dart` y los archivos nativos.\n\n```config\nlib/firebase_options.dart\nandroid/app/google-services.json\nios/Runner/GoogleService-Info.plist\n```\n\n> [!NOTE]\n> Activa solo los servicios que la app usa de verdad: Auth, Firestore, Storage, Analytics, Crashlytics, Messaging.\n\n> [!WARNING]\n> La API key web de Firebase no es un secreto. El acceso lo marcan Auth y las Security Rules, no esconder esa clave."
+      }
+    },
+    {
+      "id": "library-android",
+      "category": "android",
+      "tags": ["android", "aab"],
+      "title": {
+        "en": "Android application ID and release build",
+        "es": "Application ID de Android y build de publicación"
+      },
+      "content": {
+        "en": "The application ID lives in `android/app/build.gradle` and must match the package name in App Factory and in Play Console.\n\n```config\nandroid {\n    defaultConfig {\n        applicationId \"com.example.app\"\n        minSdk 24\n    }\n}\n```\n\nBuild the store file only after analyze and tests pass:\n\n```command\nflutter build appbundle --release\n```\n\n> [!NOTE]\n> The AAB is uploaded to an internal track before production.\n\n> [!WARNING]\n> A release keystore cannot be replaced later. Keep the file and the passwords outside Firestore.",
+        "es": "El application ID está en `android/app/build.gradle` y tiene que coincidir con el package name de App Factory y de Play Console.\n\n```config\nandroid {\n    defaultConfig {\n        applicationId \"com.example.app\"\n        minSdk 24\n    }\n}\n```\n\nCompila el archivo de tienda solo cuando analyze y los tests pasen:\n\n```command\nflutter build appbundle --release\n```\n\n> [!NOTE]\n> El AAB se sube primero a un canal interno, antes de producción.\n\n> [!WARNING]\n> Un keystore de publicación no se puede sustituir después. Guarda el archivo y las contraseñas fuera de Firestore."
+      }
+    },
+    {
+      "id": "library-ios",
+      "category": "ios",
+      "tags": ["ios", "xcode"],
+      "title": {
+        "en": "iOS bundle ID and signing",
+        "es": "Bundle ID de iOS y firma"
+      },
+      "content": {
+        "en": "The bundle ID in Xcode must match the one stored on the application. Set the deployment target in the Runner target, not only in the Podfile.\n\n```command\nflutter build ipa --release\n```\n\nOpen the Xcode project when signing or capabilities change:\n\n```command\nopen ios/Runner.xcworkspace\n```\n\n> [!NOTE]\n> Use the `.xcworkspace`, not the `.xcodeproj`, once CocoaPods is installed.\n\n> [!WARNING]\n> Do not submit a build for review until the version, signing and screenshots are checked.",
+        "es": "El bundle ID de Xcode tiene que coincidir con el de la ficha. El destino de despliegue se cambia en el target Runner, no solo en el Podfile.\n\n```command\nflutter build ipa --release\n```\n\nAbre el proyecto de Xcode cuando cambie la firma o alguna capability:\n\n```command\nopen ios/Runner.xcworkspace\n```\n\n> [!NOTE]\n> Con CocoaPods instalado se abre el `.xcworkspace`, no el `.xcodeproj`.\n\n> [!WARNING]\n> No envíes una build a revisión hasta comprobar versión, firma y capturas."
+      }
+    },
+    {
+      "id": "library-admob",
+      "category": "admob",
+      "tags": ["admob", "ads"],
+      "title": {
+        "en": "AdMob IDs without shipping test ads",
+        "es": "IDs de AdMob sin publicar anuncios de prueba"
+      },
+      "content": {
+        "en": "Store the real app ID and unit IDs on the application record. Keep a console URL so the AdMob app opens in one click.\n\nGoogle's sample app ID for Android:\n\n```config\nca-app-pub-3940256099942544~3347511713\n```\n\n> [!NOTE]\n> Use sample IDs only on debug builds. Release builds read the IDs saved in App Factory.\n\n> [!WARNING]\n> Shipping a build that still requests test ads can suspend the AdMob account.",
+        "es": "Guarda el ID real de la app y los IDs de bloque en la ficha. Deja también la URL de la consola para abrir AdMob en un clic.\n\nEl ID de app de ejemplo de Google para Android:\n\n```config\nca-app-pub-3940256099942544~3347511713\n```\n\n> [!NOTE]\n> Los IDs de ejemplo solo van en builds de depuración. Las builds de publicación leen los IDs guardados en App Factory.\n\n> [!WARNING]\n> Publicar una build que sigue pidiendo anuncios de prueba puede suspender la cuenta de AdMob."
+      }
+    },
+    {
+      "id": "library-monetization",
+      "category": "monetization",
+      "tags": ["admob", "revenuecat"],
+      "title": {
+        "en": "Choose how the app makes money",
+        "es": "Elegir cómo gana dinero la app"
+      },
+      "content": {
+        "en": "Turn on only the models the app will use: AdMob, in-app purchases, subscriptions, RevenueCat. Each one adds store setup and a checklist.\n\n- Ads are configured in the AdMob console.\n- A one-time purchase is created in Play Console and App Store Connect.\n- A subscription uses the same stores, plus RevenueCat if you use it.\n\n> [!NOTE]\n> RevenueCat does not replace the store products. Create the products in both stores, then map them in RevenueCat.\n\n> [!WARNING]\n> Do not put RevenueCat secret keys or AdMob account secrets in Firestore. The record only keeps IDs and console URLs.",
+        "es": "Activa solo los modelos que la app va a usar: AdMob, compras, suscripciones, RevenueCat. Cada uno añade configuración en las tiendas y tareas en la lista.\n\n- Los anuncios se configuran en la consola de AdMob.\n- Una compra única se crea en Play Console y en App Store Connect.\n- Una suscripción usa las mismas tiendas, y RevenueCat si lo usas.\n\n> [!NOTE]\n> RevenueCat no sustituye los productos de la tienda. Créalos en las dos tiendas y luego mapeálos en RevenueCat.\n\n> [!WARNING]\n> No guardes claves secretas de RevenueCat ni de la cuenta de AdMob en Firestore. La ficha solo lleva IDs y URLs de consola."
+      }
+    },
+    {
+      "id": "library-publishing",
+      "category": "publishing",
+      "tags": ["play", "app-store"],
+      "title": {
+        "en": "What has to exist before a store release",
+        "es": "Qué tiene que existir antes de publicar"
+      },
+      "content": {
+        "en": "A release is not only a binary. Both stores ask for a listing, screenshots, a privacy policy and a content rating before production.\n\nAndroid track order:\n\n```command\ninternal → closed or open testing → production\n```\n\niOS order:\n\n```command\nTestFlight → App Review → App Store\n```\n\n> [!NOTE]\n> Paste the Play Console, Play Store, App Store Connect, store and TestFlight URLs on the application so they open from the detail page.\n\n> [!WARNING]\n> Review steps on the App Store stay manual. Do not treat them as something the app can finish by itself.",
+        "es": "Una publicación no es solo el binario. Las dos tiendas piden ficha, capturas, política de privacidad y clasificación antes de producción.\n\nOrden de canales en Android:\n\n```command\ninterno → pruebas cerradas o abiertas → producción\n```\n\nOrden en iOS:\n\n```command\nTestFlight → revisión → App Store\n```\n\n> [!NOTE]\n> Pega en la ficha las URLs de Play Console, Play Store, App Store Connect, la tienda y TestFlight para abrirlas desde el detalle.\n\n> [!WARNING]\n> Los pasos de revisión de App Store siguen siendo manuales. No cuentes con que la herramienta los cierre sola."
+      }
+    },
+    {
+      "id": "library-git",
+      "category": "git",
+      "tags": ["git"],
+      "title": {
+        "en": "Git commands that are safe to repeat",
+        "es": "Comandos de Git que se pueden repetir"
+      },
+      "content": {
+        "en": "Check the branch before changing files.\n\n```command\ngit status\ngit diff\n```\n\nCommit only what you reviewed:\n\n```command\ngit add -p\ngit commit\n```\n\nTag a release after the store build exists:\n\n```command\ngit tag v1.0.0\n```\n\n> [!NOTE]\n> The GitHub URL and the local path belong on the application record.\n\n> [!WARNING]\n> Do not force push, and do not delete a branch, unless you have decided that on purpose.",
+        "es": "Mira la rama antes de tocar archivos.\n\n```command\ngit status\ngit diff\n```\n\nHaz commit solo de lo que hayas revisado:\n\n```command\ngit add -p\ngit commit\n```\n\nEtiqueta la versión cuando ya exista la build de la tienda:\n\n```command\ngit tag v1.0.0\n```\n\n> [!NOTE]\n> La URL de GitHub y la ruta local van en la ficha de la aplicación.\n\n> [!WARNING]\n> No hagas force push ni borres una rama si no lo has decidido a propósito."
+      }
+    },
+    {
+      "id": "library-testing",
+      "category": "testing",
+      "tags": ["testing", "flutter"],
+      "title": {
+        "en": "Run the analyzer and the tests before a build",
+        "es": "Ejecutar el analizador y los tests antes de compilar"
+      },
+      "content": {
+        "en": "These two commands are the minimum before an AAB or an IPA:\n\n```command\nflutter analyze\nflutter test\n```\n\nRun the app on a device when the change is visual or depends on a store SDK:\n\n```command\nflutter run\n```\n\n> [!NOTE]\n> Analyze can pass while a widget test still fails. Run both.\n\n> [!WARNING]\n> A green test suite on the desktop does not replace a pass on an Android device and on an iOS simulator.",
+        "es": "Estos dos comandos son el mínimo antes de un AAB o un IPA:\n\n```command\nflutter analyze\nflutter test\n```\n\nArranca la app en un dispositivo cuando el cambio sea visual o dependa de un SDK de tienda:\n\n```command\nflutter run\n```\n\n> [!NOTE]\n> El analizador puede pasar y un test de widget fallar. Ejecuta los dos.\n\n> [!WARNING]\n> Una suite verde en el escritorio no sustituye una prueba en un Android y en un simulador de iOS."
+      }
+    },
+    {
+      "id": "library-architecture",
+      "category": "architecture",
+      "tags": ["architecture", "flutter"],
+      "title": {
+        "en": "Keep a Flutter app easy to open again",
+        "es": "Dejar una app Flutter fácil de retomar"
+      },
+      "content": {
+        "en": "Write the architecture and the state management choice on the application record. The code should match that note.\n\nA small layout that stays readable:\n\n```config\nlib/\n  app/\n  features/\n  shared/\n```\n\nEach feature keeps its screen, its state and its data access together.\n\n> [!NOTE]\n> Prefer one state approach per app. Mixing several libraries makes the next change slower.\n\n> [!WARNING]\n> Do not hide network or Firestore calls inside widgets. A feature that calls data from the screen is hard to test.",
+        "es": "Anota en la ficha la arquitectura y la gestión de estado. El código tiene que coincidir con esa nota.\n\nUna estructura pequeña que se sigue entendiendo:\n\n```config\nlib/\n  app/\n  features/\n  shared/\n```\n\nCada feature junta su pantalla, su estado y el acceso a datos.\n\n> [!NOTE]\n> Una sola forma de estado por app. Mezclar varias librerías hace más lento el siguiente cambio.\n\n> [!WARNING]\n> No escondas llamadas de red o de Firestore dentro de los widgets. Una feature que llama a los datos desde la pantalla se prueba mal."
+      }
+    },
+    {
+      "id": "library-uiux",
+      "category": "uiux",
+      "tags": ["ui", "flutter"],
+      "title": {
+        "en": "UI checks before taking store screenshots",
+        "es": "Revisión de UI antes de las capturas de tienda"
+      },
+      "content": {
+        "en": "Screenshots show empty, loading and error states, not only the happy path. Use the same spacing scale on every screen.\n\nCheck on a small phone and on a tall phone:\n\n```command\nflutter run\n```\n\n> [!NOTE]\n> Text and an icon should agree. Color alone does not explain a status.\n\n> [!WARNING]\n> A layout that only fits the device you use every day will clip on the store reviewer's phone.",
+        "es": "Las capturas tienen que enseñar vacío, carga y error, no solo el camino feliz. Usa la misma escala de espaciado en todas las pantallas.\n\nComprueba un teléfono pequeño y uno alto:\n\n```command\nflutter run\n```\n\n> [!NOTE]\n> El texto y el icono tienen que decir lo mismo. El color solo no explica un estado.\n\n> [!WARNING]\n> Un diseño que solo cabe en el teléfono que usas a diario se recorta en el teléfono de quien revisa la tienda."
+      }
+    },
+    {
+      "id": "library-performance",
+      "category": "performance",
+      "tags": ["performance", "flutter"],
+      "title": {
+        "en": "Find jank before the release build",
+        "es": "Encontrar tirones antes de la build de publicación"
+      },
+      "content": {
+        "en": "Run a profile build when a list or an animation feels slow. Debug mode is not an honest measure.\n\n```command\nflutter run --profile\n```\n\nOpen the performance overlay from DevTools while scrolling the longest list.\n\n> [!NOTE]\n> Cache network images and avoid rebuilding the whole page when one field changes.\n\n> [!WARNING]\n> Do not ship a release build that still prints large objects on every frame.",
+        "es": "Usa una build de perfil cuando una lista o una animación vaya lenta. El modo debug no mide de forma honesta.\n\n```command\nflutter run --profile\n```\n\nAbre la capa de rendimiento de DevTools mientras haces scroll en la lista más larga.\n\n> [!NOTE]\n> Cachea las imágenes de red y evita reconstruir toda la página cuando cambia un solo campo.\n\n> [!WARNING]\n> No publiques una build de release que siga imprimiendo objetos grandes en cada frame."
+      }
+    },
+    {
+      "id": "library-security",
+      "category": "security",
+      "tags": ["security", "firebase"],
+      "title": {
+        "en": "What must stay out of Firestore",
+        "es": "Qué no debe entrar en Firestore"
+      },
+      "content": {
+        "en": "App Factory records IDs, URLs and notes. It does not store keystores, private API secrets, service-account JSON or passwords.\n\nCheck the rules before sharing the project with another machine:\n\n```config\nmatch /{document=**} {\n  allow read, write: if request.auth.token.email == 'you@example.com';\n}\n```\n\n> [!NOTE]\n> Sign-in on the client is not enough. The rules have to allow only the authorized account.\n\n> [!WARNING]\n> A rule of `allow read, write: if true` exposes every application and article.",
+        "es": "App Factory guarda IDs, URLs y notas. No guarda keystores, secretos de API, JSON de cuentas de servicio ni contraseñas.\n\nRevisa las reglas antes de usar el proyecto en otro ordenador:\n\n```config\nmatch /{document=**} {\n  allow read, write: if request.auth.token.email == 'tu@ejemplo.com';\n}\n```\n\n> [!NOTE]\n> Iniciar sesión en el cliente no basta. Las reglas tienen que permitir solo la cuenta autorizada.\n\n> [!WARNING]\n> Una regla `allow read, write: if true` deja al descubierto todas las aplicaciones y los artículos."
+      }
+    },
+    {
+      "id": "library-troubleshooting",
+      "category": "troubleshooting",
+      "tags": ["flutter", "gradle"],
+      "title": {
+        "en": "When a Flutter build starts failing",
+        "es": "Cuando una build de Flutter empieza a fallar"
+      },
+      "content": {
+        "en": "Clean the tool cache before changing versions or signing.\n\n```command\nflutter clean\nflutter pub get\n```\n\nIf Android still fails, stop Gradle daemons and build again:\n\n```command\ncd android\n./gradlew --stop\n```\n\nOn iOS, reinstall pods after a plugin change:\n\n```command\ncd ios\npod install\n```\n\n> [!NOTE]\n> Read the first error in the log. Later lines are often the same failure repeated.\n\n> [!WARNING]\n> Do not delete the release keystore or the iOS certificates while cleaning a build.",
+        "es": "Limpia la caché de la herramienta antes de cambiar versiones o la firma.\n\n```command\nflutter clean\nflutter pub get\n```\n\nSi Android sigue fallando, para los demonios de Gradle y vuelve a compilar:\n\n```command\ncd android\n./gradlew --stop\n```\n\nEn iOS, reinstala los pods después de cambiar un plugin:\n\n```command\ncd ios\npod install\n```\n\n> [!NOTE]\n> Lee el primer error del registro. Las líneas de después suelen ser el mismo fallo repetido.\n\n> [!WARNING]\n> No borres el keystore de publicación ni los certificados de iOS mientras limpias una build."
+      }
+    }
+  ]
+}

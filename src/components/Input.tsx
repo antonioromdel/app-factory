@@ -3,6 +3,7 @@ import {
   type InputHTMLAttributes,
   type ReactElement,
   type ReactNode,
+  type Ref,
 } from 'react'
 import { joinClasses } from '@/utils/joinClasses.ts'
 import styles from './Input.module.css'
@@ -12,6 +13,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   hideLabel?: boolean
   error?: string
   leading?: ReactNode
+  ref?: Ref<HTMLInputElement>
 }
 
 export function Input({
@@ -21,6 +23,7 @@ export function Input({
   leading,
   id,
   className,
+  ref,
   ...props
 }: InputProps): ReactElement {
   const generatedId = useId()
@@ -39,6 +42,7 @@ export function Input({
         {leading}
         <input
           {...props}
+          ref={ref}
           id={inputId}
           className={styles.input}
           aria-invalid={error ? true : undefined}

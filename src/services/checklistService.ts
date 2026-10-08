@@ -10,16 +10,23 @@ import {
 import { getFirebaseServices } from '@/lib/firebase.ts'
 import { applicationsCollection } from '@/services/applicationService.ts'
 import {
+  checklistItems,
   isChecklistItemId,
   orderedCompletedIds,
   type ChecklistItemId,
 } from '@/types/checklist.ts'
+import {
+  isChecklistTemplateId,
+  templateItemIds,
+  type ChecklistTemplateId,
+} from '@/types/checklistTemplates.ts'
 
 const progressDocumentId = 'progress'
 
 export const checklistErrorCodes = [
   'load',
   'save',
+  'copy',
   'permission',
   'unreachable',
 ] as const
@@ -47,17 +54,23 @@ export function checklistErrorCode(
   return fallback
 }
 
-export async function getChecklistProgress(
+export interface ProjectChecklist {
+  itemIds: ChecklistItemId[] | null
+  completedItemIds: ChecklistItemId[]
+  templateId: ChecklistTemplateId | null
+}
+
+export async function getProjectChecklist(
   applicationId: string,
-): Promise<ChecklistItemId[]> {
+): Promise<ProjectChecklist> {
   try {
     const { db } = getFirebaseServices()
     const snapshot = await getDoc(progressRef(db, applicationId))
     if (!snapshot.exists()) {
-      return []
+      return { itemIds: null, completedItemIds: [], templateId: null }
     }
 
-    return readCompletedIds(snapshot.data())
+    return readProjectChecklist(snapshot.data())
   } catch (error: unknown) {
     throw toChecklistError(error, 'load')
   }
@@ -69,12 +82,52 @@ export async function saveChecklistProgress(
 ): Promise<void> {
   try {
     const { db } = getFirebaseServices()
+    await setDoc(
+      progressRef(db, applicationId),
+      {
+        completedItemIds: orderedCompletedIds(completedItemIds),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    )
+  } catch (error: unknown) {
+    throw toChecklistError(error, 'save')
+  }
+}
+
+export async function assignChecklistTemplate(
+  applicationId: string,
+  templateId: ChecklistTemplateId,
+): Promise<void> {
+  try {
+    const { db } = getFirebaseServices()
     await setDoc(progressRef(db, applicationId), {
-      completedItemIds: orderedCompletedIds(completedItemIds),
+      itemIds: templateItemIds(templateId),
+      completedItemIds: [],
+      templateId,
       updatedAt: serverTimestamp(),
     })
   } catch (error: unknown) {
-    throw toChecklistError(error, 'save')
+    throw toChecklistError(error, 'copy')
+  }
+}
+
+export async function copyProjectChecklist(
+  sourceId: string,
+  targetId: string,
+): Promise<void> {
+  const source = await getProjectChecklist(sourceId)
+
+  try {
+    const { db } = getFirebaseServices()
+    await setDoc(progressRef(db, targetId), {
+      itemIds: source.itemIds ?? checklistItems.map((item) => item.id),
+      completedItemIds: [],
+      ...(source.templateId ? { templateId: source.templateId } : {}),
+      updatedAt: serverTimestamp(),
+    })
+  } catch (error: unknown) {
+    throw toChecklistError(error, 'copy')
   }
 }
 
@@ -88,6 +141,28 @@ function progressRef(db: Firestore, applicationId: string): DocumentReference {
   )
 }
 
+function readProjectChecklist(data: unknown): ProjectChecklist {
+  const itemIds = readItemIds(data)
+  const allowed = new Set(itemIds ?? checklistItems.map((item) => item.id))
+
+  return {
+    itemIds,
+    completedItemIds: readCompletedIds(data).filter((id) => allowed.has(id)),
+    templateId: readTemplateId(data),
+  }
+}
+
+function readItemIds(data: unknown): ChecklistItemId[] | null {
+  if (!isRecord(data) || !Array.isArray(data.itemIds)) {
+    return null
+  }
+
+  const ids = data.itemIds.filter(
+    (value): value is string => typeof value === 'string',
+  )
+  return orderedCompletedIds(ids.filter(isChecklistItemId))
+}
+
 function readCompletedIds(data: unknown): ChecklistItemId[] {
   if (!isRecord(data) || !Array.isArray(data.completedItemIds)) {
     return []
@@ -97,6 +172,14 @@ function readCompletedIds(data: unknown): ChecklistItemId[] {
     (value): value is string => typeof value === 'string',
   )
   return orderedCompletedIds(ids.filter(isChecklistItemId))
+}
+
+function readTemplateId(data: unknown): ChecklistTemplateId | null {
+  if (!isRecord(data) || typeof data.templateId !== 'string') {
+    return null
+  }
+
+  return isChecklistTemplateId(data.templateId) ? data.templateId : null
 }
 
 function toChecklistError(

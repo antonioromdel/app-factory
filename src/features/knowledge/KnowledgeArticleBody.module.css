@@ -1,0 +1,162 @@
+.content {
+  max-width: 72ch;
+  font-size: var(--font-size-lg);
+}
+
+.content h1,
+.content h2,
+.content h3 {
+  margin: var(--space-6) 0 var(--space-3);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+}
+
+.content h1,
+.content h2 {
+  font-size: var(--font-size-xl);
+}
+
+.content h3 {
+  font-size: var(--font-size-lg);
+}
+
+.content p,
+.content ul,
+.content ol,
+.content pre,
+.content blockquote {
+  margin: 0 0 var(--space-4);
+}
+
+.content ul,
+.content ol {
+  padding-left: var(--space-6);
+}
+
+.content a {
+  color: var(--color-info);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.content a:hover {
+  color: var(--color-text);
+}
+
+.content a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.content code {
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-muted);
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.9em;
+}
+
+.content pre {
+  overflow-x: auto;
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+}
+
+.content pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.content blockquote {
+  margin-left: 0;
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--color-border);
+  color: var(--color-text-subtle);
+}
+
+.block {
+  margin: 0 0 var(--space-4);
+}
+
+.blockHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.blockLabel,
+.calloutLabel {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.copy {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-subtle);
+  font: inherit;
+  font-size: var(--font-size-md);
+  cursor: pointer;
+}
+
+.copy:hover {
+  color: var(--color-text);
+}
+
+.copy:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.note,
+.warning {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+}
+
+.note {
+  border-left-color: var(--color-info);
+}
+
+.warning {
+  border-left-color: var(--color-danger);
+}
+
+.calloutLabel {
+  margin-bottom: var(--space-2);
+}
+
+.content .calloutLabel {
+  margin: 0 0 var(--space-2);
+}
+
+.note .calloutLabel {
+  color: var(--color-info);
+}
+
+.warning .calloutLabel {
+  color: var(--color-danger);
+}
+
+.note p,
+.warning p {
+  margin: 0 0 var(--space-3);
+}
+
+.note p:last-child,
+.warning p:last-child {
+  margin-bottom: 0;
+}

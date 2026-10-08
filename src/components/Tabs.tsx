@@ -10,11 +10,15 @@ interface TabItem {
 export function Tabs({
   label,
   tabs,
+  initialId,
 }: {
   label: string
   tabs: TabItem[]
+  initialId?: string
 }): ReactElement | null {
-  const [selectedId, setSelectedId] = useState(tabs[0]?.id ?? '')
+  const [selectedId, setSelectedId] = useState(
+    tabs.find((tab) => tab.id === initialId)?.id ?? tabs[0]?.id ?? '',
+  )
   const selected = tabs.find((tab) => tab.id === selectedId) ?? tabs[0]
 
   if (!selected) {

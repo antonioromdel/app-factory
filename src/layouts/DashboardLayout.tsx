@@ -40,12 +40,24 @@ function pageTitle(
     return messages.shell.newApplication
   }
 
+  if (pathname === '/knowledge/new') {
+    return messages.shell.newArticle
+  }
+
   if (/^\/applications\/[^/]+\/edit$/.test(pathname)) {
     return messages.shell.editApplication
   }
 
+  if (/^\/knowledge\/[^/]+\/edit$/.test(pathname)) {
+    return messages.shell.editArticle
+  }
+
   if (/^\/applications\/[^/]+$/.test(pathname)) {
     return messages.shell.application
+  }
+
+  if (/^\/knowledge\/[^/]+$/.test(pathname)) {
+    return messages.shell.article
   }
 
   return section ? messages.nav[section] : messages.brand
@@ -67,9 +79,17 @@ function pageBreadcrumbs(
 
   if (pathname === '/applications/new') {
     crumbs.push({ label: messages.shell.newApplication })
-  } else if (/^\/applications\/[^/]+\/edit$/.test(pathname)) {
+  } else if (pathname === '/knowledge/new') {
+    crumbs.push({ label: messages.shell.newArticle })
+  } else if (
+    /^\/applications\/[^/]+\/edit$/.test(pathname) ||
+    /^\/knowledge\/[^/]+\/edit$/.test(pathname)
+  ) {
     crumbs.push({ label: messages.shell.edit })
-  } else if (/^\/applications\/[^/]+$/.test(pathname)) {
+  } else if (
+    /^\/applications\/[^/]+$/.test(pathname) ||
+    /^\/knowledge\/[^/]+$/.test(pathname)
+  ) {
     crumbs.push({ label: messages.shell.details })
   } else {
     crumbs[1] = { label: messages.nav[section] }

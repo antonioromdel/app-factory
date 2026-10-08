@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactElement } from 'react'
+import { useRef, useState, type FormEvent, type ReactElement } from 'react'
 import { Button } from '@/components/Button.tsx'
 import { Checkbox } from '@/components/Checkbox.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
@@ -11,7 +11,17 @@ import {
   applicationErrorCode,
   type ApplicationErrorCode,
 } from '@/services/applicationService.ts'
+import {
+  assignChecklistTemplate,
+  checklistErrorCode,
+  type ChecklistErrorCode,
+} from '@/services/checklistService.ts'
 import type { ApplicationInput, FirebaseService } from '@/types/application.ts'
+import {
+  checklistTemplateIds,
+  templateItemIds,
+  type ChecklistTemplateId,
+} from '@/types/checklistTemplates.ts'
 import {
   emptyApplicationWizard,
   wizardFirebaseServices,
@@ -28,27 +38,35 @@ const steps = [
   'backend',
   'monetization',
   'repository',
+  'template',
   'review',
 ] as const
 
 type WizardStep = (typeof steps)[number]
+
+type WizardError =
+  | { source: 'application'; code: ApplicationErrorCode }
+  | { source: 'checklist'; code: ChecklistErrorCode }
 
 function wizardStepLabel(step: WizardStep, messages: Messages): string {
   return messages.wizard[step]
 }
 
 export function ApplicationWizard({
-  onSubmit,
+  onCreate,
+  onCreated,
   onCancel,
 }: {
-  onSubmit: (input: ApplicationInput) => Promise<void>
+  onCreate: (input: ApplicationInput) => Promise<string>
+  onCreated: (id: string) => void
   onCancel: () => void
 }): ReactElement {
   const { messages } = useLanguage()
+  const createdId = useRef<string | null>(null)
   const [step, setStep] = useState(0)
   const [wizard, setWizard] = useState(emptyApplicationWizard)
   const [nameError, setNameError] = useState(false)
-  const [formError, setFormError] = useState<ApplicationErrorCode | null>(null)
+  const [formError, setFormError] = useState<WizardError | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const current = steps[step] ?? steps[0]
   const stepLabel = wizardStepLabel(current, messages)
@@ -94,9 +112,20 @@ export function ApplicationWizard({
     setIsSubmitting(true)
 
     try {
-      await onSubmit(wizardToApplicationInput(wizard))
+      const id =
+        createdId.current ?? (await onCreate(wizardToApplicationInput(wizard)))
+      createdId.current = id
+      await assignChecklistTemplate(id, wizard.template)
+      onCreated(id)
     } catch (error: unknown) {
-      setFormError(applicationErrorCode(error, 'create'))
+      setFormError(
+        createdId.current
+          ? { source: 'checklist', code: checklistErrorCode(error, 'copy') }
+          : {
+              source: 'application',
+              code: applicationErrorCode(error, 'create'),
+            },
+      )
       setIsSubmitting(false)
     }
   }
@@ -179,11 +208,20 @@ export function ApplicationWizard({
         {current === 'repository' ? (
           <Repository wizard={wizard} onChange={update} />
         ) : null}
+        {current === 'template' ? (
+          <TemplateStep wizard={wizard} onChange={update} />
+        ) : null}
         {current === 'review' ? <Review wizard={wizard} /> : null}
       </fieldset>
 
       {formError ? (
-        <ErrorState message={messages.applicationErrors[formError]} />
+        <ErrorState
+          message={
+            formError.source === 'checklist'
+              ? messages.checklist.errors[formError.code]
+              : messages.applicationErrors[formError.code]
+          }
+        />
       ) : null}
 
       <div className={styles.actions}>
@@ -454,6 +492,46 @@ function Repository({
   )
 }
 
+function TemplateStep({
+  wizard,
+  onChange,
+}: {
+  wizard: ApplicationWizardState
+  onChange: (patch: Partial<ApplicationWizardState>) => void
+}): ReactElement {
+  const { messages } = useLanguage()
+
+  return (
+    <fieldset className={styles.templateChoices}>
+      <legend className={styles.choiceLegend}>
+        {messages.wizard.templateNote}
+      </legend>
+      {checklistTemplateIds.map((templateId) => (
+        <label key={templateId} className={styles.templateChoice}>
+          <input
+            type="radio"
+            name="checklist-template"
+            value={templateId}
+            checked={wizard.template === templateId}
+            onChange={() =>
+              onChange({ template: templateId satisfies ChecklistTemplateId })
+            }
+          />
+          <span className={styles.templateName}>
+            {messages.checklist.templates[templateId]}
+          </span>
+          <span className={styles.templateMeta}>
+            {messages.checklist.templateDescriptions[templateId]}
+          </span>
+          <span className={styles.templateMeta}>
+            {messages.checklist.taskCount(templateItemIds(templateId).length)}
+          </span>
+        </label>
+      ))}
+    </fieldset>
+  )
+}
+
 function Review({ wizard }: { wizard: ApplicationWizardState }): ReactElement {
   const { messages } = useLanguage()
   const services = wizardFirebaseServices
@@ -464,6 +542,21 @@ function Review({ wizard }: { wizard: ApplicationWizardState }): ReactElement {
   return (
     <div className={styles.stack}>
       <p className={styles.note}>{messages.wizard.reviewNote}</p>
+      <ReviewGroup
+        title={messages.wizard.template}
+        rows={[
+          {
+            label: messages.wizard.template,
+            value: messages.checklist.templates[wizard.template],
+          },
+          {
+            label: messages.fields.checklist,
+            value: messages.checklist.taskCount(
+              templateItemIds(wizard.template).length,
+            ),
+          },
+        ]}
+      />
       <ReviewGroup
         title={messages.wizard.basics}
         rows={[

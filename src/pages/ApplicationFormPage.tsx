@@ -17,14 +17,14 @@ import type { ApplicationInput } from '@/types/application.ts'
 export function ApplicationCreatePage(): ReactElement {
   const navigate = useNavigate()
 
-  async function handleSubmit(input: ApplicationInput): Promise<void> {
-    const id = await createApplication(input)
-    navigate(`/applications/${id}`)
+  async function handleSubmit(input: ApplicationInput): Promise<string> {
+    return createApplication(input)
   }
 
   return (
     <ApplicationWizard
-      onSubmit={handleSubmit}
+      onCreate={handleSubmit}
+      onCreated={(id) => navigate(`/applications/${id}`)}
       onCancel={() => navigate('/applications')}
     />
   )

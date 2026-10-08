@@ -5,6 +5,7 @@ import { LoadingState } from '@/components/LoadingState.tsx'
 import {
   categoryCounts,
   checklistCounts,
+  resolveChecklistItems,
 } from '@/features/checklists/checklistProgress.ts'
 import { useChecklistProgress } from '@/hooks/useChecklistProgress.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
@@ -21,8 +22,16 @@ export function ApplicationChecklist({
   applicationId: string
 }): ReactElement {
   const { messages } = useLanguage()
-  const { status, completed, errorCode, isSaving, reload, toggle } =
-    useChecklistProgress(applicationId)
+  const {
+    status,
+    itemIds,
+    completed,
+    templateId,
+    errorCode,
+    isSaving,
+    reload,
+    toggle,
+  } = useChecklistProgress(applicationId)
 
   if (status === 'loading') {
     return <LoadingState message={messages.checklist.loading} />
@@ -37,10 +46,16 @@ export function ApplicationChecklist({
     )
   }
 
-  const counts = checklistCounts(completed)
+  const items = resolveChecklistItems(itemIds)
+  const counts = checklistCounts(completed, items)
 
   return (
     <div className={styles.page}>
+      {templateId ? (
+        <p className={styles.intro}>
+          {messages.checklist.templates[templateId]}
+        </p>
+      ) : null}
       <p className={styles.summary}>
         <span className={styles.count}>
           {messages.checklist.fraction(counts.completed, counts.total)}
@@ -49,16 +64,18 @@ export function ApplicationChecklist({
           {messages.checklist.percent(counts.percent)}
         </span>
       </p>
-      <progress
-        className={styles.bar}
-        value={counts.completed}
-        max={counts.total}
-        aria-label={messages.checklist.progressLabel(
-          counts.completed,
-          counts.total,
-          counts.percent,
-        )}
-      />
+      {counts.total > 0 ? (
+        <progress
+          className={styles.bar}
+          value={counts.completed}
+          max={counts.total}
+          aria-label={messages.checklist.progressLabel(
+            counts.completed,
+            counts.total,
+            counts.percent,
+          )}
+        />
+      ) : null}
       {isSaving ? (
         <p className={styles.saving} role="status">
           {messages.common.saving}
@@ -69,7 +86,10 @@ export function ApplicationChecklist({
       ) : null}
       <div className={styles.categories}>
         {checklistCategories.map((category) => {
-          const categoryCount = categoryCounts(category, completed)
+          const categoryCount = categoryCounts(category, completed, items)
+          if (categoryCount.total === 0) {
+            return null
+          }
 
           return (
             <section key={category} className={styles.category}>
@@ -85,16 +105,18 @@ export function ApplicationChecklist({
                 </p>
               </div>
               <ul className={styles.items}>
-                {itemsInCategory(category).map((item) => (
-                  <ChecklistTask
-                    key={item.id}
-                    itemId={item.id}
-                    label={messages.checklist.items[item.id]}
-                    checked={completed.includes(item.id)}
-                    disabled={isSaving}
-                    onToggle={toggle}
-                  />
-                ))}
+                {itemsInCategory(category)
+                  .filter((item) => items.includes(item.id))
+                  .map((item) => (
+                    <ChecklistTask
+                      key={item.id}
+                      itemId={item.id}
+                      label={messages.checklist.items[item.id]}
+                      checked={completed.includes(item.id)}
+                      disabled={isSaving}
+                      onToggle={toggle}
+                    />
+                  ))}
               </ul>
             </section>
           )

@@ -1,5 +1,6 @@
 import type { FirebaseService } from '@/types/application.ts'
 import type { ApplicationInput } from '@/types/application.ts'
+import type { ChecklistTemplateId } from '@/types/checklistTemplates.ts'
 import {
   emptyApplicationForm,
   toApplicationInput,
@@ -35,6 +36,7 @@ export interface ApplicationWizardState {
   revenueCat: boolean
   githubUrl: string
   localPath: string
+  template: ChecklistTemplateId
 }
 
 export function emptyApplicationWizard(): ApplicationWizardState {
@@ -57,6 +59,7 @@ export function emptyApplicationWizard(): ApplicationWizardState {
     revenueCat: false,
     githubUrl: '',
     localPath: '',
+    template: 'basic',
   }
 }
 
