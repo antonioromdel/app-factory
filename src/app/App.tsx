@@ -27,7 +27,7 @@ import {
   KnowledgeEditPage,
 } from '@/pages/KnowledgeFormPage.tsx'
 import { KnowledgePage } from '@/pages/KnowledgePage.tsx'
-import { PlaceholderPage } from '@/pages/PlaceholderPage.tsx'
+import { ReleasesPage } from '@/pages/ReleasesPage.tsx'
 import { SettingsPage } from '@/pages/SettingsPage.tsx'
 
 export function App(): ReactElement {
@@ -88,15 +88,7 @@ function AppRoutes(): ReactElement {
         <Route path="checklists" element={<ChecklistsPage />} />
         <Route path="assets" element={<AssetsPage />} />
         <Route path="assets/:toolId" element={<AssetToolPage />} />
-        <Route
-          path="releases"
-          element={
-            <PlaceholderPage
-              title={messages.placeholders.releasesTitle}
-              description={messages.placeholders.releasesDescription}
-            />
-          }
-        />
+        <Route path="releases" element={<ReleasesPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

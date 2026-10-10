@@ -21,6 +21,22 @@ import type {
   DependencyKind,
 } from '@/services/localDependencyService.ts'
 import type { LocalFlutterErrorCode } from '@/services/localFlutterService.ts'
+import type { ProjectProfileErrorCode } from '@/services/localProjectProfileService.ts'
+import type {
+  PreparationReason,
+  PreparationStepId,
+  PreparationStepStatus,
+} from '@/features/releases/releasePreparation.ts'
+import type { PreparationErrorCode } from '@/services/localReleasePreparationService.ts'
+import type { BuildErrorCode } from '@/services/localBuildService.ts'
+import type {
+  BuildPlatform,
+  BuildProduct,
+  BuildReason,
+  BuildStepId,
+  BuildStepStatus,
+} from '@/features/flutter/projectBuild.ts'
+import type { ReleaseErrorCode } from '@/services/releaseService.ts'
 import type {
   EnvironmentStatus,
   EnvironmentToolId,
@@ -29,6 +45,11 @@ import type { AssetCategory } from '@/types/asset.ts'
 import type { ApplicationStatus, FirebaseService } from '@/types/application.ts'
 import type { ChecklistCategory, ChecklistItemId } from '@/types/checklist.ts'
 import type { ChecklistTemplateId } from '@/types/checklistTemplates.ts'
+import type {
+  ReleaseFieldError,
+  ReleasePlatform,
+  ReleaseStatus,
+} from '@/types/release.ts'
 
 export const en = {
   brand: 'App Factory',
@@ -151,6 +172,7 @@ export const en = {
     openChecklists: 'Open checklists',
     upcomingReleases: 'Upcoming releases',
     noReleases: 'No releases yet.',
+    noUpcoming: 'No releases are waiting.',
     openReleases: 'Open releases',
     quickActions: 'Quick actions',
     newApplication: 'New application',
@@ -422,13 +444,128 @@ export const en = {
     checklistTitle: 'No checklist yet',
     checklistDescription:
       'Checklist progress for this application is not connected yet.',
-    releasesTitle: 'No releases yet',
-    releasesDescription: 'Release history is not connected yet.',
     assetsTitle: 'No assets yet',
     assetsDescription: 'Icons and store images are not connected yet.',
     emptyTitle: 'Nothing here yet',
     emptyDescription: 'These details can stay empty until you know them.',
     opensInNewTab: 'Opens in a new tab',
+  },
+  releases: {
+    lead: 'Version, build number, date, platform, changes and status for each release of this application.',
+    globalLead: 'Every release across your applications.',
+    loading: 'Loading releases…',
+    create: 'New release',
+    edit: 'Edit',
+    editTitle: 'Edit release',
+    save: 'Save release',
+    saving: 'Saving…',
+    saved: 'Release saved.',
+    version: 'Version',
+    build: 'Build',
+    date: 'Date',
+    platform: 'Platform',
+    changes: 'Changes',
+    notes: 'Notes',
+    status: 'Status',
+    filter: 'Status',
+    filterAll: 'All',
+    summary: (version: string, build: number) => `${version} (${build})`,
+    emptyTitle: 'No releases yet',
+    emptyDescription: 'Record the first release for this application.',
+    globalEmptyDescription:
+      'Create them from the Releases tab of an application.',
+    noApplicationsTitle: 'No applications yet',
+    noApplicationsDescription:
+      'Create an application before recording releases.',
+    emptyFilter: 'No releases match this status.',
+    unknownApplication: 'Deleted application',
+    noChanges: '—',
+    delete: 'Delete',
+    deleting: 'Deleting…',
+    deleteTitle: 'Delete release',
+    deleteDescription: (version: string) =>
+      `Delete version ${version}? This cannot be undone.`,
+    statuses: {
+      draft: 'Draft',
+      testing: 'Testing',
+      ready: 'Ready',
+      released: 'Released',
+      rejected: 'Rejected',
+    } satisfies Record<ReleaseStatus, string>,
+    platforms: {
+      android: 'Android',
+      ios: 'iOS',
+      both: 'Android and iOS',
+    } satisfies Record<ReleasePlatform, string>,
+    columns: {
+      application: 'Application',
+    },
+    fieldErrors: {
+      version: 'Enter a version such as 1.2.0.',
+      build: 'Enter a build number without a leading zero.',
+      date: 'Choose a valid date.',
+    } satisfies Record<ReleaseFieldError, string>,
+    errors: {
+      load: 'Could not load releases.',
+      save: 'Could not save the release.',
+      delete: 'Could not delete the release.',
+      invalid: 'Check the version, build number and date.',
+      incomplete: 'A release record is incomplete.',
+      permission: 'You do not have access to releases.',
+      unreachable: 'Could not reach Firebase.',
+    } satisfies Record<ReleaseErrorCode, string>,
+    preparation: {
+      prepare: 'Prepare release',
+      preparing: 'Preparing…',
+      title: 'Prepare release',
+      needsFolder:
+        'Link a local folder on the Development tab to prepare a release.',
+      confirmTitle: 'Prepare this release',
+      confirmDescription: (version: string) =>
+        `Prepare ${version}? This updates pubspec.yaml, writes CHANGELOG.md and builds on this computer. Nothing is published.`,
+      confirm: 'Prepare',
+      summary: (succeeded: number, warnings: number, failed: number) =>
+        `${succeeded} succeeded, ${warnings} with a warning, ${failed} failed.`,
+      statuses: {
+        pending: 'Pending',
+        running: 'Running',
+        success: 'Success',
+        warning: 'Warning',
+        failed: 'Failed',
+      } satisfies Record<PreparationStepStatus, string>,
+      steps: {
+        dependencies: 'Check dependencies',
+        analyze: 'Run analyze',
+        test: 'Run tests',
+        version: 'Update version',
+        buildNumber: 'Update build number',
+        changelog: 'Generate changelog',
+        android: 'Build Android',
+        ios: 'Build iOS',
+        output: 'Validate output',
+      } satisfies Record<PreparationStepId, string>,
+      reasons: {
+        skipped: 'This release does not include that platform.',
+        unavailable: 'iOS builds run on macOS.',
+        'empty-changes':
+          'This release has no changes, so CHANGELOG.md was left as it is.',
+        'already-present': 'This version is already in CHANGELOG.md.',
+        'nothing-to-validate': 'There is no build output to validate.',
+        'missing-version': 'pubspec.yaml has no version line.',
+        'write-failed': 'Could not write the project file.',
+        timeout: 'The command took too long.',
+        'flutter-missing': 'Flutter is not available on this computer.',
+        'read-failed': 'Could not read the project dependencies.',
+      } satisfies Record<PreparationReason, string>,
+      errors: {
+        'invalid-request': 'The local helper rejected the preparation.',
+        'invalid-directory': 'The linked folder cannot be used.',
+        'directory-missing': 'The linked folder is not on this computer.',
+        'not-a-flutter-project': 'The linked folder is not a Flutter project.',
+        'invalid-release': 'Check the version, build number and date.',
+        offline: 'The local helper is not running.',
+      } satisfies Record<PreparationErrorCode, string>,
+    },
   },
   assets: {
     loading: 'Loading assets…',
@@ -755,7 +892,7 @@ export const en = {
   },
   projectLink: {
     title: 'Linked project',
-    lead: 'Choose the folder of a Flutter project that already exists on this computer. App Factory saves it on this application so you can open it and check it.',
+    lead: 'Choose the folder of a Flutter project that already exists on this computer. Linking it reads the version and the project data into the matching tabs.',
     mode: 'What do you want to do',
     createOption: 'Create the project and link it',
     linkOption: 'Link a project that already exists',
@@ -763,6 +900,20 @@ export const en = {
     choosing: 'Choose a folder in the system window…',
     change: 'Change folder',
     saved: 'The folder is linked.',
+    syncing: 'Reading the project…',
+    synced: 'The version and project data are now in their tabs.',
+    syncErrors: {
+      offline:
+        'The local helper is not running. Start it with pnpm dev:local and link the folder again.',
+      'invalid-request': 'The helper could not read this project.',
+      'invalid-directory':
+        'Use a full folder path without characters such as & or %.',
+      'directory-missing': 'That folder does not exist.',
+      'not-a-flutter-project':
+        'That folder is not a Flutter project. It needs a pubspec.yaml file.',
+      'read-failed': 'The project files could not be read.',
+      save: 'The project was read, but the application could not be updated.',
+    } satisfies Record<ProjectProfileErrorCode, string>,
     confirmTitle: 'Change the linked folder?',
     confirmDescription: (path: string) => `This application will use ${path}.`,
   },
@@ -803,10 +954,76 @@ export const en = {
       'invalid-check': 'The helper does not know that check.',
     } satisfies Record<HealthErrorCode, string>,
   },
+  projectBuild: {
+    title: 'Build',
+    lead: 'Checks Flutter, signing, the version, dependencies, analyze and tests, then builds the artifact you choose. Nothing is published and nothing is submitted for review.',
+    platform: 'Platform',
+    product: 'Artifact',
+    platforms: {
+      android: 'Android',
+      ios: 'iOS',
+    } satisfies Record<BuildPlatform, string>,
+    products: {
+      'debug-apk': 'Debug APK',
+      'release-apk': 'Release APK',
+      aab: 'Android App Bundle',
+      debug: 'iOS debug',
+      release: 'iOS release',
+      ipa: 'IPA',
+    } satisfies Record<BuildProduct, string>,
+    run: 'Build',
+    running: 'Building…',
+    confirmTitle: 'Build this artifact?',
+    confirmDescription: (artifact: string) =>
+      `Build ${artifact} on this computer? Nothing is published and nothing is submitted for review.`,
+    summary: (succeeded: number, warnings: number, failed: number) =>
+      `${succeeded} succeeded, ${warnings} with a warning, ${failed} failed.`,
+    steps: {
+      flutter: 'Check Flutter',
+      signing: 'Check signing',
+      certificates: 'Check certificates',
+      provisioning: 'Check provisioning',
+      version: 'Check version',
+      dependencies: 'Check dependencies',
+      analyze: 'Run analyze',
+      test: 'Run tests',
+      build: 'Build',
+      output: 'Validate output',
+    } satisfies Record<BuildStepId, string>,
+    statuses: {
+      pending: 'Pending',
+      running: 'Running',
+      success: 'Success',
+      warning: 'Warning',
+      failed: 'Failed',
+    } satisfies Record<BuildStepStatus, string>,
+    reasons: {
+      unavailable: 'This step runs on macOS.',
+      'debug-signing': 'Debug builds use the debug keystore.',
+      'missing-signing': 'Release signing is not configured.',
+      'missing-version': 'pubspec.yaml has no version.',
+      'missing-certificates': 'No code signing certificate was found.',
+      'missing-provisioning': 'No provisioning profile was found.',
+      'platform-missing': 'This project does not include that platform.',
+      timeout: 'The command took too long.',
+      'flutter-missing': 'Flutter is not available on this computer.',
+      'read-failed': 'The project could not be read.',
+      'nothing-to-validate': 'There is no build output to validate.',
+    } satisfies Record<BuildReason, string>,
+    errors: {
+      'invalid-request': 'The local helper rejected the build.',
+      'invalid-directory': 'The linked folder cannot be used.',
+      'directory-missing': 'The linked folder is not on this computer.',
+      'not-a-flutter-project': 'The linked folder is not a Flutter project.',
+      'invalid-build': 'That artifact is not available for this platform.',
+      offline: 'The local helper is not running.',
+    } satisfies Record<BuildErrorCode, string>,
+  },
   dependencies: {
     title: 'Dependencies',
-    lead: 'Lists the packages in the linked project, the version in use and the latest version on pub.dev. Nothing is updated until you confirm one package.',
+    lead: 'Lists the packages in the linked project, the version in use and the latest version on pub.dev. They load when the project is linked. Nothing is updated until you confirm one package.',
     load: 'Show dependencies',
+    refresh: 'Refresh',
     loading: 'Reading dependencies…',
     summary: (total: number, outdated: number) =>
       `${total} packages, ${outdated} outdated`,

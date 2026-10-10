@@ -11,6 +11,7 @@ export const commandPrograms = [
   'fastlane',
   'xcodebuild',
   'pod',
+  'security',
   'powershell',
   'explorer',
   'open',
@@ -35,6 +36,7 @@ const toolPrograms = new Set<CommandProgram>([
   'fastlane',
   'xcodebuild',
   'pod',
+  'security',
 ])
 
 export function runCommand(

@@ -15,6 +15,12 @@ import {
   upgradeProjectDependency,
 } from '../flutter/dependencies.ts'
 import { inspectFlutterProject, runHealthCheck } from '../flutter/health.ts'
+import { readProjectProfile } from '../flutter/readProjectProfile.ts'
+import { runProjectBuild } from '../flutter/projectBuild.ts'
+import {
+  readPreparationInput,
+  runReleasePreparation,
+} from '../flutter/releasePreparation.ts'
 import { publicFlutterCatalog } from '../flutter/templates.ts'
 
 const host = '127.0.0.1'
@@ -66,8 +72,11 @@ async function handleRequest(
         'flutter.create',
         'flutter.health',
         'flutter.inspect',
+        'flutter.profile',
         'flutter.dependencies',
         'flutter.dependencies.upgrade',
+        'flutter.release.prepare',
+        'flutter.build',
         'filesystem.pickDirectory',
         'filesystem.open',
         'environment.check',
@@ -97,6 +106,11 @@ async function handleRequest(
     return
   }
 
+  if (request.method === 'POST' && url.pathname === '/flutter/profile') {
+    await handleProfile(request, response)
+    return
+  }
+
   if (request.method === 'POST' && url.pathname === '/flutter/health') {
     await handleHealth(request, response)
     return
@@ -112,6 +126,19 @@ async function handleRequest(
     url.pathname === '/flutter/dependencies/upgrade'
   ) {
     await handleDependencyUpgrade(request, response)
+    return
+  }
+
+  if (
+    request.method === 'POST' &&
+    url.pathname === '/flutter/release/prepare'
+  ) {
+    await handleReleasePreparation(request, response)
+    return
+  }
+
+  if (request.method === 'POST' && url.pathname === '/flutter/build') {
+    await handleProjectBuild(request, response)
     return
   }
 
@@ -199,6 +226,82 @@ async function handleInspect(
       ? body.path
       : undefined
   const result = await inspectFlutterProject(pathValue)
+  sendJson(response, result.ok ? 200 : 400, result)
+}
+
+async function handleProfile(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  let body: unknown
+  try {
+    body = JSON.parse(await readBody(request))
+  } catch {
+    sendJson(response, 400, { ok: false, code: 'invalid-request' })
+    return
+  }
+
+  const pathValue =
+    typeof body === 'object' && body !== null && 'path' in body
+      ? body.path
+      : undefined
+  const result = await readProjectProfile(pathValue)
+  sendJson(
+    response,
+    result.ok ? 200 : result.code === 'read-failed' ? 500 : 400,
+    result,
+  )
+}
+
+async function handleProjectBuild(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  const body = await readJsonBody(request)
+  if (!body.ok || typeof body.value !== 'object' || body.value === null) {
+    sendJson(response, 400, { ok: false, code: 'invalid-request' })
+    return
+  }
+
+  const result = await runProjectBuild({
+    directory: 'path' in body.value ? body.value.path : undefined,
+    platform: 'platform' in body.value ? body.value.platform : undefined,
+    product: 'product' in body.value ? body.value.product : undefined,
+    action: 'action' in body.value ? body.value.action : undefined,
+    built: 'built' in body.value ? body.value.built : undefined,
+  })
+  sendJson(response, result.ok ? 200 : 400, result)
+}
+
+async function handleReleasePreparation(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  const body = await readJsonBody(request)
+  if (!body.ok) {
+    sendJson(response, 400, { ok: false, code: 'invalid-request' })
+    return
+  }
+
+  const pathValue =
+    typeof body.value === 'object' &&
+    body.value !== null &&
+    'path' in body.value
+      ? body.value.path
+      : undefined
+  const actionValue =
+    typeof body.value === 'object' &&
+    body.value !== null &&
+    'action' in body.value
+      ? body.value.action
+      : undefined
+  const input = readPreparationInput(body.value)
+  if (!input) {
+    sendJson(response, 400, { ok: false, code: 'invalid-release' })
+    return
+  }
+
+  const result = await runReleasePreparation(pathValue, actionValue, input)
   sendJson(response, result.ok ? 200 : 400, result)
 }
 

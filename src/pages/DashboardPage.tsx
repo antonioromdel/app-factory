@@ -4,8 +4,13 @@ import { Badge } from '@/components/Badge.tsx'
 import { Card } from '@/components/Card.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
 import { LoadingState } from '@/components/LoadingState.tsx'
+import {
+  formatReleaseDate,
+  upcomingReleases,
+} from '@/features/releases/releaseRecord.ts'
 import { useApplications } from '@/hooks/useApplications.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
+import { useReleases } from '@/hooks/useReleases.ts'
 import {
   useFirebaseConnection,
   type FirebaseConnectionState,
@@ -15,7 +20,7 @@ import type { Application } from '@/types/application.ts'
 import styles from './DashboardPage.module.css'
 
 export function DashboardPage(): ReactElement {
-  const { messages } = useLanguage()
+  const { language, messages } = useLanguage()
   const connection = useFirebaseConnection()
   const status = connectionStatus(connection, messages)
   const {
@@ -24,6 +29,12 @@ export function DashboardPage(): ReactElement {
     errorCode,
     reload,
   } = useApplications()
+  const {
+    status: releasesStatus,
+    releases,
+    errorCode: releasesError,
+    reload: reloadReleases,
+  } = useReleases()
 
   const active = applications.filter(
     (application) => application.status !== 'ARCHIVED',
@@ -92,7 +103,53 @@ export function DashboardPage(): ReactElement {
               </Link>
             </Card>
             <Card title={messages.dashboard.upcomingReleases}>
-              <p className={styles.detail}>{messages.dashboard.noReleases}</p>
+              {releasesStatus === 'loading' ? (
+                <LoadingState message={messages.releases.loading} />
+              ) : null}
+              {releasesStatus === 'error' && releasesError ? (
+                <ErrorState
+                  message={messages.releases.errors[releasesError]}
+                  onRetry={reloadReleases}
+                />
+              ) : null}
+              {releasesStatus === 'ready' &&
+              upcomingReleases(releases).length === 0 ? (
+                <p className={styles.detail}>
+                  {releases.length === 0
+                    ? messages.dashboard.noReleases
+                    : messages.dashboard.noUpcoming}
+                </p>
+              ) : null}
+              {releasesStatus === 'ready' &&
+              upcomingReleases(releases).length > 0 ? (
+                <ul className={styles.list}>
+                  {upcomingReleases(releases).map((release) => {
+                    const application = applications.find(
+                      (item) => item.id === release.applicationId,
+                    )
+                    return (
+                      <li key={`${release.applicationId}-${release.id}`}>
+                        <Link
+                          className={styles.item}
+                          to={`/applications/${release.applicationId}?tab=releases`}
+                        >
+                          <span>
+                            {application?.name ??
+                              messages.releases.unknownApplication}{' '}
+                            {messages.releases.summary(
+                              release.version,
+                              release.buildNumber,
+                            )}
+                          </span>
+                          <span className={styles.itemMeta}>
+                            {formatReleaseDate(release.date, language)}
+                          </span>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              ) : null}
               <Link className={styles.link} to="/releases">
                 {messages.dashboard.openReleases}
               </Link>

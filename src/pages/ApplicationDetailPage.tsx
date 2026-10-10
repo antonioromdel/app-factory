@@ -17,7 +17,9 @@ import {
 import { ApplicationStatusSelect } from '@/features/applications/ApplicationStatusSelect.tsx'
 import { ApplicationAssets } from '@/features/assets/ApplicationAssets.tsx'
 import { ApplicationChecklist } from '@/features/checklists/ApplicationChecklist.tsx'
+import { ProjectBuild } from '@/features/flutter/ProjectBuild.tsx'
 import { ProjectDependencies } from '@/features/flutter/ProjectDependencies.tsx'
+import { ApplicationReleases } from '@/features/releases/ApplicationReleases.tsx'
 import { ProjectHealth } from '@/features/flutter/ProjectHealth.tsx'
 import { ProjectSource } from '@/features/flutter/ProjectSource.tsx'
 import { useApplication } from '@/hooks/useApplication.ts'
@@ -243,9 +245,11 @@ export function ApplicationDetailPage(): ReactElement {
             id: 'releases',
             label: messages.fields.releases,
             content: (
-              <EmptyState
-                title={messages.detail.releasesTitle}
-                description={messages.detail.releasesDescription}
+              <ApplicationReleases
+                applicationId={application.id}
+                directory={
+                  application.repository?.localPath?.trim() || undefined
+                }
               />
             ),
           },
@@ -351,6 +355,7 @@ function Development({
         <>
           <ProjectHealth directory={repository.localPath} />
           <ProjectDependencies directory={repository.localPath} />
+          <ProjectBuild directory={repository.localPath} />
         </>
       ) : null}
     </div>

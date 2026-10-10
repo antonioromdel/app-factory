@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import { Badge } from '@/components/Badge.tsx'
 import { Button } from '@/components/Button.tsx'
 import { ConfirmDialog } from '@/components/ConfirmDialog.tsx'
@@ -24,26 +24,55 @@ export function ProjectDependencies({
 }): ReactElement {
   const { messages } = useLanguage()
   const [packages, setPackages] = useState<ProjectDependency[] | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [requestId, setRequestId] = useState(0)
+  const [loadedKey, setLoadedKey] = useState<string | null>(null)
   const [errorCode, setErrorCode] = useState<DependencyErrorCode | null>(null)
   const [failureOutput, setFailureOutput] = useState('')
+  const requestKey = `${directory}:${requestId}`
+  const loading = loadedKey !== requestKey
   const [filter, setFilter] = useState<DependencyFilter>('managed')
   const [pending, setPending] = useState<ProjectDependency | null>(null)
   const [upgrading, setUpgrading] = useState<string | null>(null)
   const [updatedName, setUpdatedName] = useState<string | null>(null)
 
-  async function load(): Promise<void> {
-    setLoading(true)
-    setErrorCode(null)
-    setFailureOutput('')
-    const result = await listProjectDependencies(directory)
-    setLoading(false)
-    if (!result.ok) {
-      setErrorCode(result.code)
-      setFailureOutput(result.output)
-      return
+  useEffect(() => {
+    let active = true
+    listProjectDependencies(directory)
+      .then((result) => {
+        if (!active) {
+          return
+        }
+        if (!result.ok) {
+          setPackages(null)
+          setErrorCode(result.code)
+          setFailureOutput(result.output)
+          return
+        }
+        setPackages(result.packages)
+        setErrorCode(null)
+        setFailureOutput('')
+      })
+      .catch(() => {
+        if (!active) {
+          return
+        }
+        setPackages(null)
+        setErrorCode('offline')
+        setFailureOutput('')
+      })
+      .finally(() => {
+        if (active) {
+          setLoadedKey(requestKey)
+        }
+      })
+
+    return () => {
+      active = false
     }
-    setPackages(result.packages)
+  }, [directory, requestId, requestKey])
+
+  function reload(): void {
+    setRequestId((current) => current + 1)
   }
 
   async function confirmUpdate(): Promise<void> {
@@ -66,7 +95,7 @@ export function ProjectDependencies({
     }
 
     setUpdatedName(name)
-    await load()
+    reload()
   }
 
   const visible = packages?.filter((item) => matchesFilter(item, filter)) ?? []
@@ -80,11 +109,12 @@ export function ProjectDependencies({
       </div>
 
       <div className={styles.toolbar}>
-        <Button
-          disabled={loading || upgrading !== null}
-          onClick={() => void load()}
-        >
-          {loading ? messages.dependencies.loading : messages.dependencies.load}
+        <Button disabled={loading || upgrading !== null} onClick={reload}>
+          {loading
+            ? messages.dependencies.loading
+            : packages
+              ? messages.dependencies.refresh
+              : messages.dependencies.load}
         </Button>
         {packages ? (
           <Select
@@ -116,7 +146,7 @@ export function ProjectDependencies({
       {errorCode ? (
         <ErrorState
           message={messages.dependencies.errors[errorCode]}
-          onRetry={() => void load()}
+          onRetry={reload}
         />
       ) : null}
       {failureOutput ? (
