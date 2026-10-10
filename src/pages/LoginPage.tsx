@@ -56,6 +56,7 @@ export function LoginPage(): ReactElement {
       <header className={styles.header}>
         <h1 className={styles.title}>{messages.auth.signInTitle}</h1>
         <p className={styles.subtitle}>{messages.auth.signInSubtitle}</p>
+        <p className={styles.note}>{messages.auth.signInNote}</p>
       </header>
       <form
         className={styles.form}

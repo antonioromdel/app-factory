@@ -381,6 +381,25 @@ export function ApplicationForm({
           value={form.ideas}
           onChange={(event) => update({ ideas: event.target.value })}
         />
+        <TextArea
+          label={messages.fields.architectureDecisions}
+          value={form.architectureDecisions}
+          onChange={(event) =>
+            update({ architectureDecisions: event.target.value })
+          }
+        />
+        <TextArea
+          label={messages.fields.importantCommands}
+          value={form.importantCommands}
+          onChange={(event) =>
+            update({ importantCommands: event.target.value })
+          }
+        />
+        <TextArea
+          label={messages.fields.lessonsLearned}
+          value={form.lessonsLearned}
+          onChange={(event) => update({ lessonsLearned: event.target.value })}
+        />
       </fieldset>
 
       {formError ? (

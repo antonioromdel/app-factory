@@ -67,7 +67,8 @@ export const es = {
   auth: {
     checkingSession: 'Comprobando la sesión…',
     signInTitle: 'Iniciar sesión',
-    signInSubtitle: 'Usa tu cuenta de App Factory.',
+    signInSubtitle: 'Entra con el usuario de tu proyecto de Firebase.',
+    signInNote: 'Créalo en Authentication antes de abrir la aplicación.',
     email: 'Correo',
     password: 'Contraseña',
     signIn: 'Entrar',
@@ -124,8 +125,6 @@ export const es = {
     newApplication: 'Nueva aplicación',
     openApplications: 'Abrir aplicaciones',
     openKnowledge: 'Abrir la base de conocimiento',
-    unavailableTools:
-      'Generar recursos y preparar una versión todavía no están disponibles.',
   },
   applications: {
     search: 'Buscar aplicaciones',
@@ -376,7 +375,10 @@ export const es = {
     testFlightUrl: 'URL de TestFlight',
     technicalNotes: 'Notas técnicas',
     knownIssues: 'Problemas conocidos',
-    ideas: 'Ideas',
+    ideas: 'Ideas futuras',
+    architectureDecisions: 'Decisiones de arquitectura',
+    importantCommands: 'Comandos importantes',
+    lessonsLearned: 'Lecciones aprendidas',
     platform: 'Plataforma',
     version: 'Versión',
     updated: 'Actualizada',
@@ -400,6 +402,19 @@ export const es = {
     emptyDescription:
       'Estos datos pueden quedar vacíos hasta que los conozcas.',
     opensInNewTab: 'Se abre en una pestaña nueva',
+  },
+  projectNotes: {
+    lead: 'Notas técnicas, problemas conocidos, ideas futuras, decisiones de arquitectura, comandos y lecciones de esta aplicación.',
+    search: 'Buscar en las notas',
+    emptySearchTitle: 'Ninguna nota coincide',
+    emptySearchDescription:
+      'Prueba con otra palabra. Al guardar se conservan todas las secciones, también las que oculta la búsqueda.',
+    save: 'Guardar notas',
+    saving: 'Guardando…',
+    saved: 'Notas guardadas.',
+    copyCommands: 'Copiar comandos',
+    copied: 'Comandos copiados.',
+    copyFailed: 'No se han podido copiar los comandos.',
   },
   releases: {
     lead: 'Versión, número de compilación, fecha, plataforma, cambios y estado de cada publicación de esta aplicación.',

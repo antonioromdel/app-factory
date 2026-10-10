@@ -260,6 +260,21 @@ export async function updateApplication(
   }
 }
 
+export async function saveApplicationNotes(
+  id: string,
+  notes: ApplicationNotes | undefined,
+): Promise<void> {
+  try {
+    const { db } = getFirebaseServices()
+    await updateDoc(doc(db, applicationsCollection, id), {
+      notes: storedGroup(readNotes(notes)),
+      updatedAt: serverTimestamp(),
+    })
+  } catch (error: unknown) {
+    throw toApplicationError(error, 'save')
+  }
+}
+
 export async function saveApplicationLocalPath(
   id: string,
   localPath: string,
@@ -491,6 +506,9 @@ function readNotes(value: unknown): ApplicationNotes | undefined {
   assignString(notes, 'technicalNotes', value.technicalNotes)
   assignString(notes, 'knownIssues', value.knownIssues)
   assignString(notes, 'ideas', value.ideas)
+  assignString(notes, 'architectureDecisions', value.architectureDecisions)
+  assignString(notes, 'importantCommands', value.importantCommands)
+  assignString(notes, 'lessonsLearned', value.lessonsLearned)
   return hasFields(notes) ? notes : undefined
 }
 

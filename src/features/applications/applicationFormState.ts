@@ -1,4 +1,8 @@
 import {
+  draftFromNotes,
+  notesFromDraft,
+} from '@/features/notes/projectNotes.ts'
+import {
   firebaseServices,
   type Application,
   type ApplicationInput,
@@ -51,6 +55,9 @@ export interface ApplicationFormState {
   technicalNotes: string
   knownIssues: string
   ideas: string
+  architectureDecisions: string
+  importantCommands: string
+  lessonsLearned: string
 }
 
 export function emptyApplicationForm(): ApplicationFormState {
@@ -99,6 +106,9 @@ export function emptyApplicationForm(): ApplicationFormState {
     technicalNotes: '',
     knownIssues: '',
     ideas: '',
+    architectureDecisions: '',
+    importantCommands: '',
+    lessonsLearned: '',
   }
 }
 
@@ -147,9 +157,13 @@ export function formFromApplication(
   form.appStoreUrl = application.appStore?.storeUrl ?? ''
   form.appStoreVersion = application.appStore?.currentVersion ?? ''
   form.testFlightUrl = application.appStore?.testFlightUrl ?? ''
-  form.technicalNotes = application.notes?.technicalNotes ?? ''
-  form.knownIssues = application.notes?.knownIssues ?? ''
-  form.ideas = application.notes?.ideas ?? ''
+  const notes = draftFromNotes(application.notes)
+  form.technicalNotes = notes.technicalNotes
+  form.knownIssues = notes.knownIssues
+  form.ideas = notes.ideas
+  form.architectureDecisions = notes.architectureDecisions
+  form.importantCommands = notes.importantCommands
+  form.lessonsLearned = notes.lessonsLearned
   return form
 }
 
@@ -259,10 +273,13 @@ export function toApplicationInput(
     input.monetization = monetization
   }
 
-  const notes = strings({
+  const notes = notesFromDraft({
     technicalNotes: form.technicalNotes,
     knownIssues: form.knownIssues,
     ideas: form.ideas,
+    architectureDecisions: form.architectureDecisions,
+    importantCommands: form.importantCommands,
+    lessonsLearned: form.lessonsLearned,
   })
   if (notes) {
     input.notes = notes

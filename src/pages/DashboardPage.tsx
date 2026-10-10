@@ -47,6 +47,20 @@ export function DashboardPage(): ReactElement {
         <Badge tone={status.tone}>{status.label}</Badge>
       </div>
 
+      <Card title={messages.dashboard.quickActions}>
+        <div className={styles.actions}>
+          <Link className={styles.link} to="/applications/new">
+            {messages.dashboard.newApplication}
+          </Link>
+          <Link className={styles.link} to="/applications">
+            {messages.dashboard.openApplications}
+          </Link>
+          <Link className={styles.link} to="/knowledge">
+            {messages.dashboard.openKnowledge}
+          </Link>
+        </div>
+      </Card>
+
       {applicationsStatus === 'loading' ? (
         <LoadingState message={messages.common.loadingApplications} />
       ) : null}
@@ -157,21 +171,6 @@ export function DashboardPage(): ReactElement {
           </section>
         </>
       ) : null}
-
-      <Card title={messages.dashboard.quickActions}>
-        <div className={styles.actions}>
-          <Link className={styles.link} to="/applications/new">
-            {messages.dashboard.newApplication}
-          </Link>
-          <Link className={styles.link} to="/applications">
-            {messages.dashboard.openApplications}
-          </Link>
-          <Link className={styles.link} to="/knowledge">
-            {messages.dashboard.openKnowledge}
-          </Link>
-        </div>
-        <p className={styles.detail}>{messages.dashboard.unavailableTools}</p>
-      </Card>
     </div>
   )
 }

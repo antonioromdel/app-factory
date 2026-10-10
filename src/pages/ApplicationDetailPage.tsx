@@ -22,6 +22,7 @@ import { ProjectDependencies } from '@/features/flutter/ProjectDependencies.tsx'
 import { ApplicationReleases } from '@/features/releases/ApplicationReleases.tsx'
 import { ProjectHealth } from '@/features/flutter/ProjectHealth.tsx'
 import { ProjectSource } from '@/features/flutter/ProjectSource.tsx'
+import { ProjectNotes } from '@/features/notes/ProjectNotes.tsx'
 import { useApplication } from '@/hooks/useApplication.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
@@ -239,7 +240,13 @@ export function ApplicationDetailPage(): ReactElement {
           {
             id: 'notes',
             label: messages.fields.notes,
-            content: <Notes application={application} />,
+            content: (
+              <ProjectNotes
+                applicationId={application.id}
+                notes={application.notes}
+                onSaved={reload}
+              />
+            ),
           },
           {
             id: 'releases',
@@ -499,32 +506,6 @@ function Stores({ application }: { application: Application }): ReactElement {
           label: messages.fields.testFlightUrl,
           value: application.appStore?.testFlightUrl,
           link: true,
-        },
-      ]}
-    />
-  )
-}
-
-function Notes({ application }: { application: Application }): ReactElement {
-  const { messages } = useLanguage()
-
-  return (
-    <FieldList
-      fields={[
-        {
-          label: messages.fields.technicalNotes,
-          value: application.notes?.technicalNotes,
-          wide: true,
-        },
-        {
-          label: messages.fields.knownIssues,
-          value: application.notes?.knownIssues,
-          wide: true,
-        },
-        {
-          label: messages.fields.ideas,
-          value: application.notes?.ideas,
-          wide: true,
         },
       ]}
     />

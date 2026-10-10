@@ -118,7 +118,8 @@ export const en = {
   auth: {
     checkingSession: 'Checking session…',
     signInTitle: 'Sign in',
-    signInSubtitle: 'Use your App Factory account.',
+    signInSubtitle: 'Sign in with a user from your Firebase project.',
+    signInNote: 'Create that user in Authentication before opening the app.',
     email: 'Email',
     password: 'Password',
     signIn: 'Sign in',
@@ -174,8 +175,6 @@ export const en = {
     newApplication: 'New application',
     openApplications: 'Open applications',
     openKnowledge: 'Open knowledge base',
-    unavailableTools:
-      'Generate assets and prepare release are not available yet.',
   },
   applications: {
     search: 'Search applications',
@@ -427,7 +426,10 @@ export const en = {
     testFlightUrl: 'TestFlight URL',
     technicalNotes: 'Technical notes',
     knownIssues: 'Known issues',
-    ideas: 'Ideas',
+    ideas: 'Future ideas',
+    architectureDecisions: 'Architecture decisions',
+    importantCommands: 'Important commands',
+    lessonsLearned: 'Lessons learned',
     platform: 'Platform',
     version: 'Version',
     updated: 'Updated',
@@ -449,6 +451,19 @@ export const en = {
     emptyTitle: 'Nothing here yet',
     emptyDescription: 'These details can stay empty until you know them.',
     opensInNewTab: 'Opens in a new tab',
+  },
+  projectNotes: {
+    lead: 'Technical notes, known issues, future ideas, architecture decisions, commands and lessons for this application.',
+    search: 'Search notes',
+    emptySearchTitle: 'No matching notes',
+    emptySearchDescription:
+      'Try another word. Saving still keeps every section, including the ones hidden by the search.',
+    save: 'Save notes',
+    saving: 'Saving…',
+    saved: 'Notes saved.',
+    copyCommands: 'Copy commands',
+    copied: 'Commands copied.',
+    copyFailed: 'Could not copy the commands.',
   },
   releases: {
     lead: 'Version, build number, date, platform, changes and status for each release of this application.',

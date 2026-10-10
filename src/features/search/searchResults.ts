@@ -1,3 +1,4 @@
+import { projectNoteKinds } from '@/features/notes/projectNotes.ts'
 import type { Messages } from '@/i18n/en.ts'
 import { checklistItems } from '@/types/checklist.ts'
 import { checklistTemplateIds } from '@/types/checklistTemplates.ts'
@@ -285,23 +286,11 @@ function noteFields(
   application: Application,
   messages: Messages,
 ): Array<{ id: string; label: string; value?: string }> {
-  return [
-    {
-      id: 'technical',
-      label: messages.fields.technicalNotes,
-      value: application.notes?.technicalNotes,
-    },
-    {
-      id: 'issues',
-      label: messages.fields.knownIssues,
-      value: application.notes?.knownIssues,
-    },
-    {
-      id: 'ideas',
-      label: messages.fields.ideas,
-      value: application.notes?.ideas,
-    },
-  ]
+  return projectNoteKinds.map((kind) => ({
+    id: kind,
+    label: messages.fields[kind],
+    value: application.notes?.[kind],
+  }))
 }
 
 function contains(needle: string, values: Array<string | undefined>): boolean {

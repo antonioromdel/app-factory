@@ -93,6 +93,9 @@ export interface ApplicationNotes {
   technicalNotes?: string
   knownIssues?: string
   ideas?: string
+  architectureDecisions?: string
+  importantCommands?: string
+  lessonsLearned?: string
 }
 
 export interface Application {
