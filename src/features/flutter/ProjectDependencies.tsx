@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { Badge } from '@/components/Badge.tsx'
 import { Button } from '@/components/Button.tsx'
 import { ConfirmDialog } from '@/components/ConfirmDialog.tsx'
@@ -9,7 +9,6 @@ import { Select } from '@/components/Select.tsx'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
   dependencyFilters,
-  listProjectDependencies,
   upgradeProjectDependency,
   type DependencyErrorCode,
   type DependencyFilter,
@@ -19,61 +18,28 @@ import styles from './ProjectDependencies.module.css'
 
 export function ProjectDependencies({
   directory,
+  packages,
+  loading,
+  errorCode,
+  failureOutput,
+  onReload,
 }: {
   directory: string
+  packages: ProjectDependency[] | null
+  loading: boolean
+  errorCode: DependencyErrorCode | null
+  failureOutput: string
+  onReload: () => void
 }): ReactElement {
   const { messages } = useLanguage()
-  const [packages, setPackages] = useState<ProjectDependency[] | null>(null)
-  const [requestId, setRequestId] = useState(0)
-  const [loadedKey, setLoadedKey] = useState<string | null>(null)
-  const [errorCode, setErrorCode] = useState<DependencyErrorCode | null>(null)
-  const [failureOutput, setFailureOutput] = useState('')
-  const requestKey = `${directory}:${requestId}`
-  const loading = loadedKey !== requestKey
   const [filter, setFilter] = useState<DependencyFilter>('managed')
   const [pending, setPending] = useState<ProjectDependency | null>(null)
   const [upgrading, setUpgrading] = useState<string | null>(null)
   const [updatedName, setUpdatedName] = useState<string | null>(null)
-
-  useEffect(() => {
-    let active = true
-    listProjectDependencies(directory)
-      .then((result) => {
-        if (!active) {
-          return
-        }
-        if (!result.ok) {
-          setPackages(null)
-          setErrorCode(result.code)
-          setFailureOutput(result.output)
-          return
-        }
-        setPackages(result.packages)
-        setErrorCode(null)
-        setFailureOutput('')
-      })
-      .catch(() => {
-        if (!active) {
-          return
-        }
-        setPackages(null)
-        setErrorCode('offline')
-        setFailureOutput('')
-      })
-      .finally(() => {
-        if (active) {
-          setLoadedKey(requestKey)
-        }
-      })
-
-    return () => {
-      active = false
-    }
-  }, [directory, requestId, requestKey])
-
-  function reload(): void {
-    setRequestId((current) => current + 1)
-  }
+  const [upgradeError, setUpgradeError] = useState<DependencyErrorCode | null>(
+    null,
+  )
+  const [upgradeOutput, setUpgradeOutput] = useState('')
 
   async function confirmUpdate(): Promise<void> {
     if (!pending) {
@@ -84,18 +50,18 @@ export function ProjectDependencies({
     setPending(null)
     setUpgrading(name)
     setUpdatedName(null)
-    setErrorCode(null)
-    setFailureOutput('')
+    setUpgradeError(null)
+    setUpgradeOutput('')
     const result = await upgradeProjectDependency(directory, name)
     setUpgrading(null)
     if (!result.ok) {
-      setErrorCode(result.code)
-      setFailureOutput(result.output)
+      setUpgradeError(result.code)
+      setUpgradeOutput(result.output)
       return
     }
 
     setUpdatedName(name)
-    reload()
+    onReload()
   }
 
   const visible = packages?.filter((item) => matchesFilter(item, filter)) ?? []
@@ -109,7 +75,7 @@ export function ProjectDependencies({
       </div>
 
       <div className={styles.toolbar}>
-        <Button disabled={loading || upgrading !== null} onClick={reload}>
+        <Button disabled={loading || upgrading !== null} onClick={onReload}>
           {loading
             ? messages.dependencies.loading
             : packages
@@ -146,11 +112,14 @@ export function ProjectDependencies({
       {errorCode ? (
         <ErrorState
           message={messages.dependencies.errors[errorCode]}
-          onRetry={reload}
+          onRetry={onReload}
         />
       ) : null}
-      {failureOutput ? (
-        <pre className={styles.output}>{failureOutput}</pre>
+      {upgradeError ? (
+        <ErrorState message={messages.dependencies.errors[upgradeError]} />
+      ) : null}
+      {failureOutput || upgradeOutput ? (
+        <pre className={styles.output}>{failureOutput || upgradeOutput}</pre>
       ) : null}
 
       {loading ? (

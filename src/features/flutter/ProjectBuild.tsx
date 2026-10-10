@@ -13,6 +13,8 @@ import {
   type BuildStep,
   type BuildStepStatus,
 } from '@/features/flutter/projectBuild.ts'
+import { stepRunProgress } from '@/features/flutter/runProgress.ts'
+import { StepProgress } from '@/features/flutter/StepProgress.tsx'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
   buildErrorCodes,
@@ -20,6 +22,27 @@ import {
   type BuildErrorCode,
 } from '@/services/localBuildService.ts'
 import styles from './ProjectBuild.module.css'
+
+function BuildProgress({ steps }: { steps: BuildStep[] }): ReactElement {
+  const { messages } = useLanguage()
+  const copy = messages.projectBuild
+  const progress = stepRunProgress(steps)
+  const current =
+    progress.current === null ? undefined : steps[progress.current - 1]
+  const name = current ? copy.steps[current.id] : copy.running
+
+  return (
+    <StepProgress
+      name={name}
+      current={progress.current}
+      total={progress.total}
+      completed={progress.completed}
+      countLabel={copy.progress(progress.current ?? 0, progress.total)}
+      barLabel={copy.progressLabel(name, progress.completed, progress.total)}
+      notice={messages.common.stayOnTab}
+    />
+  )
+}
 
 const statusTone = {
   pending: 'neutral',
@@ -122,6 +145,7 @@ export function ProjectBuild({
       <Button disabled={running} onClick={() => setConfirming(true)}>
         {running ? copy.running : copy.run}
       </Button>
+      {running && steps ? <BuildProgress steps={steps} /> : null}
       {errorCode ? <ErrorState message={copy.errors[errorCode]} /> : null}
       {finished && steps ? (
         <p className={styles.summary}>

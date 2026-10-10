@@ -25,6 +25,7 @@ import { ProjectSource } from '@/features/flutter/ProjectSource.tsx'
 import { ProjectNotes } from '@/features/notes/ProjectNotes.tsx'
 import { useApplication } from '@/hooks/useApplication.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
+import { useProjectDependencyList } from '@/hooks/useProjectDependencyList.ts'
 import {
   applicationErrorCode,
   archiveApplication,
@@ -64,6 +65,9 @@ export function ApplicationDetailPage(): ReactElement {
   const tab = detailTabFromQuery(searchParams.get('tab'))
   const { status, application, errorCode, reload } =
     useApplication(applicationId)
+  const projectDirectory =
+    application?.repository?.localPath?.trim() || undefined
+  const dependencies = useProjectDependencyList(projectDirectory)
   const [isArchiving, setIsArchiving] = useState(false)
   const [confirmArchive, setConfirmArchive] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -214,7 +218,12 @@ export function ApplicationDetailPage(): ReactElement {
             id: 'development',
             label: messages.fields.development,
             content: (
-              <Development application={application} onReload={reload} />
+              <Development
+                application={application}
+                directory={projectDirectory}
+                dependencies={dependencies}
+                onReload={reload}
+              />
             ),
           },
           {
@@ -313,9 +322,13 @@ function Overview({
 
 function Development({
   application,
+  directory,
+  dependencies,
   onReload,
 }: {
   application: Application
+  directory: string | undefined
+  dependencies: ReturnType<typeof useProjectDependencyList>
   onReload: () => void
 }): ReactElement {
   const { messages } = useLanguage()
@@ -358,11 +371,18 @@ function Development({
         ]}
       />
       <ProjectSource application={application} onSaved={onReload} />
-      {repository?.localPath ? (
+      {directory ? (
         <>
-          <ProjectHealth directory={repository.localPath} />
-          <ProjectDependencies directory={repository.localPath} />
-          <ProjectBuild directory={repository.localPath} />
+          <ProjectHealth directory={directory} />
+          <ProjectDependencies
+            directory={directory}
+            packages={dependencies.packages}
+            loading={dependencies.loading}
+            errorCode={dependencies.errorCode}
+            failureOutput={dependencies.failureOutput}
+            onReload={dependencies.reload}
+          />
+          <ProjectBuild directory={directory} />
         </>
       ) : null}
     </div>

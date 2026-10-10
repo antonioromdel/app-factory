@@ -3,6 +3,8 @@ import { Badge } from '@/components/Badge.tsx'
 import { Button } from '@/components/Button.tsx'
 import { ConfirmDialog } from '@/components/ConfirmDialog.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
+import { stepRunProgress } from '@/features/flutter/runProgress.ts'
+import { StepProgress } from '@/features/flutter/StepProgress.tsx'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
   healthCheckIds,
@@ -28,6 +30,35 @@ const statusTone = {
   warning: 'warning',
   failed: 'danger',
 } as const
+
+function HealthProgress({ steps }: { steps: Step[] }): ReactElement {
+  const { messages } = useLanguage()
+  const progress = stepRunProgress(steps)
+  const current =
+    progress.current === null ? undefined : steps[progress.current - 1]
+  const name = current
+    ? messages.projectHealth.checks[current.id]
+    : messages.projectHealth.running
+
+  return (
+    <StepProgress
+      name={name}
+      current={progress.current}
+      total={progress.total}
+      completed={progress.completed}
+      countLabel={messages.projectHealth.progress(
+        progress.current ?? 0,
+        progress.total,
+      )}
+      barLabel={messages.projectHealth.progressLabel(
+        name,
+        progress.completed,
+        progress.total,
+      )}
+      notice={messages.common.stayOnTab}
+    />
+  )
+}
 
 function pendingSteps(): Step[] {
   return healthCheckIds.map((id) => ({ id, status: 'pending', output: '' }))
@@ -107,6 +138,8 @@ export function ProjectHealth({
       ) : (
         <p className={styles.hint}>{messages.projectHealth.needsFolder}</p>
       )}
+
+      {running ? <HealthProgress steps={steps} /> : null}
 
       {errorCode ? (
         <ErrorState message={messages.projectHealth.errors[errorCode]} />

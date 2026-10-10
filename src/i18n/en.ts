@@ -86,6 +86,8 @@ export const en = {
     backToApplications: 'Back to applications',
     noStatus: 'No status',
     account: 'Account',
+    stayOnTab:
+      'Stay on this tab until it finishes. Closing the page or changing tabs stops the process.',
   },
   search: {
     open: 'Search',
@@ -943,6 +945,9 @@ export const en = {
       'This runs flutter pub get, flutter analyze, flutter test, the dependency check and the Android build validation. It can take several minutes. pub get may update the lockfile. The build check prepares Android files and does not produce an APK.',
     summary: (passed: number, warnings: number, failed: number) =>
       `${passed} passed, ${warnings} warnings, ${failed} failed`,
+    progress: (current: number, total: number) => `${current} of ${total}`,
+    progressLabel: (name: string, completed: number, total: number) =>
+      `${name}. ${completed} of ${total} checks finished`,
     checks: {
       pubGet: 'Packages',
       analyze: 'Analyze',
@@ -993,6 +998,9 @@ export const en = {
       `Build ${artifact} on this computer? Nothing is published and nothing is submitted for review.`,
     summary: (succeeded: number, warnings: number, failed: number) =>
       `${succeeded} succeeded, ${warnings} with a warning, ${failed} failed.`,
+    progress: (current: number, total: number) => `${current} of ${total}`,
+    progressLabel: (name: string, completed: number, total: number) =>
+      `${name}. ${completed} of ${total} steps finished`,
     steps: {
       flutter: 'Check Flutter',
       signing: 'Check signing',
@@ -1036,7 +1044,7 @@ export const en = {
   },
   dependencies: {
     title: 'Dependencies',
-    lead: 'Lists the packages in the linked project, the version in use and the latest version on pub.dev. They load when the project is linked. Nothing is updated until you confirm one package.',
+    lead: 'Lists the packages in the linked project, the version in use and the latest version on pub.dev. They are read once when you open the application. Use Refresh to read them again. Nothing is updated until you confirm one package.',
     load: 'Show dependencies',
     refresh: 'Refresh',
     loading: 'Reading dependencies…',

@@ -35,6 +35,8 @@ export const es = {
     backToApplications: 'Volver a aplicaciones',
     noStatus: 'Sin estado',
     account: 'Cuenta',
+    stayOnTab:
+      'No cierres esta página ni cambies de pestaña hasta que termine. Si lo haces, el proceso se detiene.',
   },
   search: {
     open: 'Buscar',
@@ -898,6 +900,9 @@ export const es = {
       'Se ejecutará flutter pub get, flutter analyze, flutter test, la revisión de dependencias y la validación de la compilación Android. Puede tardar varios minutos. pub get puede actualizar el archivo de bloqueo. La validación prepara los archivos de Android y no genera un APK.',
     summary: (passed: number, warnings: number, failed: number) =>
       `${passed} correctas, ${warnings} avisos, ${failed} fallos`,
+    progress: (current: number, total: number) => `${current} de ${total}`,
+    progressLabel: (name: string, completed: number, total: number) =>
+      `${name}. ${completed} de ${total} comprobaciones terminadas`,
     checks: {
       pubGet: 'Paquetes',
       analyze: 'Análisis',
@@ -947,6 +952,9 @@ export const es = {
       `¿Compilar ${artifact} en este equipo? No se publica nada ni se envía a revisión.`,
     summary: (succeeded: number, warnings: number, failed: number) =>
       `${succeeded} correctos, ${warnings} con aviso, ${failed} fallidos.`,
+    progress: (current: number, total: number) => `${current} de ${total}`,
+    progressLabel: (name: string, completed: number, total: number) =>
+      `${name}. ${completed} de ${total} pasos terminados`,
     steps: {
       flutter: 'Comprobar Flutter',
       signing: 'Comprobar firma',
@@ -992,7 +1000,7 @@ export const es = {
   },
   dependencies: {
     title: 'Dependencias',
-    lead: 'Muestra los paquetes del proyecto enlazado, la versión en uso y la última en pub.dev. Se cargan al enlazar el proyecto. No se actualiza nada hasta que confirmes un paquete.',
+    lead: 'Muestra los paquetes del proyecto enlazado, la versión en uso y la última en pub.dev. Se leen una vez al abrir la aplicación. Actualizar las vuelve a leer. No se actualiza nada hasta que confirmes un paquete.',
     load: 'Ver dependencias',
     refresh: 'Actualizar',
     loading: 'Leyendo dependencias…',
