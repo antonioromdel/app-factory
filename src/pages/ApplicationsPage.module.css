@@ -20,92 +20,13 @@
   width: 220px;
 }
 
-.tableWrap {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table th {
-  padding: 0 var(--space-4) var(--space-3);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  text-align: left;
-}
-
-.table td {
-  padding: var(--space-4);
-  border-top: var(--border-width) solid var(--color-border);
-  vertical-align: middle;
-}
-
-.nameCell {
+.list {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-3);
-}
-
-.icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-active);
-  color: var(--color-text);
-}
-
-.name {
-  color: var(--color-text);
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.name:hover {
-  color: var(--color-focus);
-}
-
-.name:focus-visible,
-.action:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
-.muted {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-md);
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-
-.action {
+  margin: 0;
   padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-text-subtle);
-  font: inherit;
-  font-size: var(--font-size-md);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.action:hover {
-  color: var(--color-text);
-}
-
-.action:disabled {
-  opacity: 0.6;
-  cursor: default;
+  list-style: none;
 }
 
 .create {
@@ -114,12 +35,16 @@
   justify-content: center;
   height: var(--control-height);
   padding: 0 var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--color-text);
-  color: var(--color-text-inverse);
+  border-radius: 10px;
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
   font-size: var(--font-size-md);
   font-weight: 600;
   text-decoration: none;
+}
+
+.create:hover {
+  background: var(--color-accent-hover);
 }
 
 .create:focus-visible {

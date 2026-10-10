@@ -11,7 +11,12 @@ export function Sidebar(): ReactElement {
   return (
     <aside className={styles.sidebar}>
       <p className={styles.brand}>
-        <Factory size={26} strokeWidth={1.5} aria-hidden="true" />
+        <Factory
+          className={styles.brandIcon}
+          size={26}
+          strokeWidth={1.5}
+          aria-hidden="true"
+        />
         {messages.brand}
       </p>
       <nav className={styles.nav} aria-label={messages.nav.main}>

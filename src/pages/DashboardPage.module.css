@@ -14,10 +14,38 @@
   gap: var(--space-4);
 }
 
+.lists {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
 .panels {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4);
+}
+
+.appList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.appListTitle {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.appCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .detail {

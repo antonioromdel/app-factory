@@ -4,6 +4,7 @@ import { Badge } from '@/components/Badge.tsx'
 import { Card } from '@/components/Card.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
 import { LoadingState } from '@/components/LoadingState.tsx'
+import { ApplicationCard } from '@/features/applications/ApplicationCard.tsx'
 import {
   formatReleaseDate,
   upcomingReleases,
@@ -78,24 +79,23 @@ export function DashboardPage(): ReactElement {
             />
           </section>
 
-          <section
-            className={styles.panels}
-            aria-label={messages.dashboard.activity}
-          >
+          <div className={styles.lists}>
             <ApplicationList
               title={messages.dashboard.recent}
               applications={recent(active, 'createdAt')}
               empty={messages.dashboard.recentEmpty}
-              noStatus={messages.common.noStatus}
-              statusLabels={messages.status}
             />
             <ApplicationList
               title={messages.dashboard.modified}
               applications={recent(active, 'updatedAt')}
               empty={messages.dashboard.modifiedEmpty}
-              noStatus={messages.common.noStatus}
-              statusLabels={messages.status}
             />
+          </div>
+
+          <section
+            className={styles.panels}
+            aria-label={messages.dashboard.activity}
+          >
             <Card title={messages.dashboard.pendingTasks}>
               <p className={styles.detail}>{messages.dashboard.noTasks}</p>
               <Link className={styles.link} to="/checklists">
@@ -194,39 +194,26 @@ function ApplicationList({
   title,
   applications,
   empty,
-  noStatus,
-  statusLabels,
 }: {
   title: string
   applications: Application[]
   empty: string
-  noStatus: string
-  statusLabels: Messages['status']
 }): ReactElement {
   return (
-    <Card title={title}>
+    <section className={styles.appList} aria-label={title}>
+      <h2 className={styles.appListTitle}>{title}</h2>
       {applications.length === 0 ? (
         <p className={styles.detail}>{empty}</p>
       ) : (
-        <ul className={styles.list}>
+        <ul className={styles.appCards}>
           {applications.map((application) => (
             <li key={application.id}>
-              <Link
-                className={styles.item}
-                to={`/applications/${application.id}`}
-              >
-                <span>{application.name}</span>
-                <span className={styles.itemMeta}>
-                  {application.status
-                    ? statusLabels[application.status]
-                    : noStatus}
-                </span>
-              </Link>
+              <ApplicationCard application={application} />
             </li>
           ))}
         </ul>
       )}
-    </Card>
+    </section>
   )
 }
 

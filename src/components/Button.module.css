@@ -28,8 +28,12 @@
 }
 
 .primary {
-  background: var(--color-text);
-  color: var(--color-text-inverse);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
 }
 
 .secondary {

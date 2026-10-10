@@ -1,20 +1,13 @@
 import { useState, type ReactElement } from 'react'
-import { Smartphone } from 'lucide-react'
 import { Link } from 'react-router'
-import { Badge } from '@/components/Badge.tsx'
 import { ConfirmDialog } from '@/components/ConfirmDialog.tsx'
 import { EmptyState } from '@/components/EmptyState.tsx'
 import { ErrorState } from '@/components/ErrorState.tsx'
 import { Input } from '@/components/Input.tsx'
 import { LoadingState } from '@/components/LoadingState.tsx'
 import { Select } from '@/components/Select.tsx'
-import {
-  platformLabel,
-  statusRank,
-  statusTone,
-  updatedLabel,
-  versionLabel,
-} from '@/features/applications/applicationDisplay.ts'
+import { ApplicationCard } from '@/features/applications/ApplicationCard.tsx'
+import { statusRank } from '@/features/applications/applicationDisplay.ts'
 import { useApplications } from '@/hooks/useApplications.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import {
@@ -33,7 +26,7 @@ type StatusFilter = 'active' | 'all' | ApplicationStatus
 type ApplicationSort = 'updated' | 'name' | 'status'
 
 export function ApplicationsPage(): ReactElement {
-  const { language, messages } = useLanguage()
+  const { messages } = useLanguage()
   const { status, applications, errorCode, reload } = useApplications()
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
@@ -166,91 +159,18 @@ export function ApplicationsPage(): ReactElement {
           description={messages.applications.noMatchesDescription}
         />
       ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>{messages.applications.columnApplication}</th>
-                <th>{messages.applications.columnStatus}</th>
-                <th>{messages.applications.columnVersion}</th>
-                <th>{messages.applications.columnPlatform}</th>
-                <th>{messages.applications.columnUpdated}</th>
-                <th>{messages.applications.columnActions}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((application) => (
-                <tr key={application.id}>
-                  <td>
-                    <div className={styles.nameCell}>
-                      <span className={styles.icon}>
-                        <Smartphone
-                          size={22}
-                          strokeWidth={1.5}
-                          aria-hidden="true"
-                        />
-                      </span>
-                      <Link
-                        className={styles.name}
-                        to={`/applications/${application.id}`}
-                      >
-                        {application.name}
-                      </Link>
-                    </div>
-                  </td>
-                  <td>
-                    {application.status ? (
-                      <Badge tone={statusTone(application.status)}>
-                        {messages.status[application.status]}
-                      </Badge>
-                    ) : (
-                      <span className={styles.muted}>—</span>
-                    )}
-                  </td>
-                  <td className={styles.muted}>{versionLabel(application)}</td>
-                  <td className={styles.muted}>{platformLabel(application)}</td>
-                  <td className={styles.muted}>
-                    {updatedLabel(application, language)}
-                  </td>
-                  <td>
-                    <div className={styles.actions}>
-                      <Link
-                        className={styles.action}
-                        to={`/applications/${application.id}`}
-                      >
-                        {messages.applications.view}
-                      </Link>
-                      <Link
-                        className={styles.action}
-                        to={`/applications/${application.id}/edit`}
-                      >
-                        {messages.applications.edit}
-                      </Link>
-                      <button
-                        className={styles.action}
-                        type="button"
-                        disabled={busyId === application.id}
-                        onClick={() => void handleDuplicate(application)}
-                      >
-                        {messages.applications.duplicate}
-                      </button>
-                      {application.status !== 'ARCHIVED' ? (
-                        <button
-                          className={styles.action}
-                          type="button"
-                          disabled={busyId === application.id}
-                          onClick={() => setPendingArchive(application)}
-                        >
-                          {messages.applications.archive}
-                        </button>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className={styles.list}>
+          {visible.map((application) => (
+            <li key={application.id}>
+              <ApplicationCard
+                application={application}
+                busy={busyId === application.id}
+                onDuplicate={() => void handleDuplicate(application)}
+                onArchive={() => setPendingArchive(application)}
+              />
+            </li>
+          ))}
+        </ul>
       )}
 
       <ConfirmDialog

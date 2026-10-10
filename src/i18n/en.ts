@@ -127,10 +127,6 @@ export const en = {
     signingOut: 'Signing out…',
     enterEmail: 'Enter your email.',
     enterPassword: 'Enter your password.',
-    accessDenied: 'Access denied',
-    deniedEmail: (email: string) =>
-      `${email} is not allowed to use App Factory.`,
-    deniedAccount: 'This account is not allowed to use App Factory.',
     startFailed: 'Could not start authentication.',
     errors: {
       'invalid-email': 'Enter a valid email address.',
@@ -203,6 +199,10 @@ export const en = {
     columnPlatform: 'Platform',
     columnUpdated: 'Updated',
     columnActions: 'Actions',
+    settings: 'Settings',
+    startBuild: 'Start new build',
+    finishSetup: 'Finish build setup',
+    updatedPrefix: 'Updated',
     view: 'View',
     edit: 'Edit',
     duplicate: 'Duplicate',

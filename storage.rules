@@ -2,18 +2,16 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Must match AUTHORIZED_EMAIL in src/lib/authorizedUser.ts.
-    function isAuthorized() {
-      return request.auth != null
-        && request.auth.token.email == 'owner@example.com';
+    function isSignedIn() {
+      return request.auth != null;
     }
 
     match /applications/{applicationId}/assets/{assetId}/{fileName} {
-      allow read: if isAuthorized();
-      allow create, update: if isAuthorized()
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn()
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
-      allow delete: if isAuthorized();
+      allow delete: if isSignedIn();
     }
   }
 }

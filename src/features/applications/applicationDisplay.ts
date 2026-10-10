@@ -52,6 +52,19 @@ export function updatedLabel(application: Application, locale: string): string {
   })
 }
 
+export function isReadyToBuild(application: Application): boolean {
+  return Boolean(application.repository?.localPath?.trim())
+}
+
+export function repositoryLabel(application: Application): string | undefined {
+  const url = application.repository?.githubUrl?.trim()
+  if (!url) {
+    return undefined
+  }
+
+  return url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+}
+
 export function statusRank(status: ApplicationStatus | undefined): number {
   if (!status) {
     return applicationStatuses.length

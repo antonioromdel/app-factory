@@ -5,17 +5,22 @@
 }
 
 :root {
-  --color-bg: #0e0f12;
-  --color-bg-raised: #12141a;
-  --color-bg-muted: #16181d;
-  --color-bg-hover: #1a1d25;
-  --color-bg-active: #222632;
-  --color-bg-overlay: rgba(8, 9, 12, 0.72);
-  --color-border: #2a2c33;
-  --color-text: #ececef;
-  --color-text-muted: #9a9aa3;
-  --color-text-subtle: #b8b8c2;
-  --color-text-inverse: #121317;
+  --color-bg: #0c0e16;
+  --color-bg-raised: #161a25;
+  --color-bg-muted: #121722;
+  --color-bg-hover: #1c2230;
+  --color-bg-active: #242b3d;
+  --color-bg-overlay: rgba(6, 8, 14, 0.76);
+  --color-border: #2c3344;
+  --color-text: #f3f5f8;
+  --color-text-muted: #8e96a8;
+  --color-text-subtle: #c5cbd6;
+  --color-text-inverse: #10131c;
+  --color-accent: #0e58f0;
+  --color-accent-hover: #0c4cd6;
+  --color-accent-contrast: #ffffff;
+  --color-ready: #59cc57;
+  --color-icon: #0c87ee;
   --color-danger: #f0a8a8;
   --color-warning: #f0d3a1;
   --color-success: #b7e0c2;

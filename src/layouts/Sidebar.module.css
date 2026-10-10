@@ -8,8 +8,12 @@
   position: sticky;
   top: 0;
   padding: var(--space-7) var(--space-4);
-  background: var(--color-bg-raised);
+  background: var(--color-bg);
   border-right: var(--border-width) solid var(--color-border);
+}
+
+.brandIcon {
+  color: var(--color-accent);
 }
 
 .brand {
@@ -36,7 +40,7 @@
   min-height: var(--control-height);
   padding: 0 var(--space-4);
   border-radius: var(--radius-md);
-  color: var(--color-text-subtle);
+  color: var(--color-text-muted);
   font-size: var(--font-size-md);
   text-decoration: none;
   transition:
@@ -55,14 +59,14 @@
 }
 
 .active {
-  background: var(--color-bg-active);
-  color: var(--color-text);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
   font-weight: 600;
 }
 
 .active:hover {
-  background: var(--color-bg-active);
-  color: var(--color-text);
+  background: var(--color-accent-hover);
+  color: var(--color-accent-contrast);
 }
 
 @media (max-width: 900px) {

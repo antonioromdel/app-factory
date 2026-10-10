@@ -1,81 +1,74 @@
 # App Factory
 
-App Factory is Antonio's private development platform for managing and automating Flutter mobile application development.
+App Factory manages the lifecycle of Flutter applications: project records, checklists, notes, releases, assets, and local commands such as creating a project, checking the environment, and preparing a build.
 
-## Main objective
+The interface runs in the browser. Flutter, the Android SDK, and Xcode stay on your computer. Each installation uses its own Firebase project. Accounts in that project share one workspace.
 
-Reduce the repetitive work involved in creating, configuring, developing, testing and publishing Flutter applications.
+Licensed under the [MIT License](LICENSE).
 
-## Core areas
+## Requirements
 
-1. Project management
-2. Flutter project generation
-3. Firebase management
-4. AdMob management
-5. Android / Google Play management
-6. iOS / App Store management
-7. Development checklists
-8. Knowledge base
-9. Asset generation
-10. Release management
-11. Local development automation
-12. Future store publishing automation
+- Node.js 20 or newer
+- pnpm
+- A Firebase project
 
-## Architecture
+The local helper also needs the Flutter SDK for project creation, health checks, dependencies, and builds. iOS builds need a Mac with Xcode.
 
-React + TypeScript + Vite
-Firebase Authentication
-Cloud Firestore
-CSS Modules
+## Set up Firebase
 
-Future:
+1. Create a Firebase project.
+2. Register a web app and copy its configuration.
+3. Enable the Email/Password sign-in provider.
+4. Create a user in Authentication. The app has no registration screen.
+5. Create a Cloud Firestore database.
+6. Enable Storage if you want to store images. `pnpm deploy:rules` deploys Storage rules too, and it fails until Storage is set up. Until then, publish Firestore only:
 
-React
-↓
-Local Node.js API
-↓
-Operating System
-↓
-Flutter / Dart / Git / Firebase CLI / Fastlane
+```bash
+firebase deploy --only firestore:rules
+```
 
-## Important
+Every signed-in account of that Firebase project can read and write its data. Create only the accounts that should share the workspace.
 
-This application is private and runs locally.
-
-The data is synchronized through Firebase so it can be accessed from multiple computers.
-
-Only the authorized user should have access.
-
-## Development
+## Configure this copy
 
 ```bash
 pnpm install
-pnpm dev
+cp .env.example .env
+cp .firebaserc.example .firebaserc
 ```
 
-Scripts:
+On Windows PowerShell, use `Copy-Item` instead of `cp`.
 
-- `pnpm dev` — start the local app
+Fill `.env` with the web app configuration. `.env` stays out of Git. The Firebase web API key is not a secret; Authentication and the security rules are what protect the data.
+
+Set your project id in `.firebaserc`. That file is also ignored by Git. Sign in with the Firebase CLI, then deploy the rules:
+
+```bash
+firebase login
+pnpm deploy:rules
+```
+
+## Run
+
+```bash
+pnpm dev
+pnpm dev:local
+```
+
+Open http://localhost:5173 and sign in with the user created in Authentication.
+
+`pnpm dev` starts the web app. `pnpm dev:local` starts the helper at http://127.0.0.1:3847. The helper only accepts the app when it is served from port 5173, and it never listens on a public address. The web app still works if the helper is not running; Flutter commands stay unavailable.
+
+## Scripts
+
+- `pnpm dev` — start the web app
+- `pnpm dev:local` — start the local helper
 - `pnpm build` — typecheck and production build
+- `pnpm test` — run the tests
 - `pnpm lint` — ESLint
 - `pnpm format` — Prettier
+- `pnpm deploy:rules` — deploy Firestore and Storage rules
 
-## Firebase
+## Security
 
-The web app configuration lives in `.env`, copied from `.env.example`. That file stays out of Git.
-
-Firestore rules are in `firestore.rules`. Only the authorized account can read or write data. After changing that file, publish it with `pnpm deploy:rules`. That runs `firebase deploy --only firestore:rules` for the `devappstool` project. The Firebase CLI must be logged in.
-
-## Development philosophy
-
-Keep the application simple, maintainable and understandable.
-
-Do not over-engineer.
-
-Do not introduce dependencies without justification.
-
-Do not use Tailwind CSS.
-
-Do not expose secrets.
-
-Do not execute operating-system commands directly from React.
+Do not commit `.env`, `.firebaserc`, keystores, or signing passwords. The helper only runs a fixed list of operations, and only from this machine.

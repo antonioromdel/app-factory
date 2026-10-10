@@ -5,13 +5,11 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
-import { isAuthorizedEmail } from '@/lib/authorizedUser.ts'
 import { getFirebaseServices } from '@/lib/firebase.ts'
 
 export interface AuthUser {
   uid: string
   email: string | null
-  isAuthorized: boolean
 }
 
 export const authErrorCodes = [
@@ -69,7 +67,6 @@ function toAuthUser(user: User): AuthUser {
   return {
     uid: user.uid,
     email: user.email,
-    isAuthorized: isAuthorizedEmail(user.email),
   }
 }
 

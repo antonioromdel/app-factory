@@ -2,11 +2,7 @@ import type { ReactElement } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider } from '@/app/AuthProvider.tsx'
 import { LanguageProvider } from '@/app/LanguageProvider.tsx'
-import {
-  AccessDeniedRoute,
-  LoginRoute,
-  RequireAuth,
-} from '@/app/RequireAuth.tsx'
+import { LoginRoute, RequireAuth } from '@/app/RequireAuth.tsx'
 import { useAuth } from '@/hooks/useAuth.ts'
 import { useLanguage } from '@/hooks/useLanguage.ts'
 import { GlobalError, GlobalLoading } from '@/layouts/AppState.tsx'
@@ -65,7 +61,6 @@ function AppRoutes(): ReactElement {
   return (
     <Routes>
       <Route path="/login" element={<LoginRoute />} />
-      <Route path="/access-denied" element={<AccessDeniedRoute />} />
       <Route element={<ProtectedShell />}>
         <Route index element={<DashboardPage />} />
         <Route path="applications" element={<ApplicationsPage />} />

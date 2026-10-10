@@ -2,14 +2,14 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Must match AUTHORIZED_EMAIL in src/lib/authorizedUser.ts.
-    function isAuthorized() {
-      return request.auth != null
-        && request.auth.token.email == 'owner@example.com';
+    // One installation is one workspace. Every signed-in account of this
+    // Firebase project can read and write its data.
+    function isSignedIn() {
+      return request.auth != null;
     }
 
     match /{document=**} {
-      allow read, write: if isAuthorized();
+      allow read, write: if isSignedIn();
     }
   }
 }
